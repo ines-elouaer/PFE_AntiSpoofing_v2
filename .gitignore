@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Environments
+.venv/
+venv/
+.env/
+
+# Data / models / outputs
+data/
+experiments/
+artifacts/
+*.pth
+*.pt
+*.joblib
+
+# OS
+.DS_Store
+Thumbs.db
