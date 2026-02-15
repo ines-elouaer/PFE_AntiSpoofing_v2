@@ -1,0 +1,13 @@
+========================================
+CASIA CNN Evaluation (Video-Level)
+========================================
+Date: 2026-02-15 22:41:05
+Device: cuda
+Model: MobileNetV3-Large
+Threshold: 0.5
+Total Videos: 24
+
+Video Accuracy: 0.9583
+APCER: 0.0556
+BPCER: 0.0000
+ACER: 0.0278
