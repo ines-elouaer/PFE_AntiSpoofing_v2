@@ -15,7 +15,7 @@ def benchmark(device="cuda", runs=200, warmup=50, batch_size=1, img_size=224):
     model = build_model().to(device).eval()
     x = torch.randn(batch_size, 3, img_size, img_size, device=device)
 
-    # warmup
+    
     for _ in range(warmup):
         _ = model(x)
     if device.startswith("cuda"):
