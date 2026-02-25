@@ -1,0 +1,186 @@
+{
+  "Deep_only_no_PTS": {
+    "ACC": {
+      "mean": 0.9166666666666666,
+      "std": 0.03400709076387193,
+      "values": [
+        0.875,
+        0.9167,
+        0.9583
+      ]
+    },
+    "F1": {
+      "mean": 0.9449,
+      "std": 0.024029287685378153,
+      "values": [
+        0.9143,
+        0.9474,
+        0.973
+      ]
+    },
+    "APCER": {
+      "mean": 0.037033333333333335,
+      "std": 0.052373042259883616,
+      "values": [
+        0.1111,
+        0.0,
+        0.0
+      ]
+    },
+    "BPCER": {
+      "mean": 0.2222333333333333,
+      "std": 0.07853599316378589,
+      "values": [
+        0.1667,
+        0.3333,
+        0.1667
+      ]
+    },
+    "ACER": {
+      "mean": 0.12963333333333332,
+      "std": 0.03467269178410518,
+      "values": [
+        0.1389,
+        0.1667,
+        0.0833
+      ]
+    },
+    "AUC": {
+      "mean": 0.9660666666666667,
+      "std": 0.004336921591277485,
+      "values": [
+        0.963,
+        0.9722,
+        0.963
+      ]
+    }
+  },
+  "Deep_plus_Behav_no_PTS": {
+    "ACC": {
+      "mean": 0.8888666666666666,
+      "std": 0.05196449642678056,
+      "values": [
+        0.9583,
+        0.8333,
+        0.875
+      ]
+    },
+    "F1": {
+      "mean": 0.9302666666666667,
+      "std": 0.03236503600423694,
+      "values": [
+        0.973,
+        0.8947,
+        0.9231
+      ]
+    },
+    "APCER": {
+      "mean": 0.018533333333333332,
+      "std": 0.02621009135598136,
+      "values": [
+        0.0,
+        0.0556,
+        0.0
+      ]
+    },
+    "BPCER": {
+      "mean": 0.3889,
+      "std": 0.15711912677965087,
+      "values": [
+        0.1667,
+        0.5,
+        0.5
+      ]
+    },
+    "ACER": {
+      "mean": 0.2037,
+      "std": 0.08588880408217747,
+      "values": [
+        0.0833,
+        0.2778,
+        0.25
+      ]
+    },
+    "AUC": {
+      "mean": 0.9197333333333333,
+      "std": 0.06296635786054504,
+      "values": [
+        0.9815,
+        0.8333,
+        0.9444
+      ]
+    }
+  },
+  "runs": {
+    "deep_only": [
+      {
+        "exp_dir": "E:\\PFE_AntiSpoofing_v2\\experiments\\behav_no_pts\\deep_seed42",
+        "seed": 42,
+        "th": 0.19,
+        "ACC": 0.875,
+        "F1": 0.9143,
+        "APCER": 0.1111,
+        "BPCER": 0.1667,
+        "ACER": 0.1389,
+        "AUC": 0.963
+      },
+      {
+        "exp_dir": "E:\\PFE_AntiSpoofing_v2\\experiments\\behav_no_pts\\deep_seed43",
+        "seed": 43,
+        "th": 0.39,
+        "ACC": 0.9167,
+        "F1": 0.9474,
+        "APCER": 0.0,
+        "BPCER": 0.3333,
+        "ACER": 0.1667,
+        "AUC": 0.9722
+      },
+      {
+        "exp_dir": "E:\\PFE_AntiSpoofing_v2\\experiments\\behav_no_pts\\deep_seed44",
+        "seed": 44,
+        "th": 0.45,
+        "ACC": 0.9583,
+        "F1": 0.973,
+        "APCER": 0.0,
+        "BPCER": 0.1667,
+        "ACER": 0.0833,
+        "AUC": 0.963
+      }
+    ],
+    "deep_plus_behav": [
+      {
+        "exp_dir": "E:\\PFE_AntiSpoofing_v2\\experiments\\behav_no_pts\\deep_behav_seed42",
+        "seed": 42,
+        "th": 0.06,
+        "ACC": 0.9583,
+        "F1": 0.973,
+        "APCER": 0.0,
+        "BPCER": 0.1667,
+        "ACER": 0.0833,
+        "AUC": 0.9815
+      },
+      {
+        "exp_dir": "E:\\PFE_AntiSpoofing_v2\\experiments\\behav_no_pts\\deep_behav_seed43",
+        "seed": 43,
+        "th": 0.42,
+        "ACC": 0.8333,
+        "F1": 0.8947,
+        "APCER": 0.0556,
+        "BPCER": 0.5,
+        "ACER": 0.2778,
+        "AUC": 0.8333
+      },
+      {
+        "exp_dir": "E:\\PFE_AntiSpoofing_v2\\experiments\\behav_no_pts\\deep_behav_seed44",
+        "seed": 44,
+        "th": 0.35,
+        "ACC": 0.875,
+        "F1": 0.9231,
+        "APCER": 0.0,
+        "BPCER": 0.5,
+        "ACER": 0.25,
+        "AUC": 0.9444
+      }
+    ]
+  }
+}
