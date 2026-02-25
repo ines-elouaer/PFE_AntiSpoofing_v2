@@ -21,3 +21,9 @@ artifacts/
 # OS
 .DS_Store
 Thumbs.db
+# Local models / weights
+models/
+**/*.pth
+**/*.pt
+**/*.ckpt
+**/*.onnx
