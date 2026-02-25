@@ -1,5 +1,6 @@
 import os
 import json
+import argparse
 from datetime import datetime
 from typing import Dict, Tuple
 
@@ -20,9 +21,17 @@ def predict_video_scores(model, loader, device) -> Dict[str, Dict]:
     softmax = nn.Softmax(dim=1)
     scores = {}
 
-    for x, y, vid in tqdm(loader, desc="Predict videos"):
+    for batch in tqdm(loader, desc="Predict videos"):
+        if len(batch) == 3:
+            x, y, vid = batch
+            behav = None
+        else:
+            x, y, vid, behav = batch
+
         x = x.to(device)
-        logits = model(x)
+        behav = None if behav is None else behav.to(device)
+
+        logits = model(x, behav)
         probs = softmax(logits).cpu()
 
         for i in range(x.size(0)):
@@ -35,22 +44,25 @@ def predict_video_scores(model, loader, device) -> Dict[str, Dict]:
 
 
 def confusion_at_threshold(video_scores: Dict[str, Dict], th: float) -> Tuple[int, int, int, int]:
-    """Returns TN, FP, FN, TP at threshold th."""
     tn = fp = fn = tp = 0
     for d in video_scores.values():
         y = d["label"]
         pred = 1 if d["score"] >= th else 0
-        if y == 0 and pred == 0: tn += 1
-        elif y == 0 and pred == 1: fp += 1
-        elif y == 1 and pred == 0: fn += 1
-        elif y == 1 and pred == 1: tp += 1
+        if y == 0 and pred == 0:
+            tn += 1
+        elif y == 0 and pred == 1:
+            fp += 1
+        elif y == 1 and pred == 0:
+            fn += 1
+        elif y == 1 and pred == 1:
+            tp += 1
     return tn, fp, fn, tp
 
 
 def f1_at_threshold(video_scores: Dict[str, Dict], th: float) -> float:
     tn, fp, fn, tp = confusion_at_threshold(video_scores, th)
     prec = tp / (tp + fp) if (tp + fp) else 0.0
-    rec  = tp / (tp + fn) if (tp + fn) else 0.0
+    rec = tp / (tp + fn) if (tp + fn) else 0.0
     return (2 * prec * rec / (prec + rec)) if (prec + rec) else 0.0
 
 
@@ -61,11 +73,7 @@ def acc_at_threshold(video_scores: Dict[str, Dict], th: float) -> float:
 
 
 def find_best_threshold_on_val(video_scores: Dict[str, Dict], step: float = 0.01) -> Dict:
-    """
-    Choose threshold on VAL:
-      - minimize ACER
-      - tie-break: maximize F1
-    """
+   
     best = {"th": 0.5, "acer": 1.0, "apcer": 1.0, "bpcer": 1.0, "f1": 0.0, "acc": 0.0}
     t = 0.0
     while t <= 1.000001:
@@ -73,7 +81,14 @@ def find_best_threshold_on_val(video_scores: Dict[str, Dict], step: float = 0.01
         f1 = f1_at_threshold(video_scores, t)
         acc = acc_at_threshold(video_scores, t)
         if (acer < best["acer"]) or (acer == best["acer"] and f1 > best["f1"]):
-            best = {"th": round(t, 4), "acer": acer, "apcer": apcer, "bpcer": bpcer, "f1": f1, "acc": acc}
+            best = {
+                "th": round(t, 4),
+                "acer": acer,
+                "apcer": apcer,
+                "bpcer": bpcer,
+                "f1": f1,
+                "acc": acc,
+            }
         t += step
     return best
 
@@ -90,32 +105,44 @@ def try_auc(video_scores: Dict[str, Dict]) -> Tuple[float, bool]:
 
 def score_means(video_scores: Dict[str, Dict]) -> Tuple[float, float]:
     attacks = [d["score"] for d in video_scores.values() if d["label"] == 1]
-    reals   = [d["score"] for d in video_scores.values() if d["label"] == 0]
+    reals = [d["score"] for d in video_scores.values() if d["label"] == 0]
     a_mean = sum(attacks) / len(attacks) if attacks else 0.0
     r_mean = sum(reals) / len(reals) if reals else 0.0
     return a_mean, r_mean
 
 
-def write_results_txt(path: str, text: str):
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(text)
-
-
 def main():
-    # Paths (adapt if needed)
-    val_csv  = r"data\processed\CASIA\splits_subject\val.csv"
-    test_csv = r"data\processed\CASIA\splits_subject\test.csv"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--exp_dir", required=True, help="Folder containing best_model.pth")
+    parser.add_argument("--val_csv", default=r"data\processed\CASIA\splits_subject\val.csv")
+    parser.add_argument("--test_csv", default=r"data\processed\CASIA\splits_subject\test.csv")
+    parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--num_workers", type=int, default=0)
 
-    exp_dir  = r"experiments\exp4_casia_mnv3_cnn_lstm_pro"
+    parser.add_argument("--behav_val_csv", default=r"data\processed\CASIA\behav\val_behav.csv")
+    parser.add_argument("--behav_test_csv", default=r"data\processed\CASIA\behav\test_behav.csv")
+
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="If set, use this fixed threshold on TEST (e.g. 0.5). If None, threshold is selected from VAL (min ACER)."
+    )
+
+    args = parser.parse_args()
+
+    exp_dir = args.exp_dir
     model_path = os.path.join(exp_dir, "best_model.pth")
-
     results_txt_path = os.path.join(exp_dir, "results.txt")
     scores_json_path = os.path.join(exp_dir, "test_scores.json")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-
     ckpt = torch.load(model_path, map_location=device)
     cfg = ckpt.get("config", {})
+
+    use_behav = bool(cfg.get("use_behav", False))
+    behav_dim = int(cfg.get("behav_dim", 9))
+    behav_hidden = int(cfg.get("behav_hidden", 32))
 
     model = CNN_LSTM_PAD(
         hidden=cfg.get("hidden", 256),
@@ -123,41 +150,68 @@ def main():
         bidir=cfg.get("bidir", False),
         temporal_pool=cfg.get("temporal_pool", "mean"),
         pretrained_backbone=True,
+        use_behav=use_behav,
+        behav_dim=behav_dim,
+        behav_hidden=behav_hidden,
     ).to(device)
     model.load_state_dict(ckpt["model_state"])
 
     T = cfg.get("T", 16)
     img_size = cfg.get("img_size", 224)
+    seed = cfg.get("seed", 42)
 
-    val_ds  = CASIASequenceDataset(val_csv,  T=T, img_size=img_size, aug_mode="none", sample_mode="uniform", seed=cfg.get("seed", 42))
-    test_ds = CASIASequenceDataset(test_csv, T=T, img_size=img_size, aug_mode="none", sample_mode="uniform", seed=cfg.get("seed", 42))
+    val_ds = CASIASequenceDataset(
+        args.val_csv,
+        T=T,
+        img_size=img_size,
+        aug_mode="none",
+        sample_mode="uniform",
+        seed=seed,
+        behav_csv=(args.behav_val_csv if use_behav else None),
+    )
+    test_ds = CASIASequenceDataset(
+        args.test_csv,
+        T=T,
+        img_size=img_size,
+        aug_mode="none",
+        sample_mode="uniform",
+        seed=seed,
+        behav_csv=(args.behav_test_csv if use_behav else None),
+    )
 
-    val_loader  = DataLoader(val_ds,  batch_size=4, shuffle=False, num_workers=0)
-    test_loader = DataLoader(test_ds, batch_size=4, shuffle=False, num_workers=0)
+    val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    test_loader = DataLoader(test_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
-    # 1) threshold on VAL
+
     val_scores = predict_video_scores(model, val_loader, device)
-    best = find_best_threshold_on_val(val_scores, step=0.01)
+    best_val = find_best_threshold_on_val(val_scores, step=0.01)
 
-    # 2) evaluate on TEST
+
+    if args.threshold is not None:
+        th_used = float(args.threshold)
+        th_source = f"FIXED ({th_used:.2f})"
+    else:
+        th_used = float(best_val["th"])
+        th_source = f"VAL ({th_used:.2f})"
+
     test_scores = predict_video_scores(model, test_loader, device)
 
-    apcer, bpcer, acer = compute_apcer_bpcer_acer(test_scores, threshold=best["th"])
-    f1 = f1_at_threshold(test_scores, best["th"])
-    acc = acc_at_threshold(test_scores, best["th"])
-    tn, fp, fn, tp = confusion_at_threshold(test_scores, best["th"])
+    apcer, bpcer, acer = compute_apcer_bpcer_acer(test_scores, threshold=th_used)
+    f1 = f1_at_threshold(test_scores, th_used)
+    acc = acc_at_threshold(test_scores, th_used)
+    tn, fp, fn, tp = confusion_at_threshold(test_scores, th_used)
     auc, ok_auc = try_auc(test_scores)
     a_mean, r_mean = score_means(test_scores)
 
-    # threshold sweep table
     sweep_lines = ["th\tACC\tAPCER\tBPCER\tACER\tF1"]
     for k in range(10, 100, 10):
         th = k / 100
         ap, bp, ac = compute_apcer_bpcer_acer(test_scores, threshold=th)
-        sweep_lines.append(f"{th:.1f}\t{acc_at_threshold(test_scores, th):.4f}\t{ap:.4f}\t{bp:.4f}\t{ac:.4f}\t{f1_at_threshold(test_scores, th):.4f}")
+        sweep_lines.append(
+            f"{th:.1f}\t{acc_at_threshold(test_scores, th):.4f}\t{ap:.4f}\t{bp:.4f}\t{ac:.4f}\t{f1_at_threshold(test_scores, th):.4f}"
+        )
     sweep_txt = "\n".join(sweep_lines)
 
-    # Format report
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     report = []
     report.append("========================================")
@@ -165,8 +219,10 @@ def main():
     report.append("========================================")
     report.append(f"Date: {now}")
     report.append(f"Device: {device}")
+    report.append(f"Fusion behav: {use_behav} (behav_dim={behav_dim})")
     report.append(f"Model: MobileNetV3-Large + LSTM (T={T}, pool={cfg.get('temporal_pool','mean')})")
-    report.append(f"Threshold (from VAL): {best['th']:.2f}")
+    report.append(f"Threshold (from VAL): {best_val['th']:.2f}")
+    report.append(f"Threshold (USED on TEST): {th_used:.2f}  [{th_source}]")
     report.append("")
     report.append(f"Video Accuracy: {acc:.4f}")
     report.append(f"F1: {f1:.4f}")
@@ -186,14 +242,22 @@ def main():
     report.append(f"Real mean: {r_mean:.4f}")
 
     report_txt = "\n".join(report)
-
-    # print + save
     print(report_txt)
-    write_results_txt(results_txt_path, report_txt)
 
-    # Save test scores (for error analysis)
+    with open(results_txt_path, "w", encoding="utf-8") as f:
+        f.write(report_txt)
+
     with open(scores_json_path, "w", encoding="utf-8") as f:
-        json.dump({"threshold_val": best, "test_scores": test_scores, "config": cfg}, f, indent=2)
+        json.dump(
+            {
+                "threshold_val": best_val,
+                "threshold_used": {"th": th_used, "source": th_source},
+                "test_scores": test_scores,
+                "config": cfg,
+            },
+            f,
+            indent=2,
+        )
 
     print(f"\nSaved: {results_txt_path}")
     print(f"Saved: {scores_json_path}")

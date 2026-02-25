@@ -1,0 +1,22 @@
+# PAD Project — Requirements
+# Install: pip install -r requirements.txt
+
+# ── Deep Learning ──────────────────────────────────────────────────────────────
+torch>=2.1.0
+torchvision>=0.16.0
+torchaudio>=2.1.0
+
+# ── Vision & Landmarks ────────────────────────────────────────────────────────
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+Pillow>=10.0.0
+
+# ── Visualisation ─────────────────────────────────────────────────────────────
+matplotlib>=3.7.0
+numpy>=1.24.0
+
+# ── Métriques ─────────────────────────────────────────────────────────────────
+scikit-learn>=1.3.0
+
+# ── Utilitaires ───────────────────────────────────────────────────────────────
+tqdm>=4.65.0

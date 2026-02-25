@@ -1,8 +1,9 @@
 import os
 import json
+import argparse
 import random
 from dataclasses import dataclass, asdict
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 import numpy as np
 import torch
@@ -14,12 +15,15 @@ from src.deep_learning.datasets_sequence import CASIASequenceDataset
 from src.deep_learning.models_cnn_lstm import CNN_LSTM_PAD
 
 
+
 def set_seed(seed: int):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def metrics_from_logits(logits: torch.Tensor, y: torch.Tensor) -> Tuple[float, float]:
@@ -36,6 +40,16 @@ def metrics_from_logits(logits: torch.Tensor, y: torch.Tensor) -> Tuple[float, f
     return acc, f1
 
 
+def split_batch(batch):
+    
+    if len(batch) == 3:
+        x, y, vid = batch
+        behav = None
+    else:
+        x, y, vid, behav = batch
+    return x, y, vid, behav
+
+
 @torch.no_grad()
 def evaluate(model, loader, device) -> dict:
     model.eval()
@@ -44,9 +58,14 @@ def evaluate(model, loader, device) -> dict:
     all_logits: List[torch.Tensor] = []
     all_y: List[torch.Tensor] = []
 
-    for x, y, _ in loader:
-        x, y = x.to(device), y.to(device)
-        logits = model(x)
+    for batch in loader:
+        x, y, _, behav = split_batch(batch)
+
+        x = x.to(device, non_blocking=True)
+        y = y.to(device, non_blocking=True)
+        behav = None if behav is None else behav.to(device, non_blocking=True)
+
+        logits = model(x, behav)
         loss = ce(logits, y)
 
         total_loss += loss.item() * x.size(0)
@@ -61,118 +80,165 @@ def evaluate(model, loader, device) -> dict:
 
 
 def make_balanced_sampler(ds: CASIASequenceDataset) -> WeightedRandomSampler:
-
-    labels = [ds.labels_by_vid[vid] for vid in ds.video_ids] 
-    class_counts = np.bincount(labels, minlength=2).astype(np.float64)  
-    class_weights = 1.0 / np.maximum(class_counts, 1.0)             
+    labels = [ds.labels_by_vid[vid] for vid in ds.video_ids]
+    class_counts = np.bincount(labels, minlength=2).astype(np.float64)
+    class_weights = 1.0 / np.maximum(class_counts, 1.0)
     sample_weights = [class_weights[y] for y in labels]
     sample_weights = torch.tensor(sample_weights, dtype=torch.double)
     return WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)
 
 
+def make_optimizer(model, lr_backbone: float, lr_head: float, weight_decay: float):
+   
+    backbone_params = []
+    head_params = []
+
+    for name, p in model.named_parameters():
+        if not p.requires_grad:
+            continue
+        if name.startswith("backbone."):
+            backbone_params.append(p)
+        else:
+            head_params.append(p)
+
+    groups = []
+    if backbone_params:
+        groups.append({"params": backbone_params, "lr": lr_backbone})
+    if head_params:
+        groups.append({"params": head_params, "lr": lr_head})
+
+    return torch.optim.AdamW(groups, weight_decay=weight_decay)
+
+
+def set_freeze_backbone_compat(model: nn.Module, freeze: bool):
+   
+    if hasattr(model, "freeze_backbone"):
+        model.freeze_backbone(freeze)  # type: ignore
+        return
+    if freeze:
+        if hasattr(model, "freeze_all_backbone"):
+            model.freeze_all_backbone()  # type: ignore
+        else:
+            for name, p in model.named_parameters():
+                if name.startswith("backbone."):
+                    p.requires_grad = False
+    else:
+        if hasattr(model, "unfreeze_all_backbone"):
+            model.unfreeze_all_backbone()  # type: ignore
+        else:
+            for name, p in model.named_parameters():
+                if name.startswith("backbone."):
+                    p.requires_grad = True
+
+
+
 @dataclass
 class TrainConfig:
     train_csv: str = r"data\processed\CASIA\splits_subject\train.csv"
-    val_csv: str   = r"data\processed\CASIA\splits_subject\val.csv"
-    out_dir: str   = r"experiments\exp4_casia_mnv3_cnn_lstm_pro"
+    val_csv: str = r"data\processed\CASIA\splits_subject\val.csv"
+    out_dir: str = r"experiments\exp4_casia_mnv3_cnn_lstm_pro"
 
     T: int = 16
     img_size: int = 224
     train_aug: str = "strong"
     val_aug: str = "none"
 
- 
-    train_sample_mode: str = "random_clip"
+    train_sample_mode: str = "uniform"
     val_sample_mode: str = "uniform"
 
-    
-    batch_size: int = 4
-    epochs: int = 14
+
+    batch_size: int = 8
+
+    epochs: int = 14  #
     lr: float = 2e-4
     weight_decay: float = 1e-4
-    num_workers: int = 0
+
+    num_workers: int = 2
 
     hidden: int = 256
     num_layers: int = 1
     bidir: bool = False
-    temporal_pool: str = "median"  
+    temporal_pool: str = "median"
 
     seed: int = 42
-    freeze_backbone_epochs: int = 2
+    freeze_backbone_epochs: int = 2  
     use_amp: bool = True
+    use_balanced_sampler: bool = True
 
-   
-    use_balanced_sampler: bool = True  
+    use_pts: bool = True
 
+    phase1_epochs: int = 3
+    phase2_epochs: int = 6
+    phase3_epochs: int = 5
 
-def main():
-    cfg = TrainConfig()
-    os.makedirs(cfg.out_dir, exist_ok=True)
+    unfreeze_last_k: int = 4
+
+    lr_head_p1: float = 2e-4
+    lr_bb_p1: float = 0.0
+
+    lr_head_p2: float = 1e-4
+    lr_bb_p2: float = 1e-5
+
+    lr_head_p3: float = 5e-5
+    lr_bb_p3: float = 5e-6
 
     
-    with open(os.path.join(cfg.out_dir, "config.json"), "w", encoding="utf-8") as f:
-        json.dump(asdict(cfg), f, indent=2)
+    use_behav: bool = True
+    behav_dim: int = 9
+    behav_hidden: int = 16
+    behav_train_csv: str = r"data\processed\CASIA\behav\train_behav.csv"
+    behav_val_csv: str = r"data\processed\CASIA\behav\val_behav.csv"
 
-    set_seed(cfg.seed)
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print("Device:", device)
 
-    train_ds = CASIASequenceDataset(
-        cfg.train_csv, T=cfg.T, img_size=cfg.img_size,
-        aug_mode=cfg.train_aug, sample_mode=cfg.train_sample_mode, seed=cfg.seed
-    )
-    val_ds = CASIASequenceDataset(
-        cfg.val_csv, T=cfg.T, img_size=cfg.img_size,
-        aug_mode=cfg.val_aug, sample_mode=cfg.val_sample_mode, seed=cfg.seed
-    )
-
-    if cfg.use_balanced_sampler:
-        sampler = make_balanced_sampler(train_ds)
-        train_loader = DataLoader(train_ds, batch_size=cfg.batch_size, sampler=sampler, num_workers=cfg.num_workers)
+def run_phase(
+    phase_name: str,
+    model: CNN_LSTM_PAD,
+    train_loader,
+    val_loader,
+    device: str,
+    cfg: TrainConfig,
+    epochs: int,
+    lr_bb: float,
+    lr_head: float,
+    mode: str,
+    hist_f,
+):
+    if mode == "head_only":
+        model.freeze_all_backbone()
+    elif mode == "last_k":
+        model.unfreeze_last_k_backbone_blocks(cfg.unfreeze_last_k)
+    elif mode == "all":
+        model.unfreeze_all_backbone()
     else:
-        train_loader = DataLoader(train_ds, batch_size=cfg.batch_size, shuffle=True, num_workers=cfg.num_workers)
+        raise ValueError(mode)
 
-    val_loader = DataLoader(val_ds, batch_size=cfg.batch_size, shuffle=False, num_workers=cfg.num_workers)
-
-    model = CNN_LSTM_PAD(
-        hidden=cfg.hidden,
-        num_layers=cfg.num_layers,
-        bidir=cfg.bidir,
-        temporal_pool=cfg.temporal_pool,
-        pretrained_backbone=True,
-    ).to(device)
-
-    opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=cfg.epochs)
+    opt = make_optimizer(model, lr_backbone=lr_bb, lr_head=lr_head, weight_decay=cfg.weight_decay)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=max(epochs, 1))
 
     scaler = torch.cuda.amp.GradScaler(enabled=(cfg.use_amp and device.startswith("cuda")))
     ce = nn.CrossEntropyLoss()
 
     best_val_f1 = -1.0
-    best_path = os.path.join(cfg.out_dir, "best_model.pth")
+    best_path = os.path.join(cfg.out_dir, f"best_{phase_name}.pth")
 
-    hist_path = os.path.join(cfg.out_dir, "history.csv")
-    with open(hist_path, "w", encoding="utf-8") as f:
-        f.write("epoch,train_loss,train_acc,train_f1,val_loss,val_acc,val_f1,lr,freeze\n")
-
-    for epoch in range(1, cfg.epochs + 1):
-
-        freeze = epoch <= cfg.freeze_backbone_epochs
-        model.freeze_backbone(freeze)
-
+    for ep in range(1, epochs + 1):
         model.train()
         total_loss = 0.0
         all_logits, all_y = [], []
 
-        pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{cfg.epochs}")
-        for x, y, _ in pbar:
-            x, y = x.to(device), y.to(device)
+        pbar = tqdm(train_loader, desc=f"{phase_name} {ep}/{epochs}")
+        for batch in pbar:
+            x, y, _, behav = split_batch(batch)
+
+            x = x.to(device, non_blocking=True)
+            y = y.to(device, non_blocking=True)
+            behav = None if behav is None else behav.to(device, non_blocking=True)
 
             opt.zero_grad(set_to_none=True)
 
             with torch.cuda.amp.autocast(enabled=scaler.is_enabled()):
-                logits = model(x)
+                logits = model(x, behav)
                 loss = ce(logits, y)
 
             scaler.scale(loss).backward()
@@ -186,29 +252,300 @@ def main():
             logits_cat = torch.cat(all_logits, dim=0)
             y_cat = torch.cat(all_y, dim=0)
             train_acc, train_f1 = metrics_from_logits(logits_cat, y_cat)
-            pbar.set_postfix(loss=total_loss/len(y_cat), acc=train_acc, f1=train_f1, lr=opt.param_groups[0]["lr"], freeze=("Y" if freeze else "N"))
+
+            pbar.set_postfix(
+                loss=total_loss / len(y_cat),
+                acc=train_acc,
+                f1=train_f1,
+                lr_bb=lr_bb,
+                lr_head=lr_head,
+                mode=mode,
+            )
 
         scheduler.step()
 
-     
         logits_cat = torch.cat(all_logits, dim=0)
         y_cat = torch.cat(all_y, dim=0)
         train_acc, train_f1 = metrics_from_logits(logits_cat, y_cat)
         train_loss = total_loss / len(y_cat)
 
         val_m = evaluate(model, val_loader, device)
-        print(f"VAL: loss={val_m['loss']:.4f} acc={val_m['acc']:.4f} f1={val_m['f1']:.4f}")
 
-        with open(hist_path, "a", encoding="utf-8") as f:
-            f.write(f"{epoch},{train_loss:.6f},{train_acc:.6f},{train_f1:.6f},{val_m['loss']:.6f},{val_m['acc']:.6f},{val_m['f1']:.6f},{opt.param_groups[0]['lr']:.8f},{int(freeze)}\n")
+        print(
+            f"[{phase_name}] train_loss={train_loss:.4f} acc={train_acc:.4f} f1={train_f1:.4f} | "
+            f"val_loss={val_m['loss']:.4f} acc={val_m['acc']:.4f} f1={val_m['f1']:.4f} | "
+            f"lr_bb={lr_bb} lr_head={lr_head}"
+        )
 
+        hist_f.write(
+            f"{phase_name},{ep},{train_loss:.6f},{train_acc:.6f},{train_f1:.6f},"
+            f"{val_m['loss']:.6f},{val_m['acc']:.6f},{val_m['f1']:.6f},"
+            f"{lr_bb:.8f},{lr_head:.8f},{mode}\n"
+        )
+        hist_f.flush()
 
         if val_m["f1"] > best_val_f1:
             best_val_f1 = val_m["f1"]
             torch.save({"model_state": model.state_dict(), "config": asdict(cfg)}, best_path)
-            print("Saved best model:", best_path)
 
-    print("Done. Best val F1:", best_val_f1)
+    print(f" {phase_name} done. Best val_f1={best_val_f1:.4f} saved={best_path}")
+    return best_path
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--out_dir", type=str, default=None)
+    parser.add_argument("--epochs", type=int, default=None)        # only if use_pts=0
+    parser.add_argument("--use_pts", type=int, default=1)          # 1=PTS, 0=old training
+    parser.add_argument("--unfreeze_last_k", type=int, default=None)
+
+    
+    parser.add_argument("--use_behav", type=int, default=None, help="1=use behavior features, 0=deep only")
+    parser.add_argument("--behav_train_csv", type=str, default=None)
+    parser.add_argument("--behav_val_csv", type=str, default=None)
+    parser.add_argument("--behav_hidden", type=int, default=None)
+
+    args = parser.parse_args()
+
+    cfg = TrainConfig()
+    cfg.seed = args.seed
+    cfg.use_pts = bool(args.use_pts)
+
+    if args.out_dir is not None:
+        cfg.out_dir = args.out_dir
+    if args.epochs is not None:
+        cfg.epochs = args.epochs
+    if args.unfreeze_last_k is not None:
+        cfg.unfreeze_last_k = args.unfreeze_last_k
+
+    if args.use_behav is not None:
+        cfg.use_behav = bool(args.use_behav)
+    if args.behav_train_csv is not None:
+        cfg.behav_train_csv = args.behav_train_csv
+    if args.behav_val_csv is not None:
+        cfg.behav_val_csv = args.behav_val_csv
+    if args.behav_hidden is not None:
+        cfg.behav_hidden = args.behav_hidden
+
+    os.makedirs(cfg.out_dir, exist_ok=True)
+    set_seed(cfg.seed)
+
+    with open(os.path.join(cfg.out_dir, "config.json"), "w", encoding="utf-8") as f:
+        json.dump(asdict(cfg), f, indent=2)
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print("Device:", device)
+    print("use_pts:", cfg.use_pts)
+    print("use_behav:", cfg.use_behav)
+
+    train_ds = CASIASequenceDataset(
+        cfg.train_csv,
+        T=cfg.T,
+        img_size=cfg.img_size,
+        aug_mode=cfg.train_aug,
+        sample_mode=cfg.train_sample_mode,
+        seed=cfg.seed,
+        behav_csv=(cfg.behav_train_csv if cfg.use_behav else None),
+    )
+    val_ds = CASIASequenceDataset(
+        cfg.val_csv,
+        T=cfg.T,
+        img_size=cfg.img_size,
+        aug_mode=cfg.val_aug,
+        sample_mode=cfg.val_sample_mode,
+        seed=cfg.seed,
+        behav_csv=(cfg.behav_val_csv if cfg.use_behav else None),
+    )
+
+    loader_kwargs = dict(
+        num_workers=cfg.num_workers,
+        pin_memory=(device.startswith("cuda")),
+    )
+    if cfg.num_workers > 0:
+        loader_kwargs.update(
+            persistent_workers=True,
+            prefetch_factor=2,
+        )
+
+    if cfg.use_balanced_sampler:
+        sampler = make_balanced_sampler(train_ds)
+        train_loader = DataLoader(
+            train_ds,
+            batch_size=cfg.batch_size,
+            sampler=sampler,
+            **loader_kwargs,
+        )
+    else:
+        train_loader = DataLoader(
+            train_ds,
+            batch_size=cfg.batch_size,
+            shuffle=True,
+            **loader_kwargs,
+        )
+
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=cfg.batch_size,
+        shuffle=False,
+        **loader_kwargs,
+    )
+
+    
+    model = CNN_LSTM_PAD(
+        hidden=cfg.hidden,
+        num_layers=cfg.num_layers,
+        bidir=cfg.bidir,
+        temporal_pool=cfg.temporal_pool,
+        pretrained_backbone=True,
+        use_behav=cfg.use_behav,
+        behav_dim=cfg.behav_dim,
+        behav_hidden=cfg.behav_hidden,
+    ).to(device)
+
+    hist_path = os.path.join(cfg.out_dir, "history.csv")
+
+    
+    # PTS  (3 phases)
+ 
+    if cfg.use_pts:
+        with open(hist_path, "w", encoding="utf-8") as f:
+            f.write("phase,epoch,train_loss,train_acc,train_f1,val_loss,val_acc,val_f1,lr_bb,lr_head,mode\n")
+
+            print("\n=== PTS Phase 1: head only ===")
+            run_phase(
+                "p1_head_only",
+                model,
+                train_loader,
+                val_loader,
+                device,
+                cfg,
+                cfg.phase1_epochs,
+                cfg.lr_bb_p1,
+                cfg.lr_head_p1,
+                "head_only",
+                f,
+            )
+
+            print("\n=== PTS Phase 2: unfreeze last k blocks ===")
+            run_phase(
+                "p2_last_k",
+                model,
+                train_loader,
+                val_loader,
+                device,
+                cfg,
+                cfg.phase2_epochs,
+                cfg.lr_bb_p2,
+                cfg.lr_head_p2,
+                "last_k",
+                f,
+            )
+
+            print("\n=== PTS Phase 3: unfreeze all ===")
+            best_p3 = run_phase(
+                "p3_all",
+                model,
+                train_loader,
+                val_loader,
+                device,
+                cfg,
+                cfg.phase3_epochs,
+                cfg.lr_bb_p3,
+                cfg.lr_head_p3,
+                "all",
+                f,
+            )
+
+        final_path = os.path.join(cfg.out_dir, "best_model.pth")
+        ckpt = torch.load(best_p3, map_location=device)
+        torch.save(ckpt, final_path)
+        print("\n🎯 PTS Training Finished. Final model saved:", final_path)
+        return
+
+    
+    # BASELINE TRAINING
+    
+    opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=cfg.epochs)
+    scaler = torch.cuda.amp.GradScaler(enabled=(cfg.use_amp and device.startswith("cuda")))
+    ce = nn.CrossEntropyLoss()
+
+    best_val_f1 = -1.0
+    best_path = os.path.join(cfg.out_dir, "best_model.pth")
+
+    with open(hist_path, "w", encoding="utf-8") as f:
+        f.write("epoch,train_loss,train_acc,train_f1,val_loss,val_acc,val_f1,lr,freeze\n")
+
+        for epoch in range(1, cfg.epochs + 1):
+            freeze = epoch <= cfg.freeze_backbone_epochs
+            set_freeze_backbone_compat(model, freeze)
+
+            model.train()
+            total_loss = 0.0
+            all_logits, all_y = [], []
+
+            pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{cfg.epochs}")
+            for batch in pbar:
+                x, y, _, behav = split_batch(batch)
+
+
+                x = x.to(device, non_blocking=True)
+                y = y.to(device, non_blocking=True)
+                behav = None if behav is None else behav.to(device, non_blocking=True)
+
+                opt.zero_grad(set_to_none=True)
+
+                with torch.cuda.amp.autocast(enabled=scaler.is_enabled()):
+                    logits = model(x, behav)
+                    loss = ce(logits, y)
+
+                scaler.scale(loss).backward()
+                scaler.step(opt)
+                scaler.update()
+
+                total_loss += loss.item() * x.size(0)
+                all_logits.append(logits.detach().cpu())
+                all_y.append(y.detach().cpu())
+
+                logits_cat = torch.cat(all_logits, dim=0)
+                y_cat = torch.cat(all_y, dim=0)
+                train_acc, train_f1 = metrics_from_logits(logits_cat, y_cat)
+
+                pbar.set_postfix(
+                    loss=total_loss / len(y_cat),
+                    acc=train_acc,
+                    f1=train_f1,
+                    lr=float(opt.param_groups[0]["lr"]),
+                    freeze=int(freeze),
+                )
+
+            scheduler.step()
+
+            logits_cat = torch.cat(all_logits, dim=0)
+            y_cat = torch.cat(all_y, dim=0)
+            train_acc, train_f1 = metrics_from_logits(logits_cat, y_cat)
+            train_loss = total_loss / len(y_cat)
+
+            val_m = evaluate(model, val_loader, device)
+
+            print(
+                f"[baseline] epoch={epoch} train_loss={train_loss:.4f} acc={train_acc:.4f} f1={train_f1:.4f} | "
+                f"val_loss={val_m['loss']:.4f} acc={val_m['acc']:.4f} f1={val_m['f1']:.4f}"
+            )
+
+            f.write(
+                f"{epoch},{train_loss:.6f},{train_acc:.6f},{train_f1:.6f},"
+                f"{val_m['loss']:.6f},{val_m['acc']:.6f},{val_m['f1']:.6f},"
+                f"{float(opt.param_groups[0]['lr']):.8f},{int(freeze)}\n"
+            )
+            f.flush()
+
+            if val_m["f1"] > best_val_f1:
+                best_val_f1 = val_m["f1"]
+                torch.save({"model_state": model.state_dict(), "config": asdict(cfg)}, best_path)
+
+    print(f"Baseline done. Best val_f1={best_val_f1:.4f} saved={best_path}")
 
 
 if __name__ == "__main__":

@@ -1,16 +1,33 @@
 from collections import defaultdict
 
+from collections import defaultdict
+
 def aggregate_video_scores(frame_preds):
-    
-    bucket = defaultdict(list)
-    labels = {}
+ 
+    bucket = defaultdict(list)  
+    labels = {}                  
     for p in frame_preds:
         vid = p["video_id"]
-        bucket[vid].append(p["score_attack"])
-        labels[vid] = p["label"]  
+        y = int(p["label"])
+        s = float(p["score_attack"])
+
+        bucket[vid].append(s)
+
+        if vid not in labels:
+            labels[vid] = y
+        else:
+            if labels[vid] != y:
+                raise ValueError(
+                    f"Inconsistent labels for video_id={vid}: "
+                    f"seen {labels[vid]} and {y}"
+                )
+
     video_scores = {}
     for vid, scores in bucket.items():
-        video_scores[vid] = {"label": labels[vid], "score": sum(scores)/len(scores)}
+        video_scores[vid] = {
+            "label": labels[vid],
+            "score": sum(scores) / len(scores) if scores else 0.0
+        }
     return video_scores
 
 def compute_apcer_bpcer_acer(video_scores, threshold=0.5):

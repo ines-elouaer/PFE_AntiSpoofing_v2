@@ -10,12 +10,10 @@ from mediapipe import Image, ImageFormat
 LEFT_EYE  = [33, 160, 158, 133, 153, 144]
 RIGHT_EYE = [362, 385, 387, 263, 373, 380]
 
-
 NOSE_TIP = 1
 
 
 def mp_image_from_bgr(img_bgr):
-
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return Image(image_format=ImageFormat.SRGB, data=img_rgb)
 
@@ -25,7 +23,6 @@ def euclid(a, b):
 
 
 def ear_from_landmarks(lm, eye_idx, w, h):
-    
     pts = []
     for idx in eye_idx:
         x = lm[idx].x * w
@@ -42,7 +39,6 @@ def ear_from_landmarks(lm, eye_idx, w, h):
 
 
 def count_blinks(ears, thr_low, thr_high):
-    
     if len(ears) < 3:
         return 0
 
@@ -60,7 +56,6 @@ def count_blinks(ears, thr_low, thr_high):
 
 
 class FaceLandmarkerHelper:
-    
 
     def __init__(self, model_path="models/face_landmarker.task"):
         if not os.path.exists(model_path):
@@ -83,7 +78,6 @@ class FaceLandmarkerHelper:
 
 
 def extract_ear_and_motion_from_video(video_path, landmarker, every_n=1, max_frames=600):
-   
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise RuntimeError(f"Cannot open video: {video_path}")
@@ -116,7 +110,6 @@ def extract_ear_and_motion_from_video(video_path, landmarker, every_n=1, max_fra
                 if ear_l is not None and ear_r is not None:
                     ears.append((ear_l + ear_r) / 2.0)
 
-             
                 x = lm[NOSE_TIP].x * w
                 y = lm[NOSE_TIP].y * h
                 xy = np.array([x, y], dtype=np.float32)
@@ -138,32 +131,37 @@ def extract_ear_and_motion_from_video(video_path, landmarker, every_n=1, max_fra
 def video_features_from_signals(ears, motions):
    
     if len(ears) == 0:
-        ear_mean = ear_std = ear_min = ear_max = 0.0
+        ear_mean    = 0.0
+        ear_std     = 0.0
+        ear_min     = 0.0
+        ear_max     = 0.0
         blink_count = 0
     else:
         ear_mean = float(np.mean(ears))
         ear_std  = float(np.std(ears))
         ear_min  = float(np.min(ears))
         ear_max  = float(np.max(ears))
-
-        thr_low = ear_mean - 0.8 * ear_std
-        thr_high = ear_mean - 0.2 * ear_std
+        ear_std_safe = max(ear_std, 0.01)
+        thr_low  = ear_mean - 0.8 * ear_std_safe
+        thr_high = ear_mean - 0.2 * ear_std_safe
         blink_count = int(count_blinks(ears, thr_low, thr_high))
 
     if len(motions) == 0:
-        motion_mean = motion_std = motion_max = 0.0
+        motion_mean = 0.0
+        motion_std  = 0.0
+        motion_max  = 0.0
     else:
         motion_mean = float(np.mean(motions))
         motion_std  = float(np.std(motions))
         motion_max  = float(np.max(motions))
 
     return {
-        "ear_mean": ear_mean,
-        "ear_std": ear_std,
-        "ear_min": ear_min,
-        "ear_max": ear_max,
+        "ear_mean":    ear_mean,
+        "ear_std":     ear_std,       
+        "ear_min":     ear_min,
+        "ear_max":     ear_max,
         "blink_count": blink_count,
         "motion_mean": motion_mean,
-        "motion_std": motion_std,
-        "motion_max": motion_max,
+        "motion_std":  motion_std,
+        "motion_max":  motion_max,
     }

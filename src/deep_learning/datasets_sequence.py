@@ -1,15 +1,14 @@
-# src/deep_learning/datasets_sequence.py
 import csv
 import random
 from pathlib import Path
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import torch
 from torch.utils.data import Dataset
 from PIL import Image
 
-from src.deep_learning.datasets_frame import build_transforms  # reuse aug + imagenet normalize
+from src.deep_learning.datasets_frame import build_transforms
 
 
 def read_rows(csv_path: str) -> List[Dict]:
@@ -36,13 +35,31 @@ def uniform_sample(sorted_rows: List[Dict], T: int) -> List[Dict]:
     return out
 
 
+def read_behav_csv(behav_csv: str):
+   
+    by_vid = {}
+    with Path(behav_csv).open("r", encoding="utf-8") as f:
+        r = csv.DictReader(f)
+        for row in r:
+            vid = row["video_id"]
+           
+            vec = [
+                float(row.get("ear_mean", 0.0)),
+                float(row.get("ear_std", 0.0)),
+                float(row.get("ear_min", 0.0)),
+                float(row.get("ear_max", 0.0)),
+                float(row.get("blink_count", 0.0)),
+                float(row.get("motion_mean", 0.0)),
+                float(row.get("motion_std", 0.0)),
+                float(row.get("motion_max", 0.0)),
+                float(row.get("skipped_rate", 0.0)),
+            ]
+            by_vid[vid] = torch.tensor(vec, dtype=torch.float32)
+    return by_vid
+
+
 class CASIASequenceDataset(Dataset):
-    """
-    One item = one video
-      x: [T, C, H, W] float32 normalized (ImageNet)
-      y: int64 (0 real, 1 attack)
-      vid: str
-    """
+    
     def __init__(
         self,
         csv_path: str,
@@ -51,6 +68,7 @@ class CASIASequenceDataset(Dataset):
         aug_mode: str = "none",
         sample_mode: str = "uniform",   # "uniform" | "random_clip"
         seed: int = 42,
+        behav_csv: Optional[str] = None,
     ):
         super().__init__()
         self.T = T
@@ -70,13 +88,19 @@ class CASIASequenceDataset(Dataset):
 
         for vid in self.video_ids:
             vid_rows = sorted(by_vid[vid], key=lambda r: r["frame_idx"])
-
             labels = {r["label"] for r in vid_rows}
             if len(labels) != 1:
                 raise RuntimeError(f"Inconsistent labels in video_id={vid}: {labels}")
 
             self.rows_by_vid[vid] = vid_rows
             self.labels_by_vid[vid] = vid_rows[0]["label"]
+
+        self.behav_by_vid = None
+        self.behav_dim = 0
+        if behav_csv is not None:
+            self.behav_by_vid = read_behav_csv(behav_csv)
+
+            self.behav_dim = 9
 
     def __len__(self):
         return len(self.video_ids)
@@ -107,7 +131,11 @@ class CASIASequenceDataset(Dataset):
         frames = []
         for r in sampled:
             img = Image.open(r["path"]).convert("RGB")
-            frames.append(self.tf(img))  # [C,H,W] normalized
-        x = torch.stack(frames, dim=0)  # [T,C,H,W]
+            frames.append(self.tf(img))
+        x = torch.stack(frames, dim=0)  
 
-        return x, torch.tensor(y, dtype=torch.long), vid
+        if self.behav_by_vid is None:
+            return x, torch.tensor(y, dtype=torch.long), vid
+
+        behav = self.behav_by_vid.get(vid, torch.zeros(self.behav_dim, dtype=torch.float32))
+        return x, torch.tensor(y, dtype=torch.long), vid, behav
