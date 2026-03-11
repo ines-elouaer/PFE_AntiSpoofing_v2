@@ -1,11 +1,10 @@
 from collections import defaultdict
 
-from collections import defaultdict
 
 def aggregate_video_scores(frame_preds):
- 
-    bucket = defaultdict(list)  
-    labels = {}                  
+    bucket = defaultdict(list)
+    labels = {}
+
     for p in frame_preds:
         vid = p["video_id"]
         y = int(p["label"])
@@ -30,17 +29,20 @@ def aggregate_video_scores(frame_preds):
         }
     return video_scores
 
-def compute_apcer_bpcer_acer(video_scores, threshold=0.5):
-    
+
+def compute_apcer_bpcer_acer(video_scores, threshold):
+    if threshold is None:
+        raise ValueError("threshold must be provided explicitly")
+
     n_attack = 0
     n_bona = 0
-    attack_missed_as_real = 0   
-    bona_missed_as_attack = 0  
+    attack_missed_as_real = 0
+    bona_missed_as_attack = 0
 
     for vid, d in video_scores.items():
-        y = d["label"]
-        s = d["score"]
-        pred_attack = 1 if s >= threshold else 0
+        y = int(d["label"])
+        s = float(d["score"])
+        pred_attack = 1 if s >= float(threshold) else 0
 
         if y == 1:
             n_attack += 1

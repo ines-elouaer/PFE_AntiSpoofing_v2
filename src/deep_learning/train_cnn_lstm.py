@@ -205,14 +205,20 @@ def run_phase(
     hist_f,
 ):
     if mode == "head_only":
-        model.freeze_all_backbone()
-    elif mode == "last_k":
-        model.unfreeze_last_k_backbone_blocks(cfg.unfreeze_last_k)
-    elif mode == "all":
-        model.unfreeze_all_backbone()
-    else:
-        raise ValueError(mode)
+     model.freeze_all_backbone()
 
+    elif mode == "last_k":
+    # IMPORTANT: repartir d’un backbone complètement gelé,
+    # puis dégeler uniquement les K derniers blocs
+     model.freeze_all_backbone()
+     model.unfreeze_last_k_backbone_blocks(cfg.unfreeze_last_k)
+
+    elif mode == "all":
+     model.unfreeze_all_backbone()
+
+    else:
+     raise ValueError(mode)
+ 
     opt = make_optimizer(model, lr_backbone=lr_bb, lr_head=lr_head, weight_decay=cfg.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=max(epochs, 1))
 

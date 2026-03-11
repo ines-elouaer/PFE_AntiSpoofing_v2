@@ -1,0 +1,157 @@
+{
+  "model_name": "cnn_lstm",
+  "protocol_name": "cnn_lstm_fixed05",
+  "threshold_protocol": "fixed05",
+  "threshold_val": {
+    "th": 0.45,
+    "acer": 0.0,
+    "apcer": 0.0,
+    "bpcer": 0.0,
+    "f1": 1.0,
+    "acc": 1.0
+  },
+  "threshold_used": {
+    "th": 0.5,
+    "source": "fixed05"
+  },
+  "metrics_test": {
+    "ACC": 0.875,
+    "F1": 0.9142857142857143,
+    "APCER": 0.1111111111111111,
+    "BPCER": 0.16666666666666666,
+    "ACER": 0.1388888888888889,
+    "AUC": 0.962962962962963,
+    "TN": 5,
+    "FP": 1,
+    "FN": 2,
+    "TP": 16
+  },
+  "score_stats": {
+    "attack_mean": 0.6974347995387183,
+    "real_mean": 0.3504256581266721
+  },
+  "test_scores": {
+    "10_1": {
+      "label": 0,
+      "score": 0.5302121043205261
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.4447169303894043
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.8977718949317932
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.6509033441543579
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.4660547077655792
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.7435583472251892
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.5238790512084961
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.5493679642677307
+    },
+    "13_1": {
+      "label": 0,
+      "score": 0.34333083033561707
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.24684391915798187
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.45632025599479675
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.7328603863716125
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.683641254901886
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.5248144268989563
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.5952657461166382
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.5636049509048462
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.27512434124946594
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.26232582330703735
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.8765865564346313
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.8983958959579468
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.9240367412567139
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.8988266587257385
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.8789884448051453
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.6889497637748718
+    }
+  },
+  "config": {
+    "train_csv": "data\\processed\\CASIA\\splits_subject\\train.csv",
+    "val_csv": "data\\processed\\CASIA\\splits_subject\\val.csv",
+    "out_dir": "experiments/exp_lstm_seed44",
+    "T": 16,
+    "img_size": 224,
+    "train_aug": "strong",
+    "val_aug": "none",
+    "train_sample_mode": "random_clip",
+    "val_sample_mode": "uniform",
+    "batch_size": 4,
+    "epochs": 14,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "num_workers": 0,
+    "hidden": 256,
+    "num_layers": 1,
+    "bidir": false,
+    "temporal_pool": "median",
+    "seed": 44,
+    "freeze_backbone_epochs": 2,
+    "use_amp": true,
+    "use_balanced_sampler": true
+  },
+  "checkpoint_path": "experiments\\step1_baselines\\lstm+cnn\\exp_lstm_seed44\\best_model.pth",
+  "output_dir": "reports\\eval\\cnn_lstm\\fixed05\\exp_cnn_lstm_seed44"
+}

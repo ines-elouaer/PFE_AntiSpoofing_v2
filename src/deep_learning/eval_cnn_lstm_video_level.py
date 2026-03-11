@@ -16,7 +16,6 @@ from src.deep_learning.metrics_pad import compute_apcer_bpcer_acer
 
 @torch.no_grad()
 def predict_video_scores(model, loader, device) -> Dict[str, Dict]:
-    """Return: {vid: {"label": int, "score": float}} where score = P(attack)."""
     model.eval()
     softmax = nn.Softmax(dim=1)
     scores = {}
@@ -35,10 +34,10 @@ def predict_video_scores(model, loader, device) -> Dict[str, Dict]:
         probs = softmax(logits).cpu()
 
         for i in range(x.size(0)):
-            v = vid[i]
+            v = str(vid[i])
             scores[v] = {
                 "label": int(y[i].item()),
-                "score": float(probs[i, 1].item())  # P(attack)
+                "score": float(probs[i, 1].item())
             }
     return scores
 
@@ -46,8 +45,8 @@ def predict_video_scores(model, loader, device) -> Dict[str, Dict]:
 def confusion_at_threshold(video_scores: Dict[str, Dict], th: float) -> Tuple[int, int, int, int]:
     tn = fp = fn = tp = 0
     for d in video_scores.values():
-        y = d["label"]
-        pred = 1 if d["score"] >= th else 0
+        y = int(d["label"])
+        pred = 1 if float(d["score"]) >= th else 0
         if y == 0 and pred == 0:
             tn += 1
         elif y == 0 and pred == 1:
@@ -73,21 +72,21 @@ def acc_at_threshold(video_scores: Dict[str, Dict], th: float) -> float:
 
 
 def find_best_threshold_on_val(video_scores: Dict[str, Dict], step: float = 0.01) -> Dict:
-   
     best = {"th": 0.5, "acer": 1.0, "apcer": 1.0, "bpcer": 1.0, "f1": 0.0, "acc": 0.0}
     t = 0.0
     while t <= 1.000001:
         apcer, bpcer, acer = compute_apcer_bpcer_acer(video_scores, threshold=t)
         f1 = f1_at_threshold(video_scores, t)
         acc = acc_at_threshold(video_scores, t)
+
         if (acer < best["acer"]) or (acer == best["acer"] and f1 > best["f1"]):
             best = {
                 "th": round(t, 4),
-                "acer": acer,
-                "apcer": apcer,
-                "bpcer": bpcer,
-                "f1": f1,
-                "acc": acc,
+                "acer": float(acer),
+                "apcer": float(apcer),
+                "bpcer": float(bpcer),
+                "f1": float(f1),
+                "acc": float(acc),
             }
         t += step
     return best
@@ -98,6 +97,7 @@ def try_auc(video_scores: Dict[str, Dict]) -> Tuple[float, bool]:
         from sklearn.metrics import roc_auc_score
     except Exception:
         return 0.0, False
+
     y_true = [d["label"] for d in video_scores.values()]
     y_score = [d["score"] for d in video_scores.values()]
     return float(roc_auc_score(y_true, y_score)), True
@@ -111,9 +111,23 @@ def score_means(video_scores: Dict[str, Dict]) -> Tuple[float, float]:
     return a_mean, r_mean
 
 
+def infer_model_name_from_config(cfg: dict) -> str:
+    use_behav = bool(cfg.get("use_behav", False))
+    use_pts = bool(cfg.get("use_pts", False))
+
+    if use_behav and use_pts:
+        return "deep_behav_pts"
+    if use_behav and not use_pts:
+        return "deep_behav"
+    if use_pts and not use_behav:
+        return "pts_cnn_lstm"
+    return "cnn_lstm"
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--exp_dir", required=True, help="Folder containing best_model.pth")
+    parser.add_argument("--out_dir", type=str, default=None, help="Directory to save evaluation outputs")
     parser.add_argument("--val_csv", default=r"data\processed\CASIA\splits_subject\val.csv")
     parser.add_argument("--test_csv", default=r"data\processed\CASIA\splits_subject\test.csv")
     parser.add_argument("--batch_size", type=int, default=4)
@@ -123,20 +137,32 @@ def main():
     parser.add_argument("--behav_test_csv", default=r"data\processed\CASIA\behav\test_behav.csv")
 
     parser.add_argument(
-        "--threshold",
-        type=float,
+        "--model_name",
+        type=str,
         default=None,
-        help="If set, use this fixed threshold on TEST (e.g. 0.5). If None, threshold is selected from VAL (min ACER)."
+        choices=["cnn_lstm", "pts_cnn_lstm", "deep_behav", "deep_behav_pts"],
+        help="Canonical model name. If omitted, inferred from checkpoint config."
+    )
+
+    parser.add_argument(
+        "--threshold_protocol",
+        type=str,
+        default="valopt",
+        choices=["valopt", "fixed05"],
+        help="Threshold protocol: valopt = select on VAL; fixed05 = use 0.5 on TEST."
     )
 
     args = parser.parse_args()
 
-    exp_dir = args.exp_dir
-    model_path = os.path.join(exp_dir, "best_model.pth")
-    results_txt_path = os.path.join(exp_dir, "results.txt")
-    scores_json_path = os.path.join(exp_dir, "test_scores.json")
-
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    model_path = os.path.join(args.exp_dir, "best_model.pth")
+
+    out_dir = args.out_dir if args.out_dir is not None else args.exp_dir
+    os.makedirs(out_dir, exist_ok=True)
+
+    results_txt_path = os.path.join(out_dir, "results.txt")
+    scores_json_path = os.path.join(out_dir, "test_scores.json")
+
     ckpt = torch.load(model_path, map_location=device)
     cfg = ckpt.get("config", {})
 
@@ -154,11 +180,15 @@ def main():
         behav_dim=behav_dim,
         behav_hidden=behav_hidden,
     ).to(device)
+
     model.load_state_dict(ckpt["model_state"])
 
     T = cfg.get("T", 16)
     img_size = cfg.get("img_size", 224)
     seed = cfg.get("seed", 42)
+
+    model_name = args.model_name if args.model_name is not None else infer_model_name_from_config(cfg)
+    protocol_name = f"{model_name}_{args.threshold_protocol}"
 
     val_ds = CASIASequenceDataset(
         args.val_csv,
@@ -169,6 +199,7 @@ def main():
         seed=seed,
         behav_csv=(args.behav_val_csv if use_behav else None),
     )
+
     test_ds = CASIASequenceDataset(
         args.test_csv,
         T=T,
@@ -182,17 +213,15 @@ def main():
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
     test_loader = DataLoader(test_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
-
     val_scores = predict_video_scores(model, val_loader, device)
     best_val = find_best_threshold_on_val(val_scores, step=0.01)
 
-
-    if args.threshold is not None:
-        th_used = float(args.threshold)
-        th_source = f"FIXED ({th_used:.2f})"
+    if args.threshold_protocol == "fixed05":
+        th_used = 0.5
+        th_source = "fixed05"
     else:
         th_used = float(best_val["th"])
-        th_source = f"VAL ({th_used:.2f})"
+        th_source = "valopt"
 
     test_scores = predict_video_scores(model, test_loader, device)
 
@@ -219,10 +248,14 @@ def main():
     report.append("========================================")
     report.append(f"Date: {now}")
     report.append(f"Device: {device}")
+    report.append(f"Model name: {model_name}")
+    report.append(f"Protocol name: {protocol_name}")
+    report.append(f"Threshold protocol: {args.threshold_protocol}")
     report.append(f"Fusion behav: {use_behav} (behav_dim={behav_dim})")
-    report.append(f"Model: MobileNetV3-Large + LSTM (T={T}, pool={cfg.get('temporal_pool','mean')})")
-    report.append(f"Threshold (from VAL): {best_val['th']:.2f}")
-    report.append(f"Threshold (USED on TEST): {th_used:.2f}  [{th_source}]")
+    report.append(f"Model: MobileNetV3-Large + LSTM (T={T}, pool={cfg.get('temporal_pool', 'mean')})")
+    report.append(f"Threshold (best on VAL): {best_val['th']:.4f}")
+    report.append(f"Threshold (USED on TEST): {th_used:.4f}")
+    report.append(f"Threshold source: {th_source}")
     report.append("")
     report.append(f"Video Accuracy: {acc:.4f}")
     report.append(f"F1: {f1:.4f}")
@@ -250,10 +283,34 @@ def main():
     with open(scores_json_path, "w", encoding="utf-8") as f:
         json.dump(
             {
+                "model_name": model_name,
+                "protocol_name": protocol_name,
+                "threshold_protocol": args.threshold_protocol,
                 "threshold_val": best_val,
-                "threshold_used": {"th": th_used, "source": th_source},
+                "threshold_used": {
+                    "th": th_used,
+                    "source": th_source
+                },
+                "metrics_test": {
+                    "ACC": acc,
+                    "F1": f1,
+                    "APCER": apcer,
+                    "BPCER": bpcer,
+                    "ACER": acer,
+                    "AUC": auc if ok_auc else None,
+                    "TN": tn,
+                    "FP": fp,
+                    "FN": fn,
+                    "TP": tp
+                },
+                "score_stats": {
+                    "attack_mean": a_mean,
+                    "real_mean": r_mean
+                },
                 "test_scores": test_scores,
                 "config": cfg,
+                "checkpoint_path": model_path,
+                "output_dir": out_dir,
             },
             f,
             indent=2,

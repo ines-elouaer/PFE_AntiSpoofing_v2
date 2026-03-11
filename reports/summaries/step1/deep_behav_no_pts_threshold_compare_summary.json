@@ -1,0 +1,270 @@
+{
+  "deep_behav_fixed05": {
+    "ACC": {
+      "mean": 0.9166666666666666,
+      "std": 0.0,
+      "values": [
+        0.9166666666666666,
+        0.9166666666666666,
+        0.9166666666666666
+      ]
+    },
+    "F1": {
+      "mean": 0.9463937621832358,
+      "std": 0.001688158681841059,
+      "values": [
+        0.9444444444444444,
+        0.9473684210526316,
+        0.9473684210526316
+      ]
+    },
+    "APCER": {
+      "mean": 0.018518518518518517,
+      "std": 0.032075014954979206,
+      "values": [
+        0.05555555555555555,
+        0.0,
+        0.0
+      ]
+    },
+    "BPCER": {
+      "mean": 0.27777777777777773,
+      "std": 0.09622504486493763,
+      "values": [
+        0.16666666666666666,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    },
+    "ACER": {
+      "mean": 0.14814814814814814,
+      "std": 0.032075014954979206,
+      "values": [
+        0.1111111111111111,
+        0.16666666666666666,
+        0.16666666666666666
+      ]
+    },
+    "AUC": {
+      "mean": 0.9876543209876543,
+      "std": 0.02138334330331944,
+      "values": [
+        0.962962962962963,
+        1.0,
+        1.0
+      ]
+    },
+    "n_runs": 3,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "threshold_protocols": [
+      "fixed05"
+    ],
+    "threshold_sources": [
+      "fixed05"
+    ],
+    "threshold_used_values": [
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "deep_behav_valopt": {
+    "ACC": {
+      "mean": 0.9027777777777777,
+      "std": 0.024056261216234387,
+      "values": [
+        0.9166666666666666,
+        0.875,
+        0.9166666666666666
+      ]
+    },
+    "F1": {
+      "mean": 0.938296596191333,
+      "std": 0.013261457200603092,
+      "values": [
+        0.9444444444444444,
+        0.923076923076923,
+        0.9473684210526316
+      ]
+    },
+    "APCER": {
+      "mean": 0.018518518518518517,
+      "std": 0.032075014954979206,
+      "values": [
+        0.05555555555555555,
+        0.0,
+        0.0
+      ]
+    },
+    "BPCER": {
+      "mean": 0.3333333333333333,
+      "std": 0.16666666666666669,
+      "values": [
+        0.16666666666666666,
+        0.5,
+        0.3333333333333333
+      ]
+    },
+    "ACER": {
+      "mean": 0.17592592592592593,
+      "std": 0.06990587440065509,
+      "values": [
+        0.1111111111111111,
+        0.25,
+        0.16666666666666666
+      ]
+    },
+    "AUC": {
+      "mean": 0.9876543209876543,
+      "std": 0.02138334330331944,
+      "values": [
+        0.962962962962963,
+        1.0,
+        1.0
+      ]
+    },
+    "n_runs": 3,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "threshold_protocols": [
+      "valopt"
+    ],
+    "threshold_sources": [
+      "valopt"
+    ],
+    "threshold_used_values": [
+      0.5,
+      0.23,
+      0.11
+    ]
+  },
+  "runs": [
+    {
+      "exp_dir": "reports\\eval\\step1\\deep_behav_no_pts\\fixed05\\exp_deep_behav_no_pts_seed42",
+      "seed": 42,
+      "model_name": "deep_behav",
+      "protocol_name": "deep_behav_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 0.9166666666666666,
+      "F1": 0.9444444444444444,
+      "APCER": 0.05555555555555555,
+      "BPCER": 0.16666666666666666,
+      "ACER": 0.1111111111111111,
+      "AUC": 0.962962962962963,
+      "TN": 5,
+      "FP": 1,
+      "FN": 1,
+      "TP": 17
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\deep_behav_no_pts\\fixed05\\exp_deep_behav_no_pts_seed43",
+      "seed": 43,
+      "model_name": "deep_behav",
+      "protocol_name": "deep_behav_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.23,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 0.9166666666666666,
+      "F1": 0.9473684210526316,
+      "APCER": 0.0,
+      "BPCER": 0.3333333333333333,
+      "ACER": 0.16666666666666666,
+      "AUC": 1.0,
+      "TN": 4,
+      "FP": 2,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\deep_behav_no_pts\\fixed05\\exp_deep_behav_no_pts_seed44",
+      "seed": 44,
+      "model_name": "deep_behav",
+      "protocol_name": "deep_behav_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.11,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 0.9166666666666666,
+      "F1": 0.9473684210526316,
+      "APCER": 0.0,
+      "BPCER": 0.3333333333333333,
+      "ACER": 0.16666666666666666,
+      "AUC": 1.0,
+      "TN": 4,
+      "FP": 2,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\deep_behav_no_pts\\valopt\\exp_deep_behav_no_pts_seed42",
+      "seed": 42,
+      "model_name": "deep_behav",
+      "protocol_name": "deep_behav_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "valopt",
+      "ACC": 0.9166666666666666,
+      "F1": 0.9444444444444444,
+      "APCER": 0.05555555555555555,
+      "BPCER": 0.16666666666666666,
+      "ACER": 0.1111111111111111,
+      "AUC": 0.962962962962963,
+      "TN": 5,
+      "FP": 1,
+      "FN": 1,
+      "TP": 17
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\deep_behav_no_pts\\valopt\\exp_deep_behav_no_pts_seed43",
+      "seed": 43,
+      "model_name": "deep_behav",
+      "protocol_name": "deep_behav_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.23,
+      "threshold_used_th": 0.23,
+      "threshold_source": "valopt",
+      "ACC": 0.875,
+      "F1": 0.923076923076923,
+      "APCER": 0.0,
+      "BPCER": 0.5,
+      "ACER": 0.25,
+      "AUC": 1.0,
+      "TN": 3,
+      "FP": 3,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\deep_behav_no_pts\\valopt\\exp_deep_behav_no_pts_seed44",
+      "seed": 44,
+      "model_name": "deep_behav",
+      "protocol_name": "deep_behav_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.11,
+      "threshold_used_th": 0.11,
+      "threshold_source": "valopt",
+      "ACC": 0.9166666666666666,
+      "F1": 0.9473684210526316,
+      "APCER": 0.0,
+      "BPCER": 0.3333333333333333,
+      "ACER": 0.16666666666666666,
+      "AUC": 1.0,
+      "TN": 4,
+      "FP": 2,
+      "FN": 0,
+      "TP": 18
+    }
+  ]
+}

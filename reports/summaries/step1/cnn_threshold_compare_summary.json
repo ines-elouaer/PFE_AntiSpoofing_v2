@@ -1,0 +1,270 @@
+{
+  "cnn_fixed05": {
+    "ACC": {
+      "mean": 1.0,
+      "std": 0.0,
+      "values": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "F1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "values": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "APCER": {
+      "mean": 0.0,
+      "std": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "BPCER": {
+      "mean": 0.0,
+      "std": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "ACER": {
+      "mean": 0.0,
+      "std": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "AUC": {
+      "mean": 1.0,
+      "std": 0.0,
+      "values": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_runs": 3,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "threshold_protocols": [
+      "fixed05"
+    ],
+    "threshold_sources": [
+      "fixed05"
+    ],
+    "threshold_used_values": [
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "cnn_valopt": {
+    "ACC": {
+      "mean": 1.0,
+      "std": 0.0,
+      "values": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "F1": {
+      "mean": 1.0,
+      "std": 0.0,
+      "values": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "APCER": {
+      "mean": 0.0,
+      "std": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "BPCER": {
+      "mean": 0.0,
+      "std": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "ACER": {
+      "mean": 0.0,
+      "std": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "AUC": {
+      "mean": 1.0,
+      "std": 0.0,
+      "values": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_runs": 3,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "threshold_protocols": [
+      "valopt"
+    ],
+    "threshold_sources": [
+      "valopt"
+    ],
+    "threshold_used_values": [
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "runs": [
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn\\fixed05\\exp_cnn_seed42",
+      "seed": 42,
+      "model_name": "cnn",
+      "protocol_name": "cnn_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 1.0,
+      "F1": 1.0,
+      "APCER": 0.0,
+      "BPCER": 0.0,
+      "ACER": 0.0,
+      "AUC": 1.0,
+      "TN": 6,
+      "FP": 0,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn\\fixed05\\exp_cnn_seed43",
+      "seed": 43,
+      "model_name": "cnn",
+      "protocol_name": "cnn_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 1.0,
+      "F1": 1.0,
+      "APCER": 0.0,
+      "BPCER": 0.0,
+      "ACER": 0.0,
+      "AUC": 1.0,
+      "TN": 6,
+      "FP": 0,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn\\fixed05\\exp_cnn_seed44",
+      "seed": 44,
+      "model_name": "cnn",
+      "protocol_name": "cnn_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 1.0,
+      "F1": 1.0,
+      "APCER": 0.0,
+      "BPCER": 0.0,
+      "ACER": 0.0,
+      "AUC": 1.0,
+      "TN": 6,
+      "FP": 0,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn\\valopt\\exp_cnn_seed42",
+      "seed": 42,
+      "model_name": "cnn",
+      "protocol_name": "cnn_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "valopt",
+      "ACC": 1.0,
+      "F1": 1.0,
+      "APCER": 0.0,
+      "BPCER": 0.0,
+      "ACER": 0.0,
+      "AUC": 1.0,
+      "TN": 6,
+      "FP": 0,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn\\valopt\\exp_cnn_seed43",
+      "seed": 43,
+      "model_name": "cnn",
+      "protocol_name": "cnn_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "valopt",
+      "ACC": 1.0,
+      "F1": 1.0,
+      "APCER": 0.0,
+      "BPCER": 0.0,
+      "ACER": 0.0,
+      "AUC": 1.0,
+      "TN": 6,
+      "FP": 0,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn\\valopt\\exp_cnn_seed44",
+      "seed": 44,
+      "model_name": "cnn",
+      "protocol_name": "cnn_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.5,
+      "threshold_used_th": 0.5,
+      "threshold_source": "valopt",
+      "ACC": 1.0,
+      "F1": 1.0,
+      "APCER": 0.0,
+      "BPCER": 0.0,
+      "ACER": 0.0,
+      "AUC": 1.0,
+      "TN": 6,
+      "FP": 0,
+      "FN": 0,
+      "TP": 18
+    }
+  ]
+}
