@@ -35,14 +35,42 @@ def uniform_sample(sorted_rows: List[Dict], T: int) -> List[Dict]:
     return out
 
 
+def consecutive_sample(sorted_rows: List[Dict], T: int, rng: random.Random) -> List[Dict]:
+    n = len(sorted_rows)
+    if n == 0:
+        raise RuntimeError("Video without frames.")
+
+    if n >= T:
+        start = rng.randint(0, n - T)
+        return sorted_rows[start:start + T]
+
+    out = list(sorted_rows)
+    while len(out) < T:
+        out.append(sorted_rows[-1])
+    return out
+
+
+def center_consecutive_sample(sorted_rows: List[Dict], T: int) -> List[Dict]:
+    n = len(sorted_rows)
+    if n == 0:
+        raise RuntimeError("Video without frames.")
+
+    if n >= T:
+        start = max(0, (n - T) // 2)
+        return sorted_rows[start:start + T]
+
+    out = list(sorted_rows)
+    while len(out) < T:
+        out.append(sorted_rows[-1])
+    return out
+
+
 def read_behav_csv(behav_csv: str):
-   
     by_vid = {}
     with Path(behav_csv).open("r", encoding="utf-8") as f:
         r = csv.DictReader(f)
         for row in r:
             vid = row["video_id"]
-           
             vec = [
                 float(row.get("ear_mean", 0.0)),
                 float(row.get("ear_std", 0.0)),
@@ -59,14 +87,13 @@ def read_behav_csv(behav_csv: str):
 
 
 class CASIASequenceDataset(Dataset):
-    
     def __init__(
         self,
         csv_path: str,
         T: int = 16,
         img_size: int = 224,
         aug_mode: str = "none",
-        sample_mode: str = "uniform",   # "uniform" | "random_clip"
+        sample_mode: str = "uniform",   # "uniform" | "random_clip" | "consecutive" | "center_consecutive"
         seed: int = 42,
         behav_csv: Optional[str] = None,
     ):
@@ -99,7 +126,6 @@ class CASIASequenceDataset(Dataset):
         self.behav_dim = 0
         if behav_csv is not None:
             self.behav_by_vid = read_behav_csv(behav_csv)
-
             self.behav_dim = 9
 
     def __len__(self):
@@ -116,8 +142,14 @@ class CASIASequenceDataset(Dataset):
         if self.sample_mode == "random_clip":
             if n >= self.T:
                 start = self.rng.randint(0, n - self.T)
-                return rows[start : start + self.T]
+                return rows[start:start + self.T]
             return uniform_sample(rows, self.T)
+
+        if self.sample_mode == "consecutive":
+            return consecutive_sample(rows, self.T, self.rng)
+
+        if self.sample_mode == "center_consecutive":
+            return center_consecutive_sample(rows, self.T)
 
         raise ValueError(f"Invalid sample_mode: {self.sample_mode}")
 
@@ -132,7 +164,7 @@ class CASIASequenceDataset(Dataset):
         for r in sampled:
             img = Image.open(r["path"]).convert("RGB")
             frames.append(self.tf(img))
-        x = torch.stack(frames, dim=0)  
+        x = torch.stack(frames, dim=0)
 
         if self.behav_by_vid is None:
             return x, torch.tensor(y, dtype=torch.long), vid

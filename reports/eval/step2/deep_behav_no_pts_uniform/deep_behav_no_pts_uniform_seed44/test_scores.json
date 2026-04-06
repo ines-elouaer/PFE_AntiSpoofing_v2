@@ -1,0 +1,184 @@
+{
+  "model_name": "deep_behav_no_pts",
+  "protocol_name": "deep_behav_no_pts_valopt",
+  "threshold_protocol": "valopt",
+  "threshold_val": {
+    "th": 0.5,
+    "acer": 0.0,
+    "apcer": 0.0,
+    "bpcer": 0.0,
+    "f1": 1.0,
+    "acc": 1.0,
+    "n_tied_candidates": 79
+  },
+  "threshold_used": {
+    "th": 0.5,
+    "source": "valopt"
+  },
+  "metrics_test": {
+    "ACC": 0.9166666666666666,
+    "F1": 0.9473684210526316,
+    "APCER": 0.0,
+    "BPCER": 0.3333333333333333,
+    "ACER": 0.16666666666666666,
+    "AUC": 1.0,
+    "TN": 4,
+    "FP": 2,
+    "FN": 0,
+    "TP": 18
+  },
+  "score_stats": {
+    "attack_mean": 0.993435780207316,
+    "real_mean": 0.3395721595734358
+  },
+  "sampling": {
+    "val_sample_mode": "uniform",
+    "test_sample_mode": "uniform",
+    "T": 16
+  },
+  "artifacts": {
+    "confusion_matrix_csv": "reports\\eval\\step2\\deep_behav_no_pts_uniform\\deep_behav_no_pts_uniform_seed44\\confusion_matrix.csv",
+    "score_distribution_csv": "reports\\eval\\step2\\deep_behav_no_pts_uniform\\deep_behav_no_pts_uniform_seed44\\score_distribution.csv",
+    "roc_points_csv": "reports\\eval\\step2\\deep_behav_no_pts_uniform\\deep_behav_no_pts_uniform_seed44\\roc_points.csv"
+  },
+  "test_scores": {
+    "10_1": {
+      "label": 0,
+      "score": 0.958387017250061
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.9472706317901611
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.9961951971054077
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.9916293025016785
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.9803785681724548
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.9930196404457092
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.9961530566215515
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.9944596290588379
+    },
+    "13_1": {
+      "label": 0,
+      "score": 0.038083307445049286
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.03206581994891167
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.9862555265426636
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.9948461055755615
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.9941028952598572
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.9947481751441956
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.9950606226921082
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.988902747631073
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.03108658827841282
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.03053959272801876
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.9957691431045532
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.9964120984077454
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.9971568584442139
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.9964746832847595
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.9960765242576599
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.9942032694816589
+    }
+  },
+  "config": {
+    "train_csv": "data\\processed\\CASIA\\splits_subject\\train.csv",
+    "val_csv": "data\\processed\\CASIA\\splits_subject\\val.csv",
+    "out_dir": "experiments\\step2_sampling\\deep_behav_no_pts_uniform_seed44",
+    "T": 16,
+    "img_size": 224,
+    "train_aug": "strong",
+    "val_aug": "none",
+    "train_sample_mode": "uniform",
+    "val_sample_mode": "uniform",
+    "batch_size": 8,
+    "epochs": 14,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "num_workers": 2,
+    "hidden": 256,
+    "num_layers": 1,
+    "bidir": false,
+    "temporal_pool": "median",
+    "seed": 44,
+    "freeze_backbone_epochs": 2,
+    "use_amp": true,
+    "use_balanced_sampler": true,
+    "use_pts": false,
+    "phase1_epochs": 3,
+    "phase2_epochs": 6,
+    "phase3_epochs": 5,
+    "unfreeze_last_k": 4,
+    "lr_head_p1": 0.0002,
+    "lr_bb_p1": 0.0,
+    "lr_head_p2": 0.0001,
+    "lr_bb_p2": 1e-05,
+    "lr_head_p3": 5e-05,
+    "lr_bb_p3": 5e-06,
+    "use_behav": true,
+    "behav_dim": 9,
+    "behav_hidden": 16,
+    "behav_train_csv": "data\\processed\\CASIA\\behav\\train_behav_norm.csv",
+    "behav_val_csv": "data\\processed\\CASIA\\behav\\val_behav_norm.csv"
+  },
+  "checkpoint_path": "experiments\\step2_sampling\\deep_behav_no_pts_uniform\\deep_behav_no_pts_uniform_seed44\\best_model.pth",
+  "output_dir": "reports\\eval\\step2\\deep_behav_no_pts_uniform\\deep_behav_no_pts_uniform_seed44"
+}

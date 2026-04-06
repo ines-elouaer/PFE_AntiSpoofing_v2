@@ -1,0 +1,302 @@
+{
+  "model_name": "pts_cnn_lstm",
+  "protocol_name": "pts_cnn_lstm_banking",
+  "threshold_protocol": "banking",
+  "threshold_val": {
+    "th": 0.5,
+    "acer": 0.0,
+    "apcer": 0.0,
+    "bpcer": 0.0,
+    "f1": 1.0,
+    "acc": 1.0,
+    "n_tied_candidates": 82
+  },
+  "threshold_used": {
+    "th": null,
+    "source": "banking"
+  },
+  "banking_policy": {
+    "accept_threshold": 0.3,
+    "reject_threshold": 0.6,
+    "decision_summary": {
+      "ACCEPT": 9,
+      "RETRY": 2,
+      "REJECT": 13
+    }
+  },
+  "metrics_test": {
+    "AUC": 0.962962962962963
+  },
+  "score_stats": {
+    "attack_mean": 0.7687336266454723,
+    "real_mean": 0.046899058700849615
+  },
+  "sampling": {
+    "val_sample_mode": "uniform",
+    "test_sample_mode": "uniform",
+    "T": 16
+  },
+  "artifacts": {
+    "confusion_matrix_csv": null,
+    "score_distribution_csv": "reports\\eval\\pts_cnn_lstm_banking\\banking\\pts_cnn_lstm_banking_seed42\\score_distribution.csv",
+    "roc_points_csv": "reports\\eval\\pts_cnn_lstm_banking\\banking\\pts_cnn_lstm_banking_seed42\\roc_points.csv",
+    "banking_decisions_csv": "reports\\eval\\pts_cnn_lstm_banking\\banking\\pts_cnn_lstm_banking_seed42\\banking_decisions.csv"
+  },
+  "test_scores": {
+    "10_1": {
+      "label": 0,
+      "score": 0.17113393545150757
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.04661165550351143
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.9912346601486206
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.9773539900779724
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.36847004294395447
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.981583297252655
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.9802547097206116
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.965021550655365
+    },
+    "13_1": {
+      "label": 0,
+      "score": 0.02611776441335678
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.015506478026509285
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.02944009006023407
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.5341383814811707
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.974209725856781
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.13939595222473145
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.9165981411933899
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.05241987481713295
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.011325463652610779
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.010699055157601833
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.9920875430107117
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.9903123378753662
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.993237316608429
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.989318311214447
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.9881324172019958
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.9739969372749329
+    }
+  },
+  "banking_decisions": {
+    "10_1": {
+      "label": 0,
+      "score": 0.17113393545150757,
+      "decision": "ACCEPT"
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.04661165550351143,
+      "decision": "ACCEPT"
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.9912346601486206,
+      "decision": "REJECT"
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.9773539900779724,
+      "decision": "REJECT"
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.36847004294395447,
+      "decision": "RETRY"
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.981583297252655,
+      "decision": "REJECT"
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.9802547097206116,
+      "decision": "REJECT"
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.965021550655365,
+      "decision": "REJECT"
+    },
+    "13_1": {
+      "label": 0,
+      "score": 0.02611776441335678,
+      "decision": "ACCEPT"
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.015506478026509285,
+      "decision": "ACCEPT"
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.02944009006023407,
+      "decision": "ACCEPT"
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.5341383814811707,
+      "decision": "RETRY"
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.974209725856781,
+      "decision": "REJECT"
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.13939595222473145,
+      "decision": "ACCEPT"
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.9165981411933899,
+      "decision": "REJECT"
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.05241987481713295,
+      "decision": "ACCEPT"
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.011325463652610779,
+      "decision": "ACCEPT"
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.010699055157601833,
+      "decision": "ACCEPT"
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.9920875430107117,
+      "decision": "REJECT"
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.9903123378753662,
+      "decision": "REJECT"
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.993237316608429,
+      "decision": "REJECT"
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.989318311214447,
+      "decision": "REJECT"
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.9881324172019958,
+      "decision": "REJECT"
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.9739969372749329,
+      "decision": "REJECT"
+    }
+  },
+  "config": {
+    "train_csv": "data\\processed\\CASIA\\splits_subject\\train.csv",
+    "val_csv": "data\\processed\\CASIA\\splits_subject\\val.csv",
+    "out_dir": "experiments\\exp_pts_seed42",
+    "T": 16,
+    "img_size": 224,
+    "train_aug": "strong",
+    "val_aug": "none",
+    "train_sample_mode": "random_clip",
+    "val_sample_mode": "uniform",
+    "batch_size": 4,
+    "epochs": 14,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "num_workers": 0,
+    "hidden": 256,
+    "num_layers": 1,
+    "bidir": false,
+    "temporal_pool": "median",
+    "seed": 42,
+    "freeze_backbone_epochs": 2,
+    "use_amp": true,
+    "use_balanced_sampler": true,
+    "use_pts": true,
+    "phase1_epochs": 3,
+    "phase2_epochs": 6,
+    "phase3_epochs": 5,
+    "unfreeze_last_k": 4,
+    "lr_head_p1": 0.0002,
+    "lr_bb_p1": 0.0,
+    "lr_head_p2": 0.0001,
+    "lr_bb_p2": 1e-05,
+    "lr_head_p3": 5e-05,
+    "lr_bb_p3": 5e-06
+  },
+  "checkpoint_path": "experiments\\pts\\exp_pts_seed42\\best_model.pth",
+  "output_dir": "reports\\eval\\pts_cnn_lstm_banking\\banking\\pts_cnn_lstm_banking_seed42"
+}

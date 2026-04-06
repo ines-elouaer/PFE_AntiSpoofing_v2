@@ -1,0 +1,5 @@
+video_id,label,score,prediction,threshold,error_type
+10_1,0,0.5173177719116211,1,0.5,FP_real_as_attack
+10_2,0,0.5568785667419434,1,0.5,FP_real_as_attack
+13_8,1,0.4974692165851593,0,0.5,FN_attack_as_real
+29_1,0,0.5377098917961121,1,0.5,FP_real_as_attack

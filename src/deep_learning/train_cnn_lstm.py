@@ -3,7 +3,7 @@ import json
 import argparse
 import random
 from dataclasses import dataclass, asdict
-from typing import Tuple, List, Optional
+from typing import Tuple, List
 
 import numpy as np
 import torch
@@ -13,7 +13,6 @@ from tqdm import tqdm
 
 from src.deep_learning.datasets_sequence import CASIASequenceDataset
 from src.deep_learning.models_cnn_lstm import CNN_LSTM_PAD
-
 
 
 def set_seed(seed: int):
@@ -41,7 +40,6 @@ def metrics_from_logits(logits: torch.Tensor, y: torch.Tensor) -> Tuple[float, f
 
 
 def split_batch(batch):
-    
     if len(batch) == 3:
         x, y, vid = batch
         behav = None
@@ -89,7 +87,6 @@ def make_balanced_sampler(ds: CASIASequenceDataset) -> WeightedRandomSampler:
 
 
 def make_optimizer(model, lr_backbone: float, lr_head: float, weight_decay: float):
-   
     backbone_params = []
     head_params = []
 
@@ -111,10 +108,10 @@ def make_optimizer(model, lr_backbone: float, lr_head: float, weight_decay: floa
 
 
 def set_freeze_backbone_compat(model: nn.Module, freeze: bool):
-   
     if hasattr(model, "freeze_backbone"):
         model.freeze_backbone(freeze)  # type: ignore
         return
+
     if freeze:
         if hasattr(model, "freeze_all_backbone"):
             model.freeze_all_backbone()  # type: ignore
@@ -131,7 +128,6 @@ def set_freeze_backbone_compat(model: nn.Module, freeze: bool):
                     p.requires_grad = True
 
 
-
 @dataclass
 class TrainConfig:
     train_csv: str = r"data\processed\CASIA\splits_subject\train.csv"
@@ -143,13 +139,13 @@ class TrainConfig:
     train_aug: str = "strong"
     val_aug: str = "none"
 
-    train_sample_mode: str = "uniform"
-    val_sample_mode: str = "uniform"
-
+    # Bloc B
+    train_sample_mode: str = "uniform"            # uniform | random_clip | consecutive | center_consecutive
+    val_sample_mode: str = "uniform"              # uniform | random_clip | consecutive | center_consecutive
 
     batch_size: int = 8
 
-    epochs: int = 14  #
+    epochs: int = 14
     lr: float = 2e-4
     weight_decay: float = 1e-4
 
@@ -161,7 +157,7 @@ class TrainConfig:
     temporal_pool: str = "median"
 
     seed: int = 42
-    freeze_backbone_epochs: int = 2  
+    freeze_backbone_epochs: int = 2
     use_amp: bool = True
     use_balanced_sampler: bool = True
 
@@ -182,13 +178,11 @@ class TrainConfig:
     lr_head_p3: float = 5e-5
     lr_bb_p3: float = 5e-6
 
-    
     use_behav: bool = True
     behav_dim: int = 9
     behav_hidden: int = 16
     behav_train_csv: str = r"data\processed\CASIA\behav\train_behav.csv"
     behav_val_csv: str = r"data\processed\CASIA\behav\val_behav.csv"
-
 
 
 def run_phase(
@@ -205,20 +199,15 @@ def run_phase(
     hist_f,
 ):
     if mode == "head_only":
-     model.freeze_all_backbone()
-
+        model.freeze_all_backbone()
     elif mode == "last_k":
-    # IMPORTANT: repartir d’un backbone complètement gelé,
-    # puis dégeler uniquement les K derniers blocs
-     model.freeze_all_backbone()
-     model.unfreeze_last_k_backbone_blocks(cfg.unfreeze_last_k)
-
+        model.freeze_all_backbone()
+        model.unfreeze_last_k_backbone_blocks(cfg.unfreeze_last_k)
     elif mode == "all":
-     model.unfreeze_all_backbone()
-
+        model.unfreeze_all_backbone()
     else:
-     raise ValueError(mode)
- 
+        raise ValueError(mode)
+
     opt = make_optimizer(model, lr_backbone=lr_bb, lr_head=lr_head, weight_decay=cfg.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=max(epochs, 1))
 
@@ -294,7 +283,7 @@ def run_phase(
             best_val_f1 = val_m["f1"]
             torch.save({"model_state": model.state_dict(), "config": asdict(cfg)}, best_path)
 
-    print(f" {phase_name} done. Best val_f1={best_val_f1:.4f} saved={best_path}")
+    print(f"{phase_name} done. Best val_f1={best_val_f1:.4f} saved={best_path}")
     return best_path
 
 
@@ -302,15 +291,28 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out_dir", type=str, default=None)
-    parser.add_argument("--epochs", type=int, default=None)        # only if use_pts=0
-    parser.add_argument("--use_pts", type=int, default=1)          # 1=PTS, 0=old training
+    parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument("--use_pts", type=int, default=1)
     parser.add_argument("--unfreeze_last_k", type=int, default=None)
 
-    
     parser.add_argument("--use_behav", type=int, default=None, help="1=use behavior features, 0=deep only")
     parser.add_argument("--behav_train_csv", type=str, default=None)
     parser.add_argument("--behav_val_csv", type=str, default=None)
     parser.add_argument("--behav_hidden", type=int, default=None)
+
+    # Bloc B
+    parser.add_argument(
+        "--train_sample_mode",
+        type=str,
+        default=None,
+        choices=["uniform", "random_clip", "consecutive", "center_consecutive"],
+    )
+    parser.add_argument(
+        "--val_sample_mode",
+        type=str,
+        default=None,
+        choices=["uniform", "random_clip", "consecutive", "center_consecutive"],
+    )
 
     args = parser.parse_args()
 
@@ -334,6 +336,11 @@ def main():
     if args.behav_hidden is not None:
         cfg.behav_hidden = args.behav_hidden
 
+    if args.train_sample_mode is not None:
+        cfg.train_sample_mode = args.train_sample_mode
+    if args.val_sample_mode is not None:
+        cfg.val_sample_mode = args.val_sample_mode
+
     os.makedirs(cfg.out_dir, exist_ok=True)
     set_seed(cfg.seed)
 
@@ -344,6 +351,8 @@ def main():
     print("Device:", device)
     print("use_pts:", cfg.use_pts)
     print("use_behav:", cfg.use_behav)
+    print("train_sample_mode:", cfg.train_sample_mode)
+    print("val_sample_mode:", cfg.val_sample_mode)
 
     train_ds = CASIASequenceDataset(
         cfg.train_csv,
@@ -397,7 +406,6 @@ def main():
         **loader_kwargs,
     )
 
-    
     model = CNN_LSTM_PAD(
         hidden=cfg.hidden,
         num_layers=cfg.num_layers,
@@ -411,9 +419,6 @@ def main():
 
     hist_path = os.path.join(cfg.out_dir, "history.csv")
 
-    
-    # PTS  (3 phases)
- 
     if cfg.use_pts:
         with open(hist_path, "w", encoding="utf-8") as f:
             f.write("phase,epoch,train_loss,train_acc,train_f1,val_loss,val_acc,val_f1,lr_bb,lr_head,mode\n")
@@ -466,12 +471,9 @@ def main():
         final_path = os.path.join(cfg.out_dir, "best_model.pth")
         ckpt = torch.load(best_p3, map_location=device)
         torch.save(ckpt, final_path)
-        print("\n🎯 PTS Training Finished. Final model saved:", final_path)
+        print("\nPTS Training Finished. Final model saved:", final_path)
         return
 
-    
-    # BASELINE TRAINING
-    
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=cfg.epochs)
     scaler = torch.cuda.amp.GradScaler(enabled=(cfg.use_amp and device.startswith("cuda")))
@@ -494,7 +496,6 @@ def main():
             pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{cfg.epochs}")
             for batch in pbar:
                 x, y, _, behav = split_batch(batch)
-
 
                 x = x.to(device, non_blocking=True)
                 y = y.to(device, non_blocking=True)
