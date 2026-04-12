@@ -1,29 +1,4 @@
-"""
-benchmark_inference_final.py
-=============================
-Mesure le temps réel d'inférence du modèle Deep+Behav Consecutive.
 
-Ce script mesure :
-  - Temps CNN (MobileNetV3 sur T=16 frames)
-  - Temps LSTM + pooling temporel
-  - Temps fusion comportementale
-  - Temps total par vidéo
-  - Throughput (vidéos/seconde)
-
-[CORRECTIONS v2]
-  - Closure correcte pour run_batch (évite capture par référence)
-  - torch.cuda.empty_cache() entre chaque batch size
-  - Affichage mémoire VRAM pour diagnostiquer batch=8
-  - Gestion OutOfMemoryError propre
-  - torch.cuda.synchronize() garanti avant ET après chaque mesure
-
-Usage depuis E:\PFE_AntiSpoofing_v2 :
-
-    python tools/benchmark_inference_final.py ^
-        --checkpoint experiments/deep_no_pts/Deep+Behav_noPTS/deep_behav_seed42/best_model.pth ^
-        --config     experiments/deep_no_pts/Deep+Behav_noPTS/deep_behav_seed42/config.json ^
-        --out_dir    reports/benchmark
-"""
 
 import argparse
 import json

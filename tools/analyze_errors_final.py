@@ -1,31 +1,4 @@
-"""
-analyze_errors_final.py
-========================
-Analyse d'erreurs complète sur le meilleur modèle :
-Deep+Behav Consecutive — Step 2
 
-Ce script :
-  1. Charge les test_scores.json des 3 seeds
-  2. Identifie les FP et FN avec leurs scores exacts
-  3. Sauvegarde les CSV d'erreurs
-  4. Génère les figures : FP/FN par seed + vidéos difficiles + distribution
-  5. [NOUVEAU] Seuil optimal par seed (minimise ACER)
-  6. [NOUVEAU] Inspection des vidéos difficiles récurrentes
-  7. [CORRECTION] fig5 utilise threshold_compare_summary.json pour
-     montrer la vraie comparaison fixed05 vs valopt avec th extrêmes
-
-Usage depuis E:\PFE_AntiSpoofing_v2 :
-
-    python tools/analyze_errors_final.py
-
-Ou avec chemins personnalisés :
-    python tools/analyze_errors_final.py ^
-        --seed42 reports/eval/step2/deep_behav_no_pts/valopt/deep_behav_no_pts_consecutive_seed42/test_scores.json ^
-        --seed43 reports/eval/step2/deep_behav_no_pts/valopt/deep_behav_no_pts_consecutive_seed43/test_scores.json ^
-        --seed44 reports/eval/step2/deep_behav_no_pts/valopt/deep_behav_no_pts_consecutive_seed44/test_scores.json ^
-        --threshold_compare reports/eval/step1/deep_behav_no_pts/deep_behav_no_pts_threshold_compare_summary.json ^
-        --out_dir reports/errors/step2_consecutive_final
-"""
 
 import argparse
 import csv

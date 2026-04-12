@@ -1,21 +1,4 @@
-"""
-fix_confusion_matrix.py
-========================
-Vérifie et corrige les confusion_matrix.csv manquants.
 
-Le vrai problème n'est pas que la clé est None —
-c'est que le fichier CSV pointé n'existe pas physiquement
-(chemins Windows/Linux incorrects après déplacement de dossiers).
-
-Ce script :
-  1. Parcourt tous les test_scores.json
-  2. Vérifie si le fichier confusion_matrix.csv existe réellement
-  3. Si absent : le recalcule depuis test_scores et le sauvegarde
-  4. Met à jour le chemin dans le JSON
-
-Usage :
-    python tools/fix_confusion_matrix.py --root reports/eval
-"""
 
 import os
 import csv

@@ -1,13 +1,4 @@
-"""
-plot_confusion_matrix.py
-=========================
-Génère une figure de confusion matrix visuelle (3 seeds + moyenne)
-à partir des données JSON existantes.
 
-Usage :
-    python tools/plot_confusion_matrix.py
-    python tools/plot_confusion_matrix.py --light
-"""
 
 import argparse
 import json

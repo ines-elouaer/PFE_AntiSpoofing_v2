@@ -1,16 +1,4 @@
-"""
-plot_roc_final.py
-==================
-Génère la courbe ROC complète avec mean±std sur 3 seeds
-pour tous les modèles de ton projet.
 
-Usage depuis la racine E:\PFE_AntiSpoofing_v2 :
-
-    python tools/plot_roc_final.py --out_png reports/plots/roc_final.png
-
-Prérequis :
-    pip install scikit-learn matplotlib numpy
-"""
 
 import argparse
 import json
