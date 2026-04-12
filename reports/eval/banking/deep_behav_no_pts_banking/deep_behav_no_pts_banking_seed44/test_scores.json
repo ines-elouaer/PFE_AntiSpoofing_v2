@@ -37,7 +37,7 @@
     "T": 16
   },
   "artifacts": {
-    "confusion_matrix_csv": null,
+    "confusion_matrix_csv": "reports/eval\\banking\\deep_behav_no_pts_banking\\deep_behav_no_pts_banking_seed44\\confusion_matrix.csv",
     "score_distribution_csv": "reports\\eval\\banking\\deep_behav_no_pts_banking\\deep_behav_no_pts_banking_seed44\\score_distribution.csv",
     "roc_points_csv": "reports\\eval\\banking\\deep_behav_no_pts_banking\\deep_behav_no_pts_banking_seed44\\roc_points.csv",
     "banking_decisions_csv": "reports\\eval\\banking\\deep_behav_no_pts_banking\\deep_behav_no_pts_banking_seed44\\banking_decisions.csv"

@@ -169,5 +169,8 @@
     "behav_val_csv": "data\\processed\\casia\\behav\\val_behav_norm.csv"
   },
   "checkpoint_path": "experiments\\th05\\Deep+Behav_noPTS\\deep_behav_seed42\\best_model.pth",
-  "output_dir": "reports\\eval\\step1\\deep_behav_no_pts\\valopt\\exp_deep_behav_no_pts_seed42"
+  "output_dir": "reports\\eval\\step1\\deep_behav_no_pts\\valopt\\exp_deep_behav_no_pts_seed42",
+  "artifacts": {
+    "confusion_matrix_csv": "reports/eval\\step1\\deep_behav_no_pts\\valopt\\exp_deep_behav_no_pts_seed42\\confusion_matrix.csv"
+  }
 }

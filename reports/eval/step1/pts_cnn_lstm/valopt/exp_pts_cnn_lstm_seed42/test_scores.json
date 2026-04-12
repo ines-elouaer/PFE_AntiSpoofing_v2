@@ -164,5 +164,8 @@
     "lr_bb_p3": 5e-06
   },
   "checkpoint_path": "experiments\\pts\\exp_pts_seed42\\best_model.pth",
-  "output_dir": "reports\\eval\\step1\\pts_cnn_lstm\\valopt\\exp_pts_cnn_lstm_seed42"
+  "output_dir": "reports\\eval\\step1\\pts_cnn_lstm\\valopt\\exp_pts_cnn_lstm_seed42",
+  "artifacts": {
+    "confusion_matrix_csv": "reports/eval\\step1\\pts_cnn_lstm\\valopt\\exp_pts_cnn_lstm_seed42\\confusion_matrix.csv"
+  }
 }

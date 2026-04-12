@@ -1,13 +1,13 @@
 ========================================
 CASIA CNN Evaluation (Video-Level)
 ========================================
-Date: 2026-03-11 13:59:44
+Date: 2026-04-11 19:43:38
 Device: cuda
 Model name: cnn
 Protocol name: cnn_fixed05
 Threshold protocol: fixed05
 Model: MobileNetV3-Large
-Checkpoint: experiments/step1_baselines/cnn/exp_cnn_seed42\best_model.pth
+Checkpoint: experiments\step1_baselines\cnn\exp_cnn_seed42\best_model.pth
 Threshold (best on VAL): 0.5000
 Threshold (USED on TEST): 0.5000
 Threshold source: fixed05

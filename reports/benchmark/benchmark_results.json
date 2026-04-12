@@ -1,0 +1,40 @@
+{
+  "cnn_backbone_ms": {
+    "mean": 20.34,
+    "std": 0.28
+  },
+  "lstm_ms": {
+    "mean": 0.67,
+    "std": 0.16
+  },
+  "full_inference_gpu_ms": {
+    "mean": 20.85,
+    "std": 0.27
+  },
+  "full_inference_cpu_ms": {
+    "mean": 179.77,
+    "std": 26.65
+  },
+  "batch_throughput": {
+    "batch_1": {
+      "latency_ms": 22.5,
+      "throughput_vid_per_sec": 44.4
+    },
+    "batch_2": {
+      "latency_ms": 43.38,
+      "throughput_vid_per_sec": 46.1
+    },
+    "batch_4": {
+      "latency_ms": 85.24,
+      "throughput_vid_per_sec": 46.9
+    },
+    "batch_8": {
+      "latency_ms": 1144.21,
+      "throughput_vid_per_sec": 7.0
+    }
+  },
+  "device": "cuda",
+  "T_frames": 16,
+  "img_size": 224,
+  "n_runs": 50
+}

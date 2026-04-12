@@ -147,5 +147,8 @@
     "seed": 42
   },
   "checkpoint_path": "experiments/step1_baselines/cnn/exp_cnn_seed42\\best_model.pth",
-  "output_dir": "reports/eval/step1/cnn/valopt/exp_cnn_seed42"
+  "output_dir": "reports/eval/step1/cnn/valopt/exp_cnn_seed42",
+  "artifacts": {
+    "confusion_matrix_csv": "reports/eval\\step1\\cnn\\valopt\\exp_cnn_seed42\\confusion_matrix.csv"
+  }
 }

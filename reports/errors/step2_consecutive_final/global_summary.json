@@ -1,0 +1,39 @@
+{
+  "model": "deep_behav_no_pts consecutive",
+  "threshold": 0.5,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "per_seed": [
+    {
+      "seed_42": {
+        "total": 24,
+        "correct": 23,
+        "FP": 1,
+        "FN": 0,
+        "accuracy": 0.9583
+      }
+    },
+    {
+      "seed_43": {
+        "total": 24,
+        "correct": 23,
+        "FP": 0,
+        "FN": 1,
+        "accuracy": 0.9583
+      }
+    },
+    {
+      "seed_44": {
+        "total": 24,
+        "correct": 22,
+        "FP": 2,
+        "FN": 0,
+        "accuracy": 0.9167
+      }
+    }
+  ],
+  "mean_errors": 1.33
+}
