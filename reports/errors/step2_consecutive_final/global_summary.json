@@ -13,7 +13,10 @@
         "correct": 23,
         "FP": 1,
         "FN": 0,
-        "accuracy": 0.9583
+        "accuracy": 0.9583,
+        "acer_th05": 0.0833,
+        "acer_opt": 0.0833,
+        "th_opt": 0.2
       }
     },
     {
@@ -22,7 +25,10 @@
         "correct": 23,
         "FP": 0,
         "FN": 1,
-        "accuracy": 0.9583
+        "accuracy": 0.9583,
+        "acer_th05": 0.0278,
+        "acer_opt": 0.0278,
+        "th_opt": 0.2
       }
     },
     {
@@ -31,7 +37,10 @@
         "correct": 22,
         "FP": 2,
         "FN": 0,
-        "accuracy": 0.9167
+        "accuracy": 0.9167,
+        "acer_th05": 0.1667,
+        "acer_opt": 0.1667,
+        "th_opt": 0.2
       }
     }
   ],

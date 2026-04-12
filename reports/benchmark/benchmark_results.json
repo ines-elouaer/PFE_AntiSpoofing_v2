@@ -1,36 +1,44 @@
 {
   "cnn_backbone_ms": {
-    "mean": 20.34,
-    "std": 0.28
+    "mean": 20.06,
+    "std": 0.08
   },
   "lstm_ms": {
-    "mean": 0.67,
-    "std": 0.16
+    "mean": 0.56,
+    "std": 0.12
   },
   "full_inference_gpu_ms": {
-    "mean": 20.85,
-    "std": 0.27
+    "mean": 20.6,
+    "std": 0.18
   },
   "full_inference_cpu_ms": {
-    "mean": 179.77,
-    "std": 26.65
+    "mean": 185.72,
+    "std": 23.41
   },
   "batch_throughput": {
     "batch_1": {
-      "latency_ms": 22.5,
-      "throughput_vid_per_sec": 44.4
+      "latency_ms": 22.42,
+      "latency_std_ms": 0.16,
+      "throughput_vid_per_sec": 44.6,
+      "vram_used_gb": 0.06
     },
     "batch_2": {
-      "latency_ms": 43.38,
-      "throughput_vid_per_sec": 46.1
+      "latency_ms": 43.23,
+      "latency_std_ms": 0.14,
+      "throughput_vid_per_sec": 46.3,
+      "vram_used_gb": 0.07
     },
     "batch_4": {
-      "latency_ms": 85.24,
-      "throughput_vid_per_sec": 46.9
+      "latency_ms": 85.18,
+      "latency_std_ms": 0.26,
+      "throughput_vid_per_sec": 47.0,
+      "vram_used_gb": 0.09
     },
     "batch_8": {
-      "latency_ms": 1144.21,
-      "throughput_vid_per_sec": 7.0
+      "latency_ms": 979.7,
+      "latency_std_ms": 87.45,
+      "throughput_vid_per_sec": 8.2,
+      "vram_used_gb": 0.13
     }
   },
   "device": "cuda",
