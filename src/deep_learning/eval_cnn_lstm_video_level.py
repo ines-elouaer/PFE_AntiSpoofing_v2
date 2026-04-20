@@ -198,6 +198,101 @@ def banking_decision(score: float, accept_threshold: float, reject_threshold: fl
     return "REJECT"
 
 
+def calibrate_banking_thresholds(val_scores: Dict[str, Dict],
+                                  security_mode: str = "strict") -> Dict:
+    """
+    Calibre automatiquement les seuils accept/reject sur la validation.
+
+    strict   : FN = 0 garanti (aucune attaque acceptée) — recommandé banking
+    balanced : minimise ACER (équilibre sécurité / acceptation)
+
+    Retourne dict avec accept_threshold, reject_threshold, fn_val, reasoning.
+    """
+    if security_mode == "strict":
+        best_accept = 0.01
+        for th in [i / 100 for i in range(1, 60)]:
+            fn = sum(1 for d in val_scores.values()
+                     if int(d["label"]) == 1 and float(d["score"]) < th)
+            if fn == 0:
+                best_accept = th
+            else:
+                break  # dès qu'un FN apparaît on s'arrête
+
+        th_reject    = min(0.60, max(best_accept + 0.20, 0.50))
+        fn_final     = sum(1 for d in val_scores.values()
+                           if int(d["label"]) == 1 and float(d["score"]) < best_accept)
+        fp_accept    = sum(1 for d in val_scores.values()
+                           if int(d["label"]) == 0 and float(d["score"]) < best_accept)
+        total_real   = sum(1 for d in val_scores.values() if int(d["label"]) == 0)
+
+        return {
+            "accept_threshold": round(best_accept, 2),
+            "reject_threshold": round(th_reject,   2),
+            "fn_val":           fn_final,
+            "fp_accept_val":    fp_accept,
+            "accept_rate_real": round(fp_accept / total_real, 4) if total_real else 0.0,
+            "mode":             "strict (FN=0 garanti)",
+            "reasoning": (
+                f"Seuil accept={best_accept:.2f} garanti FN=0 sur VAL. "
+                f"Seuil reject={th_reject:.2f} définit la zone RETRY."
+            ),
+        }
+
+    else:  # balanced
+        best_acer, best_th = 1.0, (0.30, 0.60)
+        for th_a in [i / 100 for i in range(5, 45, 5)]:
+            for th_r in [j / 100 for j in range(50, 80, 5)]:
+                if th_r <= th_a:
+                    continue
+                _, _, acer = compute_apcer_bpcer_acer(val_scores, threshold=th_a)
+                if acer < best_acer:
+                    best_acer = acer
+                    best_th   = (th_a, th_r)
+
+        fn_final   = sum(1 for d in val_scores.values()
+                         if int(d["label"]) == 1 and float(d["score"]) < best_th[0])
+        fp_accept  = sum(1 for d in val_scores.values()
+                         if int(d["label"]) == 0 and float(d["score"]) < best_th[0])
+        total_real = sum(1 for d in val_scores.values() if int(d["label"]) == 0)
+
+        return {
+            "accept_threshold": best_th[0],
+            "reject_threshold": best_th[1],
+            "fn_val":           fn_final,
+            "fp_accept_val":    fp_accept,
+            "accept_rate_real": round(fp_accept / total_real, 4) if total_real else 0.0,
+            "mode":             f"balanced (ACER_val={best_acer:.4f})",
+            "reasoning": (
+                f"Seuils optimisés sur ACER validation. "
+                f"accept={best_th[0]:.2f}, reject={best_th[1]:.2f}."
+            ),
+        }
+
+
+def analyze_banking_errors(decisions: Dict[str, Dict]) -> Dict:
+    """
+    Analyse les erreurs du point de vue sécurité bancaire.
+      false_accept  : attaque acceptée   (CRITIQUE)
+      false_reject  : réel rejeté        (gênant)
+      missed_retry  : attaque en RETRY   (risque modéré)
+    """
+    out = {"false_accept": [], "false_reject": [], "missed_retry": [],
+           "correct_accept": [], "correct_reject": []}
+    for vid, d in decisions.items():
+        label, dec, score = int(d["label"]), d["decision"], float(d["score"])
+        if   label == 1 and dec == "ACCEPT":
+            out["false_accept"].append({"video_id": vid, "score": score, "severity": "CRITIQUE"})
+        elif label == 0 and dec == "REJECT":
+            out["false_reject"].append({"video_id": vid, "score": score, "severity": "MODEREE"})
+        elif label == 1 and dec == "RETRY":
+            out["missed_retry"].append({"video_id": vid, "score": score, "severity": "FAIBLE"})
+        elif label == 0 and dec == "ACCEPT":
+            out["correct_accept"].append({"video_id": vid, "score": score})
+        elif label == 1 and dec == "REJECT":
+            out["correct_reject"].append({"video_id": vid, "score": score})
+    return out
+
+
 def build_banking_decisions(
     video_scores: Dict[str, Dict],
     accept_threshold: float,
@@ -266,14 +361,30 @@ def main():
     parser.add_argument(
         "--accept_threshold",
         type=float,
-        default=0.30,
-        help="For banking mode: score below this => ACCEPT"
+        default=None,
+        help="Seuil accept manuel. Si None avec --auto_calibrate => calibration auto sur VAL."
     )
     parser.add_argument(
         "--reject_threshold",
         type=float,
-        default=0.60,
-        help="For banking mode: score above or equal this => REJECT; otherwise RETRY"
+        default=None,
+        help="Seuil reject manuel. Si None avec --auto_calibrate => calibration auto sur VAL."
+    )
+    parser.add_argument(
+        "--auto_calibrate",
+        action="store_true",
+        default=False,
+        help="Calibre automatiquement les seuils banking sur VAL (recommandé)."
+    )
+    parser.add_argument(
+        "--security_mode",
+        type=str,
+        default="strict",
+        choices=["strict", "balanced"],
+        help=(
+            "strict   = FN=0 garanti (aucune attaque acceptée) — recommandé\n"
+            "balanced = minimise ACER (équilibre sécurité/acceptation)"
+        )
     )
 
     parser.add_argument(
@@ -291,12 +402,27 @@ def main():
 
     args = parser.parse_args()
 
+    # Résoudre les seuils banking (auto ou manuels)
+    banking_calib_info = None
     if args.threshold_protocol == "banking":
-        if not (0.0 <= args.accept_threshold < args.reject_threshold <= 1.0):
-            raise ValueError(
-                "In banking mode, thresholds must satisfy: "
-                "0 <= accept_threshold < reject_threshold <= 1"
-            )
+        if args.auto_calibrate or (args.accept_threshold is None or args.reject_threshold is None):
+            # Calibration auto — nécessite les prédictions VAL en premier
+            # On marque pour calibrer après predict_video_scores(val)
+            _banking_auto_calibrate = True
+            _banking_accept = None
+            _banking_reject = None
+        else:
+            _banking_auto_calibrate = False
+            _banking_accept = args.accept_threshold
+            _banking_reject = args.reject_threshold
+            if not (0.0 <= _banking_accept < _banking_reject <= 1.0):
+                raise ValueError(
+                    "Seuils invalides : 0 <= accept_threshold < reject_threshold <= 1"
+                )
+    else:
+        _banking_auto_calibrate = False
+        _banking_accept = args.accept_threshold if args.accept_threshold else 0.30
+        _banking_reject = args.reject_threshold if args.reject_threshold else 0.60
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model_path = os.path.join(args.exp_dir, "best_model.pth")
@@ -362,7 +488,18 @@ def main():
     test_loader = DataLoader(test_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
     val_scores = predict_video_scores(model, val_loader, device)
-    best_val = find_best_threshold_on_val(val_scores, step=0.01)
+    best_val   = find_best_threshold_on_val(val_scores, step=0.01)
+
+    # Calibration auto des seuils banking sur VAL
+    if args.threshold_protocol == "banking" and _banking_auto_calibrate:
+        banking_calib_info = calibrate_banking_thresholds(val_scores, args.security_mode)
+        _banking_accept    = banking_calib_info["accept_threshold"]
+        _banking_reject    = banking_calib_info["reject_threshold"]
+        print(f"[AUTO-CALIBRATION banking/{args.security_mode}]")
+        print(f"  accept_threshold = {_banking_accept:.2f}")
+        print(f"  reject_threshold = {_banking_reject:.2f}")
+        print(f"  FN sur VAL       = {banking_calib_info['fn_val']}")
+        print(f"  {banking_calib_info['reasoning']}")
 
     if args.threshold_protocol == "fixed05":
         th_used: Optional[float] = 0.5
@@ -396,14 +533,16 @@ def main():
         save_confusion_csv(confusion_csv_path, tn, fp, fn, tp)
 
     banking_decisions = None
-    banking_summary = None
+    banking_summary   = None
+    banking_errors    = None
     if args.threshold_protocol == "banking":
         banking_decisions = build_banking_decisions(
             test_scores,
-            accept_threshold=args.accept_threshold,
-            reject_threshold=args.reject_threshold,
+            accept_threshold=_banking_accept,
+            reject_threshold=_banking_reject,
         )
         banking_summary = summarize_banking_decisions(banking_decisions)
+        banking_errors  = analyze_banking_errors(banking_decisions)
         save_banking_decisions_csv(banking_csv_path, banking_decisions)
 
     sweep_txt = None
@@ -454,10 +593,19 @@ def main():
     else:
         report.append(f"ROC-AUC: {auc:.4f}" if ok_auc else "ROC-AUC: N/A (sklearn not installed)")
         report.append("")
+        report.append("--- Calibration des Seuils Banking ---")
+        if banking_calib_info:
+            report.append(f"Mode          : {banking_calib_info['mode']}")
+            report.append(f"Raisonnement  : {banking_calib_info['reasoning']}")
+            report.append(f"FN sur VAL    : {banking_calib_info['fn_val']} "
+                          f"({'OK' if banking_calib_info['fn_val']==0 else 'ATTENTION'})")
+        else:
+            report.append(f"Mode          : manuel")
+        report.append("")
         report.append("--- Banking Decision Policy ---")
-        report.append(f"ACCEPT if score < {args.accept_threshold:.4f}")
-        report.append(f"RETRY  if {args.accept_threshold:.4f} <= score < {args.reject_threshold:.4f}")
-        report.append(f"REJECT if score >= {args.reject_threshold:.4f}")
+        report.append(f"ACCEPT if score < {_banking_accept:.4f}")
+        report.append(f"RETRY  if {_banking_accept:.4f} <= score < {_banking_reject:.4f}")
+        report.append(f"REJECT if score >= {_banking_reject:.4f}")
         report.append("")
         report.append("--- Banking Decision Summary ---")
         report.append(
@@ -465,6 +613,24 @@ def main():
             f"RETRY={banking_summary['RETRY']}  "
             f"REJECT={banking_summary['REJECT']}"
         )
+        report.append("")
+        report.append("--- Analyse Erreurs Bancaires ---")
+        fa = banking_errors.get("false_accept", [])
+        fr = banking_errors.get("false_reject", [])
+        mr = banking_errors.get("missed_retry", [])
+        report.append(f"[CRITIQUE] False Accept (attaque->ACCEPT) : {len(fa)}")
+        for e in fa:
+            report.append(f"    FAILLE: vidéo {e['video_id']} score={e['score']:.4f}")
+        if not fa:
+            report.append("    OK — aucune attaque acceptée")
+        report.append(f"[MODERE]   False Reject (réel->REJECT)    : {len(fr)}")
+        for e in fr:
+            report.append(f"    !  vidéo {e['video_id']} score={e['score']:.4f}")
+        report.append(f"[FAIBLE]   Missed RETRY (attaque->RETRY)  : {len(mr)}")
+        for e in mr:
+            report.append(f"    ~  vidéo {e['video_id']} score={e['score']:.4f}")
+        report.append("")
+        report.append(f"Sécurité : {'OK — aucune attaque acceptée' if len(fa)==0 else 'ECHEC — attaques acceptées!'}")
 
     if sweep_txt is not None:
         report.append("")
@@ -504,9 +670,13 @@ def main():
                 },
                 "banking_policy": (
                     {
-                        "accept_threshold": args.accept_threshold,
-                        "reject_threshold": args.reject_threshold,
-                        "decision_summary": banking_summary,
+                        "accept_threshold":  _banking_accept,
+                        "reject_threshold":  _banking_reject,
+                        "security_mode":     args.security_mode,
+                        "auto_calibrated":   _banking_auto_calibrate,
+                        "calibration_info":  banking_calib_info,
+                        "decision_summary":  banking_summary,
+                        "error_analysis":    banking_errors,
                     }
                     if args.threshold_protocol == "banking" else None
                 ),
