@@ -438,25 +438,46 @@ def main():
     banking_csv_path = os.path.join(out_dir, "banking_decisions.csv")
 
     ckpt = torch.load(model_path, map_location=device)
-    cfg = ckpt.get("config", {})
 
-    use_behav = bool(cfg.get("use_behav", False))
+# --------------------------------------------------
+# 1) récupérer config si elle existe
+# --------------------------------------------------
+    if isinstance(ckpt, dict) and "config" in ckpt:
+      cfg = ckpt.get("config", {})
+    else:
+      cfg = {}
+
+    use_behav = bool(cfg.get("use_behav", True))
     behav_dim = int(cfg.get("behav_dim", 9))
-    behav_hidden = int(cfg.get("behav_hidden", 32))
+    behav_hidden = int(cfg.get("behav_hidden", 16))
 
     model = CNN_LSTM_PAD(
-        hidden=cfg.get("hidden", 256),
-        num_layers=cfg.get("num_layers", 1),
-        bidir=cfg.get("bidir", False),
-        temporal_pool=cfg.get("temporal_pool", "mean"),
-        pretrained_backbone=True,
-        use_behav=use_behav,
-        behav_dim=behav_dim,
-        behav_hidden=behav_hidden,
-    ).to(device)
+      hidden=cfg.get("hidden", 256),
+      num_layers=cfg.get("num_layers", 1),
+      bidir=cfg.get("bidir", False),
+      temporal_pool=cfg.get("temporal_pool", "median"),
+      pretrained_backbone=True,
+      use_behav=use_behav,
+      behav_dim=behav_dim,
+      behav_hidden=behav_hidden,
+      ).to(device)
 
-    model.load_state_dict(ckpt["model_state"])
+# --------------------------------------------------
+# 2) récupérer state_dict selon le format checkpoint
+# --------------------------------------------------
+    if isinstance(ckpt, dict) and "model_state" in ckpt:
+      state_dict = ckpt["model_state"]
+    elif isinstance(ckpt, dict) and "model_state_dict" in ckpt:
+       state_dict = ckpt["model_state_dict"]
+    else:
+    # checkpoint sauvegardé directement comme state_dict
+      state_dict = ckpt
 
+# gérer DataParallel éventuel
+    if isinstance(state_dict, dict) and all(k.startswith("module.") for k in state_dict.keys()):
+      state_dict = {k[7:]: v for k, v in state_dict.items()}
+
+    model.load_state_dict(state_dict, strict=True)
     T = cfg.get("T", 16)
     img_size = cfg.get("img_size", 224)
     seed = cfg.get("seed", 42)

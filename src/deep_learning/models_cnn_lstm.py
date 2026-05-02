@@ -26,7 +26,7 @@ class CNN_LSTM_PAD(nn.Module):
         hidden: int = 256,
         num_layers: int = 1,
         bidir: bool = False,
-        lstm_dropout: float = 0.0,
+        lstm_dropout: float = 0.2,
         head_dropout: float = 0.5,
         pretrained_backbone: bool = True,
         temporal_pool: str = "mean",

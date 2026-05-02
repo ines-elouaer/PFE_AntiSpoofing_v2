@@ -1,0 +1,148 @@
+{
+  "model_name": "deep_behav_no_pts",
+  "protocol_name": "deep_behav_no_pts_valopt",
+  "threshold_protocol": "valopt",
+  "threshold_val": {
+    "th": 0.5,
+    "acer": 0.0,
+    "apcer": 0.0,
+    "bpcer": 0.0,
+    "f1": 1.0,
+    "acc": 1.0,
+    "n_tied_candidates": 39
+  },
+  "threshold_used": {
+    "th": 0.5,
+    "source": "valopt"
+  },
+  "banking_policy": null,
+  "metrics_test": {
+    "ACC": 0.875,
+    "F1": 0.9142857142857143,
+    "APCER": 0.1111111111111111,
+    "BPCER": 0.16666666666666666,
+    "ACER": 0.1388888888888889,
+    "AUC": 0.962962962962963,
+    "TN": 5,
+    "FP": 1,
+    "FN": 2,
+    "TP": 16
+  },
+  "score_stats": {
+    "attack_mean": 0.8793549206521776,
+    "real_mean": 0.3260073810815811
+  },
+  "sampling": {
+    "val_sample_mode": "uniform",
+    "test_sample_mode": "uniform",
+    "T": 16
+  },
+  "artifacts": {
+    "confusion_matrix_csv": "reports\\mixed_ft\\casia\\valopt\\confusion_matrix.csv",
+    "score_distribution_csv": "reports\\mixed_ft\\casia\\valopt\\score_distribution.csv",
+    "roc_points_csv": "reports\\mixed_ft\\casia\\valopt\\roc_points.csv",
+    "banking_decisions_csv": null
+  },
+  "test_scores": {
+    "10_1": {
+      "label": 0,
+      "score": 0.8075194358825684
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.2804218530654907
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.9900340437889099
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.9537014365196228
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.44662582874298096
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.955759584903717
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.9852377772331238
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.9768988490104675
+    },
+    "13_1": {
+      "label": 0,
+      "score": 0.30389079451560974
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.2186814844608307
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.651383101940155
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.9343671202659607
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.970992386341095
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.8518745303153992
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.9223806262016296
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.2876678705215454
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.10837772488594055
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.23715299367904663
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.9882690906524658
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.9878674745559692
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.9912137389183044
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.9860886931419373
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.9837784767150879
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.9642479419708252
+    }
+  },
+  "banking_decisions": null,
+  "config": {},
+  "checkpoint_path": "experiments\\mixed_ft_v2_unfreeze\\seed42\\best_model.pth",
+  "output_dir": "reports\\mixed_ft\\casia\\valopt"
+}

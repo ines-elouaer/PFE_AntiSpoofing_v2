@@ -1,0 +1,5 @@
+path,expected,score,label,decision,correct,error
+E:\PFE_AntiSpoofing_v2\data\demo_static\real\real_1.jpg,REAL,0.0222,REAL,ACCEPT,True,
+E:\PFE_AntiSpoofing_v2\data\demo_static\real\real_2.jpg,REAL,0.0549,REAL,ACCEPT,True,
+E:\PFE_AntiSpoofing_v2\data\demo_static\spoof\photo_attack_1.jpg.png,SPOOF,0.9634,SPOOF,REJECT,True,
+E:\PFE_AntiSpoofing_v2\data\demo_static\spoof\screen_attack_1.jpg.png,SPOOF,0.9585,SPOOF,REJECT,True,
