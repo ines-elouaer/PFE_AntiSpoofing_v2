@@ -1,33 +1,53 @@
-def banking_decision(score: float) -> str:
+def banking_decision(
+    score: float,
+    profile: str = "video",
+) -> str:
     """
-    Décision bancaire à 3 niveaux.
+    Convertit un score spoof en décision bancaire.
 
-    score = probabilité que l'entrée soit une attaque spoof.
+    Convention :
+    - score proche de 0 => REAL
+    - score proche de 1 => SPOOF
+
+    Version finale adaptée au flux vidéo challenge direct.
+
+    Politique vidéo :
+    - score < 0.30          => ACCEPT
+    - 0.30 <= score < 0.60  => RETRY
+    - score >= 0.60         => REJECT
+
+    Remarque :
+    La branche image/CelebA est désactivée dans l'architecture finale.
+    Ce fichier ne retourne donc plus VIDEO_CHALLENGE_REQUIRED.
     """
 
-    T_ACCEPT = 0.30
-    T_REJECT = 0.60
+    score = float(score)
 
-    if score < T_ACCEPT:
+    # Profil unique actif dans le système final : vidéo.
+    if profile not in ["video", "default", "banking"]:
+        profile = "video"
+
+    t_accept = 0.30
+    t_reject = 0.60
+
+    if score < t_accept:
         return "ACCEPT"
 
-    elif score < T_REJECT:
+    if score < t_reject:
         return "RETRY"
 
-    else:
-        return "REJECT"
+    return "REJECT"
 
 
 def label_from_decision(decision: str) -> str:
     """
-    Convertit la décision bancaire en label lisible.
+    Convertit une décision bancaire en label lisible.
     """
 
     if decision == "ACCEPT":
         return "REAL"
 
-    elif decision == "REJECT":
+    if decision == "REJECT":
         return "SPOOF"
 
-    else:
-        return "UNCERTAIN"
+    return "UNCERTAIN"

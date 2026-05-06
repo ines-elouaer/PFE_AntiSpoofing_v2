@@ -1,129 +1,611 @@
-from .utils import detect_input_type
-from .image_model import ImagePADModel
-from .video_model import VideoPADModel
-from .active_liveness import ActiveLivenessChallenge
-from .video_decision import VideoDecisionSystem
-from .banking_adapter import banking_decision, label_from_decision
+from pathlib import Path
+from typing import Optional, Dict, Any
+
+from src.pad_system.video_model import VideoPADModel
+from src.pad_system.input_validator import PADInputValidator
+from src.pad_system.challenge_manager import ChallengeManager
+from src.pad_system.active_liveness_system import ActiveLivenessSystem
+
+try:
+    from src.pad_system.banking_adapter import banking_decision, label_from_decision
+except Exception:
+    def banking_decision(score: float, profile: str = "video") -> str:
+        """
+        Fallback local si banking_adapter.py n'est pas disponible.
+
+        Convention :
+        - score proche de 0 => REAL
+        - score proche de 1 => SPOOF
+        """
+        score = float(score)
+
+        if score < 0.30:
+            return "ACCEPT"
+
+        if score < 0.60:
+            return "RETRY"
+
+        return "REJECT"
+
+    def label_from_decision(decision: str) -> str:
+        if decision == "ACCEPT":
+            return "REAL"
+
+        if decision == "REJECT":
+            return "SPOOF"
+
+        return "UNCERTAIN"
+
+
+VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv"}
 
 
 class PADRouter:
     """
-    Routeur principal du système PAD bancaire.
+    Routeur principal du système PAD.
 
-    Architecture :
-    - si entrée image :
-        → branche image statique
-        → modèle CelebA-Spoof
-        → score image
-        → décision bancaire
-
-    - si entrée vidéo :
-        → système de décision vidéo
-        → challenge actif / liveness
-        → si FAIL : RETRY
-        → si PASS : modèle vidéo CNN+LSTM
-        → score vidéo
-        → décision bancaire
+    Version finale adaptée au flux société :
+    - pas de branche image ;
+    - pas de modèle CelebA ;
+    - pas de VIDEO_CHALLENGE_REQUIRED depuis une image ;
+    - flux principal :
+        challenge/start
+        -> vidéo challenge
+        -> validation vidéo
+        -> validation challenge_id
+        -> liveness actif
+        -> modèle PAD vidéo CNN+LSTM+Behavior
+        -> décision ACCEPT / RETRY / REJECT.
     """
 
-    def __init__(self, enable_liveness: bool = False):
-        self.enable_liveness = enable_liveness
+    def __init__(
+        self,
+        enable_liveness: bool = True,
+        load_video_model: bool = True,
+        challenge_ttl_seconds: int = 60,
+        allow_dataset_video_id: bool = True,
+    ):
+        self.default_enable_liveness = enable_liveness
+        self.allow_dataset_video_id = allow_dataset_video_id
 
-        # Branche image
-        self.image_model = ImagePADModel()
+        self.project_root = Path(__file__).resolve().parents[2]
 
-        # Branche vidéo
-        self.video_model = VideoPADModel()
-        self.liveness = ActiveLivenessChallenge()
-
-        # Système de décision vidéo
-        self.video_decision = VideoDecisionSystem(
-            video_model=self.video_model,
-            liveness_module=self.liveness,
+        self.input_validator = PADInputValidator(
+            allow_images=False,
+            min_video_frames=16,
+            min_video_duration_sec=1.0,
+            min_width=64,
+            min_height=64,
         )
 
-    def analyze(self, file_path, challenge=None, enable_liveness=None):
+        self.challenge_manager = ChallengeManager(ttl_seconds=challenge_ttl_seconds)
+
+        self.video_model = VideoPADModel() if load_video_model else None
+
+        self.liveness_system = self._try_init_liveness_system()
+
+    # ==========================================================
+    # PUBLIC API
+    # ==========================================================
+
+    def analyze(
+        self,
+        file_path: str,
+        enable_liveness: Optional[bool] = None,
+        challenge: Optional[str] = None,
+        challenge_type: Optional[str] = None,
+        session_id: Optional[str] = None,
+        challenge_id: Optional[str] = None,
+        require_challenge_validation: bool = False,
+    ) -> Dict[str, Any]:
         """
-        Analyse une entrée image ou vidéo.
+        Analyse une vidéo.
 
-        Paramètres :
-        - file_path :
-            chemin image, chemin vidéo, ou video_id CASIA.
-
-        - challenge :
-            TURN_LEFT / TURN_RIGHT / BLINK / SMILE.
-            Utilisé seulement pour la branche vidéo.
-
-        - enable_liveness :
-            None  → utilise self.enable_liveness
-            True  → force le liveness
-            False → désactive le liveness
-        """
-
-        input_type = detect_input_type(file_path)
-
-        if enable_liveness is None:
-            use_liveness = self.enable_liveness
-        else:
-            use_liveness = bool(enable_liveness)
-
-        # ======================================================
-        # Branche image : CelebA uniquement
-        # ======================================================
-        if input_type == "image":
-            score = self.image_model.predict(file_path)
-            score = float(score)
-
-            decision = banking_decision(score)
-            label = label_from_decision(decision)
-
-            return {
-                "type": "image",
-                "branch": "image_static_celeba",
-                "score": round(score, 4),
-                "label": label,
-                "decision": decision,
-                "liveness": {
-                    "status": "NOT_APPLICABLE",
-                    "passed": True,
-                    "reason": "image_branch_no_active_liveness",
-                },
-                "model_called": True,
-                "message": "Image analysée par le modèle CelebA-Spoof.",
-            }
-
-        # ======================================================
-        # Branche vidéo : système de décision vidéo
-        # ======================================================
-        elif input_type == "video":
-            video_result = self.video_decision.analyze(
-                video_path_or_id=file_path,
-                challenge=challenge,
-                enable_liveness=use_liveness,
+        Cas 1 — vidéo fichier :
+            router.analyze(
+                "data/demo/webcam_challenge.mp4",
+                challenge_id="...",
+                require_challenge_validation=True,
+                enable_liveness=True
             )
 
+        Cas 2 — video_id dataset CASIA/Axon pour debug :
+            router.analyze("13_1", enable_liveness=False)
+
+        Le flux image est volontairement désactivé.
+        """
+
+        if enable_liveness is None:
+            enable_liveness = self.default_enable_liveness
+
+        selected_challenge = challenge_type or challenge
+
+        # Cas spécial debug : video_id dataset, ex: "13_1" ou "13_1.avi"
+        if self.allow_dataset_video_id and self._looks_like_dataset_video_id(file_path):
+            video_id = self._normalize_dataset_video_id(file_path)
+
+            return self._analyze_video(
+                input_value=video_id,
+                original_input=file_path,
+                enable_liveness=False,
+                challenge=selected_challenge,
+                validation={
+                    "is_valid": True,
+                    "input_type": "video",
+                    "reason": "dataset_video_id",
+                    "details": {
+                        "video_id": video_id,
+                        "original_input": file_path,
+                    },
+                },
+                session_id=session_id,
+                challenge_id=challenge_id,
+                require_challenge_validation=False,
+            )
+
+        validation = self.input_validator.validate(file_path)
+
+        if not validation.is_valid:
+            return self._invalid_input_response(
+                validation=validation,
+                session_id=session_id,
+                challenge_id=challenge_id,
+            )
+
+        if validation.input_type != "video":
+            return {
+                "type": validation.input_type,
+                "branch": "input_validation",
+                "score": None,
+                "label": "UNCERTAIN",
+                "decision": "INVALID_INPUT",
+                "next_action": "USE_VIDEO_CHALLENGE",
+                "liveness": {
+                    "status": "NOT_APPLICABLE",
+                    "passed": False,
+                    "challenge": selected_challenge,
+                    "reason": "only_video_input_is_supported",
+                    "metrics": {},
+                },
+                "model_called": False,
+                "message": "Le flux image est désactivé. Utiliser une vidéo challenge.",
+                "validation": validation.to_dict(),
+                "session_id": session_id,
+                "challenge_id": challenge_id,
+                "challenge": None,
+                "original_input": file_path,
+            }
+
+        return self._analyze_video(
+            input_value=file_path,
+            original_input=file_path,
+            enable_liveness=enable_liveness,
+            challenge=selected_challenge,
+            validation=validation.to_dict(),
+            session_id=session_id,
+            challenge_id=challenge_id,
+            require_challenge_validation=require_challenge_validation,
+        )
+
+    # ==========================================================
+    # VIDEO BRANCH
+    # ==========================================================
+
+    def _analyze_video(
+        self,
+        input_value: str,
+        original_input: str,
+        enable_liveness: bool,
+        challenge: Optional[str],
+        validation: Dict[str, Any],
+        session_id: Optional[str] = None,
+        challenge_id: Optional[str] = None,
+        require_challenge_validation: bool = False,
+    ) -> Dict[str, Any]:
+
+        print(f"[INFO] Analyse vidéo: {input_value}")
+
+        if self.video_model is None:
             return {
                 "type": "video",
                 "branch": "video_dynamic_decision_system",
-                "score": video_result["score"],
-                "label": video_result["label"],
-                "decision": video_result["decision"],
-                "liveness": video_result["liveness"],
-                "model_called": video_result["model_called"],
-                "message": video_result["message"],
+                "score": None,
+                "label": "UNCERTAIN",
+                "decision": "MODEL_NOT_LOADED",
+                "next_action": "RETRY_LATER",
+                "liveness": {
+                    "status": "DISABLED",
+                    "passed": False,
+                    "challenge": challenge,
+                    "reason": "video_model_not_loaded",
+                    "metrics": {},
+                },
+                "model_called": False,
+                "message": "Modèle vidéo non chargé.",
+                "validation": validation,
+                "session_id": session_id,
+                "challenge_id": challenge_id,
+                "challenge": None,
+                "original_input": original_input,
+            }
+
+        challenge_validation = None
+        expected_challenge = challenge
+
+        # ======================================================
+        # 1. Validation challenge_id si demandée
+        # ======================================================
+        if require_challenge_validation:
+            if not challenge_id:
+                return {
+                    "type": "video",
+                    "branch": "challenge_validation",
+                    "score": None,
+                    "label": "UNCERTAIN",
+                    "decision": "INVALID_CHALLENGE",
+                    "next_action": "RESTART_CHALLENGE",
+                    "liveness": {
+                        "status": "NOT_APPLICABLE",
+                        "passed": False,
+                        "challenge": challenge,
+                        "reason": "missing_challenge_id",
+                        "metrics": {},
+                    },
+                    "model_called": False,
+                    "message": (
+                        "challenge_id manquant. Il faut démarrer un challenge "
+                        "avant d'envoyer la vidéo."
+                    ),
+                    "validation": validation,
+                    "session_id": session_id,
+                    "challenge_id": challenge_id,
+                    "challenge": None,
+                    "original_input": original_input,
+                }
+
+            challenge_validation = self.challenge_manager.validate_challenge(challenge_id)
+
+            if not challenge_validation.get("is_valid", False):
+                return {
+                    "type": "video",
+                    "branch": "challenge_validation",
+                    "score": None,
+                    "label": "UNCERTAIN",
+                    "decision": "INVALID_CHALLENGE",
+                    "next_action": "RESTART_CHALLENGE",
+                    "liveness": {
+                        "status": "NOT_APPLICABLE",
+                        "passed": False,
+                        "challenge": challenge,
+                        "reason": challenge_validation.get("reason", "invalid_challenge"),
+                        "metrics": {},
+                    },
+                    "model_called": False,
+                    "message": f"Challenge invalide: {challenge_validation.get('reason')}",
+                    "validation": validation,
+                    "session_id": session_id,
+                    "challenge_id": challenge_id,
+                    "challenge": challenge_validation.get("challenge"),
+                    "original_input": original_input,
+                }
+
+            challenge_data = challenge_validation["challenge"]
+            expected_challenge = challenge_data.get("challenge_type", challenge)
+            session_id = challenge_data.get("session_id", session_id)
+
+        is_real_video_file = Path(str(input_value)).exists()
+
+        # ======================================================
+        # 2. Liveness actif
+        # ======================================================
+        if enable_liveness and is_real_video_file and expected_challenge is not None:
+            liveness_result = self._run_liveness(
+                video_path=input_value,
+                challenge=expected_challenge,
+            )
+
+            if not liveness_result.get("passed", False):
+                # Si le challenge est valide mais liveness échoue,
+                # on marque le challenge comme utilisé pour éviter replay.
+                if require_challenge_validation and challenge_id:
+                    self.challenge_manager.mark_used(challenge_id)
+
+                return {
+                    "type": "video",
+                    "branch": "video_dynamic_decision_system",
+                    "score": None,
+                    "label": "UNCERTAIN",
+                    "decision": "RETRY",
+                    "next_action": "RETRY_VIDEO_CHALLENGE",
+                    "liveness": liveness_result,
+                    "model_called": False,
+                    "message": "Liveness échoué. Nouvelle capture vidéo requise.",
+                    "validation": validation,
+                    "session_id": session_id,
+                    "challenge_id": challenge_id,
+                    "challenge": challenge_validation.get("challenge") if challenge_validation else None,
+                    "original_input": original_input,
+                }
+
+        elif enable_liveness and is_real_video_file and expected_challenge is None:
+            liveness_result = {
+                "status": "DISABLED",
+                "passed": True,
+                "challenge": None,
+                "reason": "liveness_enabled_but_no_challenge_provided",
+                "metrics": {},
+            }
+
+        else:
+            liveness_result = {
+                "status": "DISABLED",
+                "passed": True,
+                "challenge": expected_challenge,
+                "reason": "liveness_disabled_for_this_call",
+                "metrics": {},
             }
 
         # ======================================================
-        # Type non supporté
+        # 3. Modèle PAD vidéo
         # ======================================================
+       
+        score = float(self.video_model.predict(input_value))
+
+        # ======================================================
+        # Politique de décision
+        # ======================================================
+        is_raw_video_file = Path(str(input_value)).exists()
+
+        if is_raw_video_file and enable_liveness:
+            # Politique prudente pour les vidéos live / webcam.
+            # Objectif : éviter un faux REJECT brutal sur un vrai utilisateur
+            # lorsque le liveness actif est passé mais que le modèle PAD est instable.
+            if score < 0.30:
+                decision = "ACCEPT"
+            else:
+                decision = "RETRY"
         else:
+            # Politique normale pour les évaluations dataset CASIA/Axon.
+            decision = banking_decision(score, profile="video")
+
+        label = label_from_decision(decision)
+        if decision == "ACCEPT":
+            next_action = "NONE"
+            message = "Analyse vidéo terminée. Vidéo acceptée."
+
+        elif decision == "REJECT":
+            next_action = "NONE"
+            message = "Analyse vidéo terminée. Vidéo rejetée comme attaque probable."
+
+        elif decision == "RETRY":
+            next_action = "RETRY_VIDEO_CAPTURE"
+            message = "Analyse vidéo ambiguë. Nouvelle capture recommandée."
+
+        else:
+            next_action = "RETRY_VIDEO_CAPTURE"
+            message = "Décision vidéo incertaine."
+
+        used_result = None
+
+        if require_challenge_validation and challenge_id:
+            used_result = self.challenge_manager.mark_used(challenge_id)
+        return {
+            "type": "video",
+            "branch": "video_dynamic_decision_system",
+            "score": round(score, 4),
+            "label": label,
+            "decision": decision,
+            "next_action": next_action,
+            "liveness": liveness_result,
+            "model_called": True,
+            "message": message,
+            "validation": validation,
+            "session_id": session_id,
+            "challenge_id": challenge_id,
+            "challenge": (
+                used_result.get("challenge")
+                if used_result and used_result.get("success")
+                else challenge_validation.get("challenge") if challenge_validation else None
+            ),
+            "original_input": original_input,
+        }
+
+    # ==========================================================
+    # CHALLENGE PUBLIC HELPERS
+    # ==========================================================
+
+    def create_video_challenge(
+        self,
+        source: str = "direct_video_challenge",
+        challenge_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Crée un challenge vidéo direct.
+
+        Utilisé par :
+        - API /pad/challenge/start
+        - démo webcam
+        - tests.
+        """
+        return self.challenge_manager.create_challenge(
+            source=source,
+            challenge_type=challenge_type,
+        )
+
+    def validate_video_challenge(self, challenge_id: str) -> Dict[str, Any]:
+        return self.challenge_manager.validate_challenge(challenge_id)
+
+    # ==========================================================
+    # LIVENESS
+    # ==========================================================
+
+    def _try_init_liveness_system(self):
+        """
+        Charge le système de liveness actif basé sur MediaPipe FaceLandmarker.
+        """
+        model_path = self.project_root / "models" / "face_landmarker.task"
+
+        try:
+            liveness_system = ActiveLivenessSystem(
+                model_path=str(model_path)
+            )
+            print("[LIVENESS] ActiveLivenessSystem chargé avec succès.")
+            return liveness_system
+
+        except Exception as e:
+            print(f"[LIVENESS] Erreur chargement ActiveLivenessSystem: {e}")
+            print("[LIVENESS] Liveness désactivé.")
+            return None
+
+    def _run_liveness(
+        self,
+        video_path: str,
+        challenge: Optional[str],
+    ) -> Dict[str, Any]:
+
+        if self.liveness_system is None:
             return {
-                "type": input_type,
-                "branch": "unknown",
-                "score": None,
-                "label": "UNKNOWN",
-                "decision": "RETRY",
-                "liveness": None,
-                "model_called": False,
-                "message": "Type d'entrée non supporté.",
+                "status": "FAIL",
+                "passed": False,
+                "challenge": challenge,
+                "reason": "no_liveness_system_available",
+                "metrics": {},
             }
+
+        if challenge is None:
+            return {
+                "status": "FAIL",
+                "passed": False,
+                "challenge": challenge,
+                "reason": "missing_challenge",
+                "metrics": {},
+            }
+
+        try:
+            result = self.liveness_system.analyze(
+                video_path=video_path,
+                challenge=challenge,
+            )
+            return self._normalize_liveness_result(result, challenge)
+
+        except Exception as e:
+            return {
+                "status": "ERROR",
+                "passed": False,
+                "challenge": challenge,
+                "reason": f"liveness_exception: {str(e)}",
+                "metrics": {},
+            }
+
+    def _normalize_liveness_result(
+        self,
+        result: Any,
+        challenge: Optional[str],
+    ) -> Dict[str, Any]:
+
+        if isinstance(result, dict):
+            passed = bool(result.get("passed", result.get("status") == "PASS"))
+            status = result.get("status", "PASS" if passed else "FAIL")
+            reason = result.get("reason", "liveness_checked")
+            metrics = result.get("metrics", {})
+
+            return {
+                "status": status,
+                "passed": passed,
+                "challenge": result.get("challenge", challenge),
+                "reason": reason,
+                "metrics": metrics,
+            }
+
+        if isinstance(result, bool):
+            return {
+                "status": "PASS" if result else "FAIL",
+                "passed": result,
+                "challenge": challenge,
+                "reason": "boolean_liveness_result",
+                "metrics": {},
+            }
+
+        return {
+            "status": "UNKNOWN",
+            "passed": False,
+            "challenge": challenge,
+            "reason": "unsupported_liveness_result_format",
+            "metrics": {
+                "raw_result": str(result)
+            },
+        }
+
+    # ==========================================================
+    # VALIDATION / UTILS
+    # ==========================================================
+
+    def _invalid_input_response(
+        self,
+        validation,
+        session_id: Optional[str],
+        challenge_id: Optional[str],
+    ) -> Dict[str, Any]:
+        next_action = "RETRY_VIDEO_CAPTURE"
+
+        if validation.reason == "image_input_disabled":
+            next_action = "USE_VIDEO_CHALLENGE"
+
+        return {
+            "type": validation.input_type,
+            "branch": "input_validation",
+            "score": None,
+            "label": "UNCERTAIN",
+            "decision": "INVALID_INPUT",
+            "next_action": next_action,
+            "liveness": {
+                "status": "NOT_APPLICABLE",
+                "passed": False,
+                "challenge": None,
+                "reason": validation.reason,
+                "metrics": validation.details,
+            },
+            "model_called": False,
+            "message": f"Entrée invalide: {validation.reason}",
+            "validation": validation.to_dict(),
+            "session_id": session_id,
+            "challenge_id": challenge_id,
+            "challenge": None,
+        }
+
+    def _looks_like_dataset_video_id(self, value: str) -> bool:
+        """
+        Reconnaît un identifiant vidéo dataset, par exemple :
+        - 13_1
+        - 13_1.avi
+
+        Cette option est utile pour les tests sur CASIA/Axon préparés.
+        Elle n'est pas destinée à l'API publique.
+        """
+        p = Path(str(value))
+
+        if p.exists():
+            return False
+
+        value_str = str(value).strip()
+
+        if "\\" in value_str or "/" in value_str:
+            return False
+
+        suffix = p.suffix.lower()
+
+        if suffix == "":
+            return True
+
+        if suffix in VIDEO_EXTS:
+            return True
+
+        return False
+
+    def _normalize_dataset_video_id(self, value: str) -> str:
+        p = Path(str(value))
+
+        if p.suffix.lower() in VIDEO_EXTS:
+            return p.stem
+
+        return str(value).strip()

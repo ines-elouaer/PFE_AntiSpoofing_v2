@@ -1,0 +1,32 @@
+Evaluation CelebA image model on AxonLabs static subset
+======================================================================
+
+Parameters
+----------------------------------------------------------------------
+threshold         : 0.5
+banking_t_accept : 0.20
+banking_t_reject : 0.60
+max_samples       : None
+limit_per_label   : None
+seed              : 42
+
+Metrics
+----------------------------------------------------------------------
+total                    : 568
+real_count               : 10
+spoof_count              : 558
+tp_spoof                 : 533
+tn_real                  : 10
+fp_real_as_spoof         : 0
+fn_spoof_as_real         : 25
+accuracy                 : 0.955986
+precision_spoof          : 1.000000
+recall_spoof             : 0.955197
+f1_spoof                 : 0.977085
+APCER                    : 0.044803
+BPCER                    : 0.000000
+ACER                     : 0.022401
+threshold                : 0.500000
+evaluated_rows           : 568
+valid_metric_rows        : 568
+errors                   : 0

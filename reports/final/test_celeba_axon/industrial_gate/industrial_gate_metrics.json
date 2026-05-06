@@ -1,0 +1,32 @@
+{
+  "total": 568,
+  "real_count": 10,
+  "spoof_count": 558,
+  "real_accept": 4,
+  "real_challenge": 6,
+  "real_reject": 0,
+  "spoof_accept_danger": 0,
+  "spoof_challenge": 37,
+  "spoof_reject": 521,
+  "real_accept_rate": 0.4,
+  "real_challenge_rate": 0.6,
+  "real_reject_rate": 0.0,
+  "spoof_dangerous_accept_rate": 0.0,
+  "spoof_challenge_rate": 0.06630824372759857,
+  "spoof_reject_rate": 0.9336917562724014,
+  "global_challenge_rate": 0.07570422535211267,
+  "decision_counts": {
+    "VIDEO_CHALLENGE_REQUIRED": 43,
+    "ACCEPT": 4,
+    "REJECT": 521
+  },
+  "spoof_decision_counts": {
+    "REJECT": 521,
+    "VIDEO_CHALLENGE_REQUIRED": 37
+  },
+  "real_decision_counts": {
+    "VIDEO_CHALLENGE_REQUIRED": 6,
+    "ACCEPT": 4
+  },
+  "errors": 0
+}

@@ -1,0 +1,47 @@
+========== CASIA CHECKPOINT → AXON VIDEO EVALUATION ==========
+total: 646
+real_count: 26
+spoof_count: 620
+tn_real: 4
+fp_real_as_spoof: 22
+fn_spoof_as_real: 127
+tp_spoof: 493
+accuracy: 0.7693498452012384
+precision_spoof: 0.9572815533980582
+recall_spoof: 0.7951612903225806
+f1_spoof: 0.8687224669603524
+APCER: 0.20483870967741935
+BPCER: 0.8461538461538461
+ACER: 0.5254962779156327
+AUC: 0.47332506203473945
+evaluated_videos: 646
+valid_predictions: 646
+prediction_errors: 0
+checkpoint: E:\PFE_AntiSpoofing_v2\experiments\step2_sampling\deep_behav_no_pts_consecutive\deep_behav_no_pts_consecutive_seed42\best_model.pth
+frames_csv: E:\PFE_AntiSpoofing_v2\data\axon_prepared\manifests\axon_video_frames_manifest.csv
+behavior_csv: E:\PFE_AntiSpoofing_v2\data\axon_prepared\manifests\axon_video_behav_norm.csv
+threshold: 0.5
+sampling_mode: consecutive_middle
+behavior_scaler: CASIA_train_behav_scaler
+
+========== CONFUSION DETAILS ==========
+TN REAL correct        : 4
+FP REAL as SPOOF       : 22
+FN SPOOF as REAL       : 127
+TP SPOOF correct       : 493
+
+========== ATTACK TYPE SUMMARY ==========
+        attack_type   n  accuracy    APCER    BPCER     ACER  f1_spoof  mean_score  min_score  max_score
+           on_actor 192  0.890625 0.109375 0.000000 0.054688  0.942149    0.843066   0.192705   0.986471
+      silicone_mask  90  0.566667 0.433333 0.000000 0.216667  0.723404    0.534963   0.008216   0.976527
+          print_cut  68  0.852941 0.147059 0.000000 0.073529  0.920635    0.769921   0.014831   0.983514
+          3d_attack  61  0.950820 0.049180 0.000000 0.024590  0.974790    0.805014   0.043688   0.977831
+mobile_image_replay  56  0.696429 0.303571 0.000000 0.151786  0.821053    0.635389   0.036674   0.950743
+    pc_video_replay  40  0.725000 0.275000 0.000000 0.137500  0.840580    0.706330   0.054460   0.971604
+    cylinder_attack  27  1.000000 0.000000 0.000000 0.000000  1.000000    0.894079   0.543569   0.984502
+         real_video  26  0.153846 0.000000 0.846154 0.423077  0.000000    0.779463   0.167056   0.981244
+         latex_mask  26  0.461538 0.538462 0.000000 0.269231  0.631579    0.387677   0.016783   0.979860
+mobile_video_replay  25  0.800000 0.200000 0.000000 0.100000  0.888889    0.740143   0.058284   0.980844
+   wrapped_3d_paper  18  0.722222 0.277778 0.000000 0.138889  0.838710    0.623712   0.087071   0.973770
+     advanced_paper  12  0.916667 0.083333 0.000000 0.041667  0.956522    0.869039   0.386742   0.982185
+    pc_image_replay   5  0.800000 0.200000 0.000000 0.100000  0.888889    0.710270   0.405940   0.948212

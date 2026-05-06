@@ -1,0 +1,27 @@
+{
+  "project_root": ".",
+
+  "celeba_dir": "data/celeba",
+  "celeba_full_csv": "data/celeba/celeba_full.csv",
+  "celeba_ft_train_csv": "data/celeba/celeba_8000_ft_train.csv",
+  "celeba_ft_val_csv": "data/celeba/celeba_8000_ft_val.csv",
+  "celeba_ft_test_csv": "data/celeba/celeba_8000_ft_test.csv",
+
+  "casia_processed_dir": "data/processed/casia",
+  "casia_frames_color_dir": "data/processed/casia/all_img/color",
+  "casia_frames_depth_dir": "data/processed/casia/all_img/depth",
+  "casia_splits_dir": "data/processed/casia/splits_subject",
+  "casia_test_csv": "data/processed/casia/splits_subject/test.csv",
+  "casia_behav_test_csv": "data/processed/casia/behav/test_behav.csv",
+
+  "axon_raw_dir": "E:/AxonLabs",
+  "axon_prepared_dir": "data/axon_prepared",
+  "axon_static_manifest": "data/axon_prepared/manifests/axon_static_manifest.csv",
+  "axon_video_manifest": "data/axon_prepared/manifests/axon_video_manifest.csv",
+
+  "image_checkpoint": "experiments/celeba_finetune_v3_8000_unfreeze/seed42/best_model_celeba_ft.pth",
+  "video_checkpoint": "experiments/step2_sampling/deep_behav_no_pts_consecutive/deep_behav_no_pts_consecutive_seed42/best_model.pth",
+  "face_landmarker_model": "models/face_landmarker.task",
+
+  "reports_dir": "reports"
+}
