@@ -1,0 +1,4 @@
+video_id,original_video_id,source_dataset,device_id,subject_id,attack_type,true_label_name,pred_label_name,score_spoof
+AXON__axon_de845200c77bd3,axon_de845200c77bd3,AXON,axon_camera,axon_subject_f838c74d,on_actor,SPOOF,REAL,0.1230492442846298
+AXON__axon_e2a1edb3427e34,axon_e2a1edb3427e34,AXON,axon_camera,axon_subject_2eefd49c,silicone_mask,SPOOF,REAL,0.2911764681339264
+CASIA__13_8,13_8,CASIA,casia_camera,13,casia_real_or_spoof,SPOOF,REAL,0.1118319705128669

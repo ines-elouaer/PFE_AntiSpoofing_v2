@@ -1,0 +1,38 @@
+========== MIXED_TEST FINAL EVALUATION ==========
+total: 144
+real_count: 33
+spoof_count: 111
+tn_real: 23
+fp_real_as_spoof: 10
+fn_spoof_as_real: 3
+tp_spoof: 108
+accuracy: 0.9097222222222222
+precision_spoof: 0.9152542372881356
+recall_spoof: 0.972972972972973
+f1_spoof: 0.9432314410480349
+APCER: 0.02702702702702703
+BPCER: 0.30303030303030304
+ACER: 0.16502866502866503
+AUC: 0.9642369642369641
+
+========== CONFUSION DETAILS ==========
+TN REAL correct  : 23
+FP REAL as SPOOF : 10
+FN SPOOF as REAL : 3
+TP SPOOF correct : 108
+
+========== ATTACK TYPE SUMMARY ==========
+        attack_type  total  real_count  spoof_count  accuracy    APCER   BPCER     ACER  AUC  tn_real  fp_real_as_spoof  fn_spoof_as_real  tp_spoof  mean_score  min_score  max_score
+          3d_attack     10           0           10  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0        10    0.983696   0.963028   0.994558
+     advanced_paper      2           0            2  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0         2    0.874950   0.757128   0.992772
+casia_real_or_spoof     24           6           18  0.958333 0.055556 0.00000 0.027778  1.0        6                 0                 1        17    0.692351   0.000985   0.996895
+    cylinder_attack      6           0            6  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0         6    0.983240   0.947105   0.995377
+         latex_mask      4           0            4  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0         4    0.823223   0.619354   0.991121
+mobile_image_replay     11           0           11  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0        11    0.940520   0.868385   0.983931
+mobile_video_replay      4           0            4  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0         4    0.883941   0.643099   0.995466
+           on_actor     31           0           31  0.967742 0.032258 0.00000 0.016129  NaN        0                 0                 1        30    0.941143   0.113149   0.997108
+    pc_video_replay      4           0            4  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0         4    0.939769   0.819892   0.991052
+          print_cut     10           0           10  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0        10    0.943349   0.608807   0.996288
+         real_video     27          27            0  0.629630 0.000000 0.37037 0.185185  NaN       17                10                 0         0    0.352466   0.004739   0.942330
+      silicone_mask      8           0            8  0.875000 0.125000 0.00000 0.062500  NaN        0                 0                 1         7    0.792358   0.279025   0.990383
+   wrapped_3d_paper      3           0            3  1.000000 0.000000 0.00000 0.000000  NaN        0                 0                 0         3    0.944157   0.902099   0.980704

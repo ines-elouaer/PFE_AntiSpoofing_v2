@@ -1,27 +1,58 @@
 {
   "project_root": ".",
 
+  "celeba_raw_dir": "E:/CelebA-Spoof",
   "celeba_dir": "data/celeba",
   "celeba_full_csv": "data/celeba/celeba_full.csv",
   "celeba_ft_train_csv": "data/celeba/celeba_8000_ft_train.csv",
   "celeba_ft_val_csv": "data/celeba/celeba_8000_ft_val.csv",
   "celeba_ft_test_csv": "data/celeba/celeba_8000_ft_test.csv",
 
+  "casia_raw_dir": "E:/CASIA",
   "casia_processed_dir": "data/processed/casia",
   "casia_frames_color_dir": "data/processed/casia/all_img/color",
   "casia_frames_depth_dir": "data/processed/casia/all_img/depth",
   "casia_splits_dir": "data/processed/casia/splits_subject",
+  "casia_train_csv": "data/processed/casia/splits_subject/train.csv",
+  "casia_val_csv": "data/processed/casia/splits_subject/val.csv",
   "casia_test_csv": "data/processed/casia/splits_subject/test.csv",
-  "casia_behav_test_csv": "data/processed/casia/behav/test_behav.csv",
+  "casia_behav_train_csv": "data/processed/casia/behav/train_behav_norm.csv",
+  "casia_behav_val_csv": "data/processed/casia/behav/val_behav_norm.csv",
+  "casia_behav_test_csv": "data/processed/casia/behav/test_behav_norm.csv",
+  "casia_behav_scaler": "data/processed/casia/behav/behav_scaler.pkl",
 
   "axon_raw_dir": "E:/AxonLabs",
   "axon_prepared_dir": "data/axon_prepared",
   "axon_static_manifest": "data/axon_prepared/manifests/axon_static_manifest.csv",
   "axon_video_manifest": "data/axon_prepared/manifests/axon_video_manifest.csv",
+  "axon_video_frames_manifest": "data/axon_prepared/manifests/axon_video_frames_manifest.csv",
+  "axon_video_behav_raw": "data/axon_prepared/manifests/axon_video_behav_raw.csv",
+  "axon_video_behav_norm": "data/axon_prepared/manifests/axon_video_behav_norm.csv",
+  "axon_splits_dir": "data/axon_prepared/manifests/splits",
+
+  "local_real_raw_dir": "E:/LOCAL_REAL",
+  "local_real_prepared_dir": "data/local_real_prepared",
+  "local_real_video_manifest": "data/local_real_prepared/manifests/local_real_video_manifest.csv",
+  "local_real_frames_manifest": "data/local_real_prepared/manifests/local_real_frames_manifest.csv",
+  "local_real_behav_raw": "data/local_real_prepared/manifests/local_real_behav_raw.csv",
+  "local_real_behav_norm": "data/local_real_prepared/manifests/local_real_behav_norm.csv",
+  "local_real_splits_dir": "data/local_real_prepared/manifests/splits",
+  "local_real_frames_per_video": 16,
+
+  "msu_mfsd_raw_dir": "E:/msu_mfsd",
+  "msu_mfsd_prepared_dir": "data/msu_mfsd_prepared",
+  "msu_real_frames_manifest": "data/msu_mfsd_prepared/manifests/msu_real_frames_manifest.csv",
+  "msu_real_behav_raw": "data/msu_mfsd_prepared/manifests/msu_real_behav_raw.csv",
+  "msu_real_behav_norm": "data/msu_mfsd_prepared/manifests/msu_real_behav_norm.csv",
+  "msu_real_splits_dir": "data/msu_mfsd_prepared/manifests/splits",
+
+  "mixed_casia_axon_dir": "data/mixed_casia_axon",
+  "mixed_casia_axon_local_msu_dir": "data/mixed_casia_axon_local_msu",
 
   "image_checkpoint": "experiments/celeba_finetune_v3_8000_unfreeze/seed42/best_model_celeba_ft.pth",
-  "video_checkpoint": "experiments/step2_sampling/deep_behav_no_pts_consecutive/deep_behav_no_pts_consecutive_seed42/best_model.pth",
-  "face_landmarker_model": "models/face_landmarker.task",
+  "video_checkpoint": "experiments/mixed_casia_axon/seed42/best_model_mixed_casia_axon.pth",
+  "baseline_video_checkpoint": "experiments/step2_sampling/deep_behav_no_pts_consecutive/deep_behav_no_pts_consecutive_seed42/best_model.pth",
 
+  "face_landmarker_model": "models/face_landmarker.task",
   "reports_dir": "reports"
 }

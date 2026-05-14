@@ -1,18 +1,21 @@
 from pathlib import Path
+import sys
 import time
+
+ROOT = Path(r"E:\PFE_AntiSpoofing_v2")
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import cv2
 
 from src.pad_system.router import PADRouter
 
 
-ROOT = Path(r"E:\PFE_AntiSpoofing_v2")
 DEMO_DIR = ROOT / "data" / "demo"
 DEMO_DIR.mkdir(parents=True, exist_ok=True)
 
 OUTPUT_VIDEO = DEMO_DIR / "jury_video_challenge.mp4"
-
-
 def print_section(title: str):
     print("\n" + "=" * 58)
     print(title)
@@ -126,6 +129,7 @@ def main():
     print("\n[0] Initialisation du système")
     print("-" * 58)
     print("Chargement des modules en cours...")
+    print("Modèle attendu : E:\\PFE_AntiSpoofing_v2\\experiments\\mixed_casia_axon_local_msu\\seed42\\best_model_mixed_casia_axon_local_msu.pth")
 
     router = PADRouter(
         enable_liveness=True,

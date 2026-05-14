@@ -1,0 +1,13 @@
+video_id,label,pred_label,score_spoof,original_video_id,label_name,subject_id,device_id,condition,attack_type,domain,source_dataset,split,pred_label_name,decision_correct
+MSU_MFSD__real_client049_android_SD_scene01,0,0,0.44201821088790894,real_client049_android_SD_scene01,REAL,client049,android,unknown,real_video,MSU_MFSD,MSU_MFSD,test,REAL,True
+MSU_MFSD__real_client049_laptop_SD_scene01,0,1,0.8075143098831177,real_client049_laptop_SD_scene01,REAL,client049,laptop,unknown,real_video,MSU_MFSD,MSU_MFSD,test,SPOOF,False
+MSU_MFSD__real_client050_android_SD_scene01,0,1,0.9693589210510254,real_client050_android_SD_scene01,REAL,client050,android,unknown,real_video,MSU_MFSD,MSU_MFSD,test,SPOOF,False
+MSU_MFSD__real_client050_laptop_SD_scene01,0,1,0.9251372218132019,real_client050_laptop_SD_scene01,REAL,client050,laptop,unknown,real_video,MSU_MFSD,MSU_MFSD,test,SPOOF,False
+MSU_MFSD__real_client051_android_SD_scene01,0,0,0.004947577137500048,real_client051_android_SD_scene01,REAL,client051,android,unknown,real_video,MSU_MFSD,MSU_MFSD,test,REAL,True
+MSU_MFSD__real_client051_laptop_SD_scene01,0,0,0.20985834300518036,real_client051_laptop_SD_scene01,REAL,client051,laptop,unknown,real_video,MSU_MFSD,MSU_MFSD,test,REAL,True
+MSU_MFSD__real_client053_android_SD_scene01,0,1,0.5604692697525024,real_client053_android_SD_scene01,REAL,client053,android,unknown,real_video,MSU_MFSD,MSU_MFSD,test,SPOOF,False
+MSU_MFSD__real_client053_laptop_SD_scene01,0,0,0.030458400025963783,real_client053_laptop_SD_scene01,REAL,client053,laptop,unknown,real_video,MSU_MFSD,MSU_MFSD,test,REAL,True
+MSU_MFSD__real_client054_android_SD_scene01,0,0,0.3406935930252075,real_client054_android_SD_scene01,REAL,client054,android,unknown,real_video,MSU_MFSD,MSU_MFSD,test,REAL,True
+MSU_MFSD__real_client054_laptop_SD_scene01,0,0,0.02595188468694687,real_client054_laptop_SD_scene01,REAL,client054,laptop,unknown,real_video,MSU_MFSD,MSU_MFSD,test,REAL,True
+MSU_MFSD__real_client055_android_SD_scene01,0,1,0.7591373324394226,real_client055_android_SD_scene01,REAL,client055,android,unknown,real_video,MSU_MFSD,MSU_MFSD,test,SPOOF,False
+MSU_MFSD__real_client055_laptop_SD_scene01,0,0,0.017548302188515663,real_client055_laptop_SD_scene01,REAL,client055,laptop,unknown,real_video,MSU_MFSD,MSU_MFSD,test,REAL,True

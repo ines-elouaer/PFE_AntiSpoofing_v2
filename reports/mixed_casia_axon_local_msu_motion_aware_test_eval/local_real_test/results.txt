@@ -1,0 +1,26 @@
+========== LOCAL_REAL_TEST FINAL EVALUATION ==========
+total: 11
+real_count: 11
+spoof_count: 0
+tn_real: 7
+fp_real_as_spoof: 4
+fn_spoof_as_real: 0
+tp_spoof: 0
+accuracy: 0.6363636363636364
+precision_spoof: 0.0
+recall_spoof: 0.0
+f1_spoof: 0.0
+APCER: 0.0
+BPCER: 0.36363636363636365
+ACER: 0.18181818181818182
+AUC: nan
+
+========== CONFUSION DETAILS ==========
+TN REAL correct  : 7
+FP REAL as SPOOF : 4
+FN SPOOF as REAL : 0
+TP SPOOF correct : 0
+
+========== ATTACK TYPE SUMMARY ==========
+attack_type  total  real_count  spoof_count  accuracy  APCER    BPCER     ACER  AUC  tn_real  fp_real_as_spoof  fn_spoof_as_real  tp_spoof  mean_score  min_score  max_score
+ real_video     11          11            0  0.636364    0.0 0.363636 0.181818  NaN        7                 4                 0         0    0.396563   0.141394   0.663135

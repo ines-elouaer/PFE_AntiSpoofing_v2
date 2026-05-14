@@ -78,7 +78,7 @@ class VideoPADModel:
 
     def __init__(
         self,
-        checkpoint_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\mixed_casia_axon\seed42\best_model_mixed_casia_axon.pth",
+        checkpoint_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\mixed_casia_axon_local_msu\seed42\best_model_mixed_casia_axon_local_msu.pth",
         test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon\mixed_val_frames.csv",
         behav_test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon\mixed_val_behav.csv",
         scaler_path: str = r"E:\PFE_AntiSpoofing_v2\data\processed\casia\behav\behav_scaler.pkl",

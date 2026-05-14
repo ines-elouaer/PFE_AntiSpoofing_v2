@@ -365,7 +365,16 @@ class PADRouter:
             else:
                 decision = "RETRY"
         else:
-            # Politique normale pour les évaluations dataset CASIA/Axon.
+            # ======================================================
+            # 3. Modèle PAD vidéo
+            # ======================================================
+
+            score = float(self.video_model.predict(input_value))
+
+            # ======================================================
+            # Politique de décision
+            # ======================================================
+
             decision = banking_decision(score, profile="video")
 
         label = label_from_decision(decision)
