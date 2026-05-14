@@ -20,6 +20,50 @@ class MobileNetV3Feature(nn.Module):
         return x
 
 
+class GatedBehaviorFusion(nn.Module):
+    """
+    Fusion attentionnelle / gated fusion.
+
+    Ancienne logique :
+        z_fused = concat(z_deep, z_behavior)
+
+    Nouvelle logique :
+        gate = sigmoid(MLP(concat(z_deep, z_behavior)))
+        z_behavior_weighted = gate * z_behavior
+        z_fused = concat(z_deep, z_behavior_weighted)
+
+    Intérêt :
+        Le modèle apprend automatiquement quand les features comportementales
+        sont utiles et quand elles doivent être atténuées.
+    """
+
+    def __init__(
+        self,
+        deep_dim: int,
+        behavior_dim: int,
+        hidden_dim: int = 128,
+        dropout: float = 0.2,
+    ):
+        super().__init__()
+
+        self.gate = nn.Sequential(
+            nn.Linear(deep_dim + behavior_dim, hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, behavior_dim),
+            nn.Sigmoid(),
+        )
+
+    def forward(self, z_deep: torch.Tensor, z_behavior: torch.Tensor):
+        gate_input = torch.cat([z_deep, z_behavior], dim=1)
+        gate = self.gate(gate_input)
+
+        z_behavior_weighted = gate * z_behavior
+        z_fused = torch.cat([z_deep, z_behavior_weighted], dim=1)
+
+        return z_fused, gate
+
+
 class CNN_LSTM_PAD(nn.Module):
     def __init__(
         self,
@@ -30,14 +74,17 @@ class CNN_LSTM_PAD(nn.Module):
         head_dropout: float = 0.5,
         pretrained_backbone: bool = True,
         temporal_pool: str = "mean",
-        # NEW:
         use_behav: bool = False,
         behav_dim: int = 9,
         behav_hidden: int = 32,
+        use_gated_fusion: bool = True,
+        gate_hidden: int = 128,
     ):
         super().__init__()
+
         self.use_behav = use_behav
         self.behav_dim = behav_dim
+        self.use_gated_fusion = use_gated_fusion
 
         self.backbone = MobileNetV3Feature(pretrained=pretrained_backbone)
         feat_dim = self.backbone.out_dim
@@ -53,17 +100,29 @@ class CNN_LSTM_PAD(nn.Module):
 
         self.temporal_pool = temporal_pool
         out_dim = hidden * (2 if bidir else 1)
+        self.deep_dim = out_dim
 
-        
         if self.use_behav:
             self.behav_mlp = nn.Sequential(
                 nn.Linear(behav_dim, behav_hidden),
                 nn.ReLU(inplace=True),
                 nn.Dropout(head_dropout),
             )
+
+            if self.use_gated_fusion:
+                self.fusion = GatedBehaviorFusion(
+                    deep_dim=out_dim,
+                    behavior_dim=behav_hidden,
+                    hidden_dim=gate_hidden,
+                    dropout=0.2,
+                )
+            else:
+                self.fusion = None
+
             fusion_dim = out_dim + behav_hidden
         else:
             self.behav_mlp = None
+            self.fusion = None
             fusion_dim = out_dim
 
         self.head = nn.Sequential(
@@ -73,7 +132,7 @@ class CNN_LSTM_PAD(nn.Module):
             nn.Linear(128, 2),
         )
 
-    # PTS 
+    # PTS
     def freeze_all_backbone(self):
         for p in self.backbone.parameters():
             p.requires_grad = False
@@ -87,14 +146,15 @@ class CNN_LSTM_PAD(nn.Module):
         feats = self.backbone.features
         n = len(feats)
         k = max(0, min(k, n))
+
         for i in range(n - k, n):
             for p in feats[i].parameters():
                 p.requires_grad = True
+
         for p in self.backbone.avgpool.parameters():
             p.requires_grad = True
 
     def forward(self, x: torch.Tensor, behav: torch.Tensor | None = None) -> torch.Tensor:
-       
         B, T, C, H, W = x.shape
         x = x.view(B * T, C, H, W)
 
@@ -112,10 +172,19 @@ class CNN_LSTM_PAD(nn.Module):
         else:
             raise ValueError(f"Invalid temporal_pool: {self.temporal_pool}")
 
+        z_deep = pooled
+
         if self.use_behav:
             if behav is None:
-                behav = torch.zeros(B, self.behav_dim, device=pooled.device, dtype=pooled.dtype)
-            b = self.behav_mlp(behav)
-            pooled = torch.cat([pooled, b], dim=1)
+                behav = torch.zeros(B, self.behav_dim, device=z_deep.device, dtype=z_deep.dtype)
 
-        return self.head(pooled)
+            z_behavior = self.behav_mlp(behav)
+
+            if self.use_gated_fusion and self.fusion is not None:
+                z_fused, _ = self.fusion(z_deep, z_behavior)
+            else:
+                z_fused = torch.cat([z_deep, z_behavior], dim=1)
+
+            return self.head(z_fused)
+
+        return self.head(z_deep)

@@ -1,0 +1,17 @@
+{
+  "total": 12,
+  "real_count": 12,
+  "spoof_count": 0,
+  "tn_real": 12,
+  "fp_real_as_spoof": 0,
+  "fn_spoof_as_real": 0,
+  "tp_spoof": 0,
+  "accuracy": 1.0,
+  "precision_spoof": 0.0,
+  "recall_spoof": 0.0,
+  "f1_spoof": 0.0,
+  "APCER": 0.0,
+  "BPCER": 0.0,
+  "ACER": 0.0,
+  "AUC": NaN
+}

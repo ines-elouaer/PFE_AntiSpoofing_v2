@@ -1,0 +1,26 @@
+========== MSU_MFSD_TEST FINAL EVALUATION ==========
+total: 12
+real_count: 12
+spoof_count: 0
+tn_real: 12
+fp_real_as_spoof: 0
+fn_spoof_as_real: 0
+tp_spoof: 0
+accuracy: 1.0
+precision_spoof: 0.0
+recall_spoof: 0.0
+f1_spoof: 0.0
+APCER: 0.0
+BPCER: 0.0
+ACER: 0.0
+AUC: nan
+
+========== CONFUSION DETAILS ==========
+TN REAL correct  : 12
+FP REAL as SPOOF : 0
+FN SPOOF as REAL : 0
+TP SPOOF correct : 0
+
+========== ATTACK TYPE SUMMARY ==========
+attack_type  total  real_count  spoof_count  accuracy  APCER  BPCER  ACER  AUC  tn_real  fp_real_as_spoof  fn_spoof_as_real  tp_spoof  mean_score  min_score  max_score
+ real_video     12          12            0       1.0    0.0    0.0   0.0  NaN       12                 0                 0         0    0.007849   0.002105   0.021309

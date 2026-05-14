@@ -1,0 +1,17 @@
+{
+  "total": 144,
+  "real_count": 33,
+  "spoof_count": 111,
+  "tn_real": 26,
+  "fp_real_as_spoof": 7,
+  "fn_spoof_as_real": 4,
+  "tp_spoof": 107,
+  "accuracy": 0.9236111111111112,
+  "precision_spoof": 0.9385964912280702,
+  "recall_spoof": 0.963963963963964,
+  "f1_spoof": 0.9511111111111111,
+  "APCER": 0.036036036036036036,
+  "BPCER": 0.21212121212121213,
+  "ACER": 0.12407862407862408,
+  "AUC": 0.9874419874419875
+}

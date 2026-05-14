@@ -21,7 +21,7 @@ BATCH_SIZE = 4
 NUM_WORKERS = 0
 
 USE_BEHAV = True
-BEHAV_DIM = 9
+BEHAV_DIM = 15
 BEHAV_HIDDEN = 16
 TEMPORAL_POOL = "median"
 
@@ -57,7 +57,7 @@ def clean_state_dict_keys(state_dict):
     return out
 
 
-def create_model(checkpoint_path: Path, device):
+def create_model(model_path, device, behav_dim=9, behav_hidden=16):
     model = CNN_LSTM_PAD(
         hidden=256,
         num_layers=1,
@@ -67,23 +67,23 @@ def create_model(checkpoint_path: Path, device):
         pretrained_backbone=True,
         temporal_pool=TEMPORAL_POOL,
         use_behav=USE_BEHAV,
-        behav_dim=BEHAV_DIM,
-        behav_hidden=BEHAV_HIDDEN,
+        behav_dim=behav_dim,
+        behav_hidden=behav_hidden,
+        use_gated_fusion=True,
+        gate_hidden=128,
     )
 
-    state = clean_state_dict_keys(load_checkpoint_state(checkpoint_path))
+    state = clean_state_dict_keys(load_checkpoint_state(model_path))
     missing, unexpected = model.load_state_dict(state, strict=False)
 
     print("\n========== CHECKPOINT LOAD ==========")
-    print("Checkpoint     :", checkpoint_path)
+    print("Checkpoint     :", model_path)
     print("Missing keys   :", len(missing))
     print("Unexpected keys:", len(unexpected))
 
     model = model.to(device)
     model.eval()
     return model
-
-
 def build_dataset(frames_csv, behav_csv):
     return CASIASequenceDataset(
         csv_path=str(frames_csv),
@@ -279,6 +279,8 @@ def main():
     parser.add_argument("--frames_csv", required=True)
     parser.add_argument("--behav_csv", required=True)
     parser.add_argument("--out_root", required=True)
+    parser.add_argument("--behav_dim", type=int, default=9)
+    parser.add_argument("--behav_hidden", type=int, default=16)
 
     args = parser.parse_args()
 
@@ -310,7 +312,12 @@ def main():
         pin_memory=torch.cuda.is_available(),
     )
 
-    model = create_model(model_path, device)
+    model = create_model(
+        model_path,
+        device,
+        behav_dim=args.behav_dim,
+        behav_hidden=args.behav_hidden,
+    )
     pred_df, global_metrics = predict(model, loader, device)
 
     meta = load_meta(frames_csv)

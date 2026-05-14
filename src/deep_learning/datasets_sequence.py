@@ -66,25 +66,34 @@ def center_consecutive_sample(sorted_rows: List[Dict], T: int) -> List[Dict]:
 
 
 def read_behav_csv(behav_csv: str):
+    feat_cols = [
+        "ear_mean",
+        "ear_std",
+        "ear_min",
+        "ear_max",
+        "blink_count",
+        "motion_mean",
+        "motion_std",
+        "motion_max",
+        "skipped_rate",
+        "rppg_dominant_freq",
+        "rppg_hr_estimate",
+        "rppg_snr",
+        "rppg_signal_std",
+        "rppg_skipped_rate",
+        "rppg_valid",
+    ]
+
     by_vid = {}
     with Path(behav_csv).open("r", encoding="utf-8") as f:
         r = csv.DictReader(f)
+
         for row in r:
             vid = row["video_id"]
-            vec = [
-                float(row.get("ear_mean", 0.0)),
-                float(row.get("ear_std", 0.0)),
-                float(row.get("ear_min", 0.0)),
-                float(row.get("ear_max", 0.0)),
-                float(row.get("blink_count", 0.0)),
-                float(row.get("motion_mean", 0.0)),
-                float(row.get("motion_std", 0.0)),
-                float(row.get("motion_max", 0.0)),
-                float(row.get("skipped_rate", 0.0)),
-            ]
+            vec = [float(row.get(col, 0.0)) for col in feat_cols]
             by_vid[vid] = torch.tensor(vec, dtype=torch.float32)
-    return by_vid
 
+    return by_vid, len(feat_cols)
 
 class CASIASequenceDataset(Dataset):
     def __init__(
@@ -125,8 +134,7 @@ class CASIASequenceDataset(Dataset):
         self.behav_by_vid = None
         self.behav_dim = 0
         if behav_csv is not None:
-            self.behav_by_vid = read_behav_csv(behav_csv)
-            self.behav_dim = 9
+            self.behav_by_vid, self.behav_dim = read_behav_csv(behav_csv)
 
     def __len__(self):
         return len(self.video_ids)

@@ -1,0 +1,125 @@
+{
+  "model": "E:\\PFE_AntiSpoofing_v2\\experiments\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3\\seed42\\best_model.pth",
+  "mixed_test": {
+    "total": 144,
+    "real_count": 33,
+    "spoof_count": 111,
+    "tn_real": 28,
+    "fp_real_as_spoof": 5,
+    "fn_spoof_as_real": 3,
+    "tp_spoof": 108,
+    "accuracy": 0.9444444444444444,
+    "precision_spoof": 0.9557522123893806,
+    "recall_spoof": 0.972972972972973,
+    "f1_spoof": 0.9642857142857143,
+    "APCER": 0.02702702702702703,
+    "BPCER": 0.15151515151515152,
+    "ACER": 0.08927108927108927,
+    "AUC": 0.9855309855309855
+  },
+  "source_datasets": {
+    "AXON": {
+      "total": 97,
+      "real_count": 4,
+      "spoof_count": 93,
+      "tn_real": 2,
+      "fp_real_as_spoof": 2,
+      "fn_spoof_as_real": 1,
+      "tp_spoof": 92,
+      "accuracy": 0.9690721649484536,
+      "precision_spoof": 0.9787234042553191,
+      "recall_spoof": 0.989247311827957,
+      "f1_spoof": 0.983957219251337,
+      "APCER": 0.010752688172043012,
+      "BPCER": 0.5,
+      "ACER": 0.2553763440860215,
+      "AUC": 0.9758064516129032
+    },
+    "CASIA": {
+      "total": 24,
+      "real_count": 6,
+      "spoof_count": 18,
+      "tn_real": 6,
+      "fp_real_as_spoof": 0,
+      "fn_spoof_as_real": 2,
+      "tp_spoof": 16,
+      "accuracy": 0.9166666666666666,
+      "precision_spoof": 1.0,
+      "recall_spoof": 0.8888888888888888,
+      "f1_spoof": 0.9411764705882353,
+      "APCER": 0.1111111111111111,
+      "BPCER": 0.0,
+      "ACER": 0.05555555555555555,
+      "AUC": 1.0
+    },
+    "LOCAL_REAL": {
+      "total": 11,
+      "real_count": 11,
+      "spoof_count": 0,
+      "tn_real": 8,
+      "fp_real_as_spoof": 3,
+      "fn_spoof_as_real": 0,
+      "tp_spoof": 0,
+      "accuracy": 0.7272727272727273,
+      "precision_spoof": 0.0,
+      "recall_spoof": 0.0,
+      "f1_spoof": 0.0,
+      "APCER": 0.0,
+      "BPCER": 0.2727272727272727,
+      "ACER": 0.13636363636363635,
+      "AUC": NaN
+    },
+    "MSU_MFSD": {
+      "total": 12,
+      "real_count": 12,
+      "spoof_count": 0,
+      "tn_real": 12,
+      "fp_real_as_spoof": 0,
+      "fn_spoof_as_real": 0,
+      "tp_spoof": 0,
+      "accuracy": 1.0,
+      "precision_spoof": 0.0,
+      "recall_spoof": 0.0,
+      "f1_spoof": 0.0,
+      "APCER": 0.0,
+      "BPCER": 0.0,
+      "ACER": 0.0,
+      "AUC": NaN
+    }
+  },
+  "outputs": {
+    "mixed_test": {
+      "predictions": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\mixed_test\\predictions.csv",
+      "metrics": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\mixed_test\\metrics.json",
+      "attack_analysis": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\mixed_test\\errors_by_attack_type.csv",
+      "results_txt": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\mixed_test\\results.txt"
+    },
+    "axon_test": {
+      "predictions": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\axon_test\\predictions.csv",
+      "metrics": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\axon_test\\metrics.json",
+      "attack_analysis": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\axon_test\\errors_by_attack_type.csv",
+      "results_txt": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\axon_test\\results.txt"
+    },
+    "casia_test": {
+      "predictions": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\casia_test\\predictions.csv",
+      "metrics": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\casia_test\\metrics.json",
+      "attack_analysis": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\casia_test\\errors_by_attack_type.csv",
+      "results_txt": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\casia_test\\results.txt"
+    },
+    "local_real_test": {
+      "predictions": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\local_real_test\\predictions.csv",
+      "metrics": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\local_real_test\\metrics.json",
+      "attack_analysis": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\local_real_test\\errors_by_attack_type.csv",
+      "results_txt": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\local_real_test\\results.txt"
+    },
+    "msu_mfsd_test": {
+      "predictions": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\msu_mfsd_test\\predictions.csv",
+      "metrics": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\msu_mfsd_test\\metrics.json",
+      "attack_analysis": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\msu_mfsd_test\\errors_by_attack_type.csv",
+      "results_txt": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\msu_mfsd_test\\results.txt"
+    },
+    "metrics_by_source_dataset": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\metrics_by_source_dataset.csv",
+    "metrics_by_device": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\metrics_by_device.csv",
+    "metrics_by_attack_type": "E:\\PFE_AntiSpoofing_v2\\reports\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3_eval\\metrics_by_attack_type.csv"
+  }
+}

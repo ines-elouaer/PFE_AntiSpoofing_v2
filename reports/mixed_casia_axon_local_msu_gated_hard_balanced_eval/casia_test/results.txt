@@ -1,0 +1,26 @@
+========== CASIA_TEST FINAL EVALUATION ==========
+total: 24
+real_count: 6
+spoof_count: 18
+tn_real: 6
+fp_real_as_spoof: 0
+fn_spoof_as_real: 3
+tp_spoof: 15
+accuracy: 0.875
+precision_spoof: 1.0
+recall_spoof: 0.8333333333333334
+f1_spoof: 0.9090909090909091
+APCER: 0.16666666666666666
+BPCER: 0.0
+ACER: 0.08333333333333333
+AUC: 1.0
+
+========== CONFUSION DETAILS ==========
+TN REAL correct  : 6
+FP REAL as SPOOF : 0
+FN SPOOF as REAL : 3
+TP SPOOF correct : 15
+
+========== ATTACK TYPE SUMMARY ==========
+        attack_type  total  real_count  spoof_count  accuracy    APCER  BPCER     ACER  AUC  tn_real  fp_real_as_spoof  fn_spoof_as_real  tp_spoof  mean_score  min_score  max_score
+casia_real_or_spoof     24           6           18     0.875 0.166667    0.0 0.083333  1.0        6                 0                 3        15    0.603477   0.001549    0.99962

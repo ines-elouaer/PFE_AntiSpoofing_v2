@@ -1,0 +1,12 @@
+video_id,label,pred_label,score_spoof,original_video_id,label_name,subject_id,device_id,condition,attack_type,domain,source_dataset,split,pred_label_name,decision_correct
+LOCAL_REAL__p13_samsung_normal_t01.mp4,0,1,0.9492909908294678,p13_samsung_normal_t01.mp4,REAL,p13,samsung,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,SPOOF,False
+LOCAL_REAL__p14_samsung_normal_t01.mp4,0,1,0.9818436503410339,p14_samsung_normal_t01.mp4,REAL,p14,samsung,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,SPOOF,False
+LOCAL_REAL__p14_samsung_normal_t02.mp4,0,1,0.9639260768890381,p14_samsung_normal_t02.mp4,REAL,p14,samsung,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,SPOOF,False
+LOCAL_REAL__p15_pc_normal_t01.mp4,0,0,0.007046438753604889,p15_pc_normal_t01.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
+LOCAL_REAL__p15_pc_normal_t02.mp4,0,0,0.009369923733174801,p15_pc_normal_t02.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
+LOCAL_REAL__p15_pc_normal_t03.mp4,0,0,0.009233932942152023,p15_pc_normal_t03.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
+LOCAL_REAL__p15_pc_normal_t04.mp4,0,0,0.008214649744331837,p15_pc_normal_t04.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
+LOCAL_REAL__p15_pc_normal_t05.mp4,0,0,0.01860806532204151,p15_pc_normal_t05.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
+LOCAL_REAL__p15_pc_normal_t06.mp4,0,0,0.009312964975833893,p15_pc_normal_t06.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
+LOCAL_REAL__p15_pc_normal_t07.mp4,0,0,0.013327931985259056,p15_pc_normal_t07.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
+LOCAL_REAL__p15_pc_normal_t08.mp4,0,0,0.0093821557238698,p15_pc_normal_t08.mp4,REAL,p15,pc,normal,real_video,LOCAL_REAL,LOCAL_REAL,test,REAL,True
