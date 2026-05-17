@@ -245,6 +245,43 @@ def extract_rppg_features(
         "rppg_valid": round(valid, 1),
     }
 
+def estimate_fps_for_video(frame_rows, default_fps=25.0):
+    """
+    Estime le FPS réel d'une vidéo.
+
+    Priorité :
+    1. Utiliser la colonne video_fps si elle existe dans external_all_frames.csv
+    2. Sinon lire original_video_id avec OpenCV
+    3. Sinon utiliser default_fps
+    """
+    import cv2
+
+    if len(frame_rows) == 0:
+        return default_fps
+
+    # Cas 1 : FPS déjà enregistré dans le CSV frames
+    if "video_fps" in frame_rows[0]:
+        try:
+            fps = float(frame_rows[0].get("video_fps", default_fps))
+            if 1.0 < fps <= 120.0:
+                return fps
+        except Exception:
+            pass
+
+    # Cas 2 : lire le FPS depuis la vidéo originale
+    original_video = frame_rows[0].get("original_video_id", None)
+
+    if original_video is None or str(original_video).strip() == "":
+        return default_fps
+
+    cap = cv2.VideoCapture(str(original_video))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.release()
+
+    if fps is None or fps <= 1.0 or fps > 120.0:
+        return default_fps
+
+    return float(fps)
 
 def precompute_rppg(split_csv: str, out_csv: str, fps: float, model_path: str):
     from src.behavior.mp_landmarks import FaceLandmarkerHelper
@@ -266,11 +303,13 @@ def precompute_rppg(split_csv: str, out_csv: str, fps: float, model_path: str):
             landmarker,
         )
 
+        video_fps = estimate_fps_for_video(frs_sorted, default_fps=fps)
+
         feats = extract_rppg_features(
             sig_r,
             sig_g,
             sig_b,
-            fps=fps,
+            fps=video_fps,
             n_frames=len(frs_sorted),
             n_skipped=n_skipped,
         )
@@ -280,6 +319,7 @@ def precompute_rppg(split_csv: str, out_csv: str, fps: float, model_path: str):
             "label": label,
             "n_frames": len(frs_sorted),
             "n_skipped": n_skipped,
+            "rppg_fps_used": video_fps,
             **feats,
         })
 

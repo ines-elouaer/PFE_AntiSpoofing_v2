@@ -1,6 +1,7 @@
 from pathlib import Path
 import math
 import warnings
+import json
 
 import cv2
 import numpy as np
@@ -17,27 +18,20 @@ warnings.filterwarnings("ignore")
 
 class VideoPADModel:
     """
-    Branche vidéo PAD.
+    Branche vidéo PAD finale.
 
-    Supporte deux modes :
+    Compatible avec le modèle V3 :
+    - MobileNetV3 + LSTM
+    - 15 features behavior+rPPG
+    - Gated fusion
+    - Normalisation avec les statistiques du train V3
+
+    Deux modes supportés :
     1) vidéo brute existante (.avi/.mp4/.mov/.mkv)
-       Exemple : data/demo/jury_challenge.mp4
-
     2) video_id présent dans un CSV de frames
-       Exemple : 13_1, 13_3, axon_xxx
-
-    Modèle utilisé par défaut :
-    - modèle vidéo fine-tuné CASIA + AxonLabs.
-
-    Flux final :
-    vidéo challenge
-    -> extraction T=16 frames consécutives au centre
-    -> extraction features comportementales
-    -> normalisation avec scaler CASIA
-    -> CNN+LSTM+Behavior
-    -> score spoof.
     """
 
+    # 15 features du modèle V3
     MODEL_BEHAV_COLS = [
         "ear_mean",
         "ear_std",
@@ -48,29 +42,24 @@ class VideoPADModel:
         "motion_std",
         "motion_max",
         "skipped_rate",
+        "rppg_dominant_freq",
+        "rppg_hr_estimate",
+        "rppg_snr",
+        "rppg_signal_std",
+        "rppg_skipped_rate",
+        "rppg_valid",
     ]
 
-    FULL_BEHAV_COLS = [
+    # Anciennes colonnes behavior 9 features
+    OLD_BEHAV_COLS = [
         "ear_mean",
         "ear_std",
         "ear_min",
         "ear_max",
         "blink_count",
-        "perclos",
         "motion_mean",
         "motion_std",
         "motion_max",
-        "lk_flow_mean",
-        "lk_flow_std",
-        "lk_flow_max",
-        "mar_mean",
-        "mar_std",
-        "mar_max",
-        "yaw_std",
-        "pitch_std",
-        "roll_std",
-        "yaw_range",
-        "pitch_range",
         "skipped_rate",
     ]
 
@@ -78,10 +67,11 @@ class VideoPADModel:
 
     def __init__(
         self,
-        checkpoint_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\mixed_casia_axon_local_msu\seed42\best_model_mixed_casia_axon_local_msu.pth",
-        test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon\mixed_val_frames.csv",
-        behav_test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon\mixed_val_behav.csv",
-        scaler_path: str = r"E:\PFE_AntiSpoofing_v2\data\processed\casia\behav\behav_scaler.pkl",
+        checkpoint_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3\seed42\best_model.pth",
+        test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu\mixed_val_frames.csv",
+        behav_test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\mixed_val_behav_rppg_norm.csv",
+        behavior_stats_json: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\behav_rppg_norm_stats.json",
+        scaler_path: str = "",
         img_size: int = 224,
         seq_len: int = 16,
         sample_mode: str = "center_consecutive",
@@ -89,6 +79,7 @@ class VideoPADModel:
         self.checkpoint_path = Path(checkpoint_path)
         self.test_csv = Path(test_csv)
         self.behav_test_csv = Path(behav_test_csv)
+        self.behavior_stats_json = Path(behavior_stats_json) if behavior_stats_json else None
         self.scaler_path = Path(scaler_path) if scaler_path else None
 
         self.img_size = int(img_size)
@@ -117,6 +108,7 @@ class VideoPADModel:
         self.frames_df = self._load_frames_csv()
         self.behav_df = self._load_behav_csv()
         self.behav_scaler = self._load_behavior_scaler()
+        self.behav_stats = self._load_behavior_stats()
 
     # ==========================================================
     # MODEL LOADING
@@ -156,9 +148,11 @@ class VideoPADModel:
         state_dict = self._clean_state_dict_keys(state_dict)
 
         use_behav = bool(cfg.get("use_behav", True))
-        behav_dim = int(cfg.get("behav_dim", 9))
+        behav_dim = int(cfg.get("behav_dim", 15))
         behav_hidden = int(cfg.get("behav_hidden", 16))
         temporal_pool = cfg.get("temporal_pool", "median")
+        use_gated_fusion = bool(cfg.get("use_gated_fusion", True))
+        gate_hidden = int(cfg.get("gate_hidden", 128))
 
         model = CNN_LSTM_PAD(
             hidden=int(cfg.get("hidden", 256)),
@@ -171,6 +165,8 @@ class VideoPADModel:
             use_behav=use_behav,
             behav_dim=behav_dim,
             behav_hidden=behav_hidden,
+            use_gated_fusion=use_gated_fusion,
+            gate_hidden=gate_hidden,
         )
 
         missing, unexpected = model.load_state_dict(state_dict, strict=False)
@@ -181,6 +177,8 @@ class VideoPADModel:
         print(f"behav_dim       : {behav_dim}")
         print(f"behav_hidden    : {behav_hidden}")
         print(f"temporal_pool   : {temporal_pool}")
+        print(f"use_gated_fusion: {use_gated_fusion}")
+        print(f"gate_hidden     : {gate_hidden}")
         print(f"Missing keys    : {len(missing)}")
         print(f"Unexpected keys : {len(unexpected)}")
 
@@ -199,7 +197,7 @@ class VideoPADModel:
         return model, use_behav, behav_dim
 
     # ==========================================================
-    # CSV / SCALER LOADING
+    # CSV / SCALER / STATS LOADING
     # ==========================================================
 
     def _load_frames_csv(self):
@@ -224,7 +222,6 @@ class VideoPADModel:
             return None
 
         df = pd.read_csv(self.behav_test_csv)
-
         print(f"[VIDEO] behav_test_csv chargé: {len(df)} lignes")
         return df
 
@@ -246,6 +243,74 @@ class VideoPADModel:
         except Exception as e:
             print(f"[VIDEO][WARN] Impossible de charger le scaler behavior: {e}")
             return None
+
+    def _load_behavior_stats(self):
+        """
+        Charge les statistiques de normalisation du train V3.
+
+        Supporte deux formats :
+        Format A:
+            {
+                "ear_mean": {"mean": ..., "std": ...}
+            }
+
+        Format B:
+            {
+                "mean": {"ear_mean": ...},
+                "std": {"ear_mean": ...}
+            }
+        """
+
+        if self.behavior_stats_json is None:
+            print("[VIDEO][WARN] Aucun fichier stats behavior+rPPG fourni.")
+            return None
+
+        if not self.behavior_stats_json.exists():
+            print(f"[VIDEO][WARN] Stats behavior+rPPG introuvable: {self.behavior_stats_json}")
+            return None
+
+        try:
+            with open(self.behavior_stats_json, "r", encoding="utf-8") as f:
+                stats = json.load(f)
+
+            print(f"[VIDEO] Stats behavior+rPPG chargées: {self.behavior_stats_json}")
+            return stats
+
+        except Exception as e:
+            print(f"[VIDEO][WARN] Impossible de charger stats behavior+rPPG: {e}")
+            return None
+
+    def _get_stat_mean_std(self, col: str):
+        """
+        Récupère mean/std pour une colonne.
+
+        Format A :
+            stats[col]["mean"], stats[col]["std"]
+
+        Format B :
+            stats["mean"][col], stats["std"][col]
+        """
+
+        if self.behav_stats is None:
+            return None, None
+
+        # Format A
+        if col in self.behav_stats and isinstance(self.behav_stats[col], dict):
+            mean = self.behav_stats[col].get("mean", None)
+            std = self.behav_stats[col].get("std", None)
+
+            if mean is not None and std is not None:
+                return float(mean), float(std)
+
+        # Format B
+        if "mean" in self.behav_stats and "std" in self.behav_stats:
+            mean_map = self.behav_stats.get("mean", {})
+            std_map = self.behav_stats.get("std", {})
+
+            if col in mean_map and col in std_map:
+                return float(mean_map[col]), float(std_map[col])
+
+        return None, None
 
     # ==========================================================
     # FRAME PATH / SAMPLING
@@ -309,7 +374,7 @@ class VideoPADModel:
         return sampled
 
     # ==========================================================
-    # BEHAVIOR FEATURES — CSV
+    # BEHAVIOR FEATURES — CSV MODE
     # ==========================================================
 
     def _zero_behavior(self):
@@ -345,7 +410,7 @@ class VideoPADModel:
         return torch.tensor([values], dtype=torch.float32).to(self.device)
 
     # ==========================================================
-    # BEHAVIOR FEATURES — RAW VIDEO
+    # RAW VIDEO — BASIC BEHAVIOR HELPERS
     # ==========================================================
 
     @staticmethod
@@ -384,12 +449,60 @@ class VideoPADModel:
         except Exception:
             return 0.0
 
+    def _read_video_rgb_gray_arrays(self, video_path: Path):
+        cap = cv2.VideoCapture(str(video_path))
+
+        if not cap.isOpened():
+            raise RuntimeError(f"Impossible d'ouvrir la vidéo: {video_path}")
+
+        frames_rgb = []
+        frames_gray = []
+
+        while True:
+            ret, frame = cap.read()
+
+            if not ret:
+                break
+
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            frames_rgb.append(rgb)
+            frames_gray.append(gray)
+
+        cap.release()
+
+        if len(frames_rgb) == 0:
+            raise RuntimeError(f"Aucune frame lue depuis: {video_path}")
+
+        return frames_rgb, frames_gray
+
+    def _sample_raw_rgb_arrays(self, frames_rgb):
+        if len(frames_rgb) >= self.seq_len:
+            start = max(0, (len(frames_rgb) - self.seq_len) // 2)
+            return frames_rgb[start:start + self.seq_len]
+
+        while len(frames_rgb) < self.seq_len:
+            frames_rgb.append(frames_rgb[-1])
+
+        return frames_rgb
+
+    def _sample_raw_gray_arrays(self, frames_gray):
+        if len(frames_gray) >= self.seq_len:
+            start = max(0, (len(frames_gray) - self.seq_len) // 2)
+            return frames_gray[start:start + self.seq_len]
+
+        while len(frames_gray) < self.seq_len:
+            frames_gray.append(frames_gray[-1])
+
+        return frames_gray
+
     def _extract_behavior_raw_unscaled(self, video_path: Path):
         cap = cv2.VideoCapture(str(video_path))
 
         if not cap.isOpened():
             print(f"[VIDEO][WARN] Impossible d'ouvrir la vidéo pour behavior: {video_path}")
-            return {col: 0.0 for col in self.MODEL_BEHAV_COLS}
+            return {col: 0.0 for col in self.OLD_BEHAV_COLS}
 
         frames_gray = []
         frames_rgb = []
@@ -410,7 +523,7 @@ class VideoPADModel:
 
         if len(frames_gray) == 0:
             print("[VIDEO][WARN] Aucune frame pour extraction behavior.")
-            return {col: 0.0 for col in self.MODEL_BEHAV_COLS}
+            return {col: 0.0 for col in self.OLD_BEHAV_COLS}
 
         frames_rgb = self._sample_raw_rgb_arrays(frames_rgb)
         frames_gray = self._sample_raw_gray_arrays(frames_gray)
@@ -492,7 +605,7 @@ class VideoPADModel:
                         ear_values.append(float(ear))
 
         except Exception as e:
-            print(f"[VIDEO][WARN] MediaPipe Tasks behavior extraction échouée: {e}")
+            print(f"[VIDEO][WARN] MediaPipe behavior extraction échouée: {e}")
             detected_frames = 0
             ear_values = []
 
@@ -515,69 +628,227 @@ class VideoPADModel:
             "skipped_rate": float(skipped_rate),
         }
 
+    # ==========================================================
+    # RAW VIDEO — rPPG EXTRACTION
+    # ==========================================================
+
+    def _extract_rppg_from_raw_video(self, video_path: Path, max_frames: int = 64):
+        """
+        Extrait les features rPPG depuis une vidéo brute.
+
+        - Clip central continu de 64 frames
+        - FPS réel de la vidéo
+        - ROI joues via MediaPipe landmarks
+        """
+
+        from src.behavior.mp_landmarks import FaceLandmarkerHelper
+        from src.behavior.extract_rppg import (
+            get_cheek_roi,
+            extract_rppg_features,
+        )
+
+        default_rppg = {
+            "rppg_dominant_freq": 0.0,
+            "rppg_hr_estimate": 0.0,
+            "rppg_snr": 0.0,
+            "rppg_signal_std": 0.0,
+            "rppg_skipped_rate": 1.0,
+            "rppg_valid": 0.0,
+        }
+
+        cap = cv2.VideoCapture(str(video_path))
+
+        if not cap.isOpened():
+            print(f"[VIDEO][WARN] Impossible d'ouvrir la vidéo pour rPPG: {video_path}")
+            return default_rppg
+
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = float(cap.get(cv2.CAP_PROP_FPS))
+
+        if fps <= 1.0 or fps > 120.0:
+            fps = 25.0
+
+        if total_frames <= 0:
+            cap.release()
+            return default_rppg
+
+        if total_frames <= max_frames:
+            selected_indices = list(range(total_frames))
+        else:
+            start = max(0, (total_frames - max_frames) // 2)
+            selected_indices = list(range(start, start + max_frames))
+
+        selected_set = set(selected_indices)
+
+        face_model_path = self.project_root / "models" / "face_landmarker.task"
+
+        if not face_model_path.exists():
+            print(f"[VIDEO][WARN] face_landmarker.task introuvable pour rPPG: {face_model_path}")
+            cap.release()
+            return default_rppg
+
+        landmarker = FaceLandmarkerHelper(model_path=str(face_model_path))
+
+        signal_r = []
+        signal_g = []
+        signal_b = []
+        n_skipped = 0
+        n_used = 0
+        idx = 0
+
+        while True:
+            ret, frame = cap.read()
+
+            if not ret:
+                break
+
+            if idx not in selected_set:
+                idx += 1
+                continue
+
+            n_used += 1
+
+            landmarks = landmarker.detect_landmarks(frame)
+
+            if landmarks is None:
+                n_skipped += 1
+                idx += 1
+                continue
+
+            h, w = frame.shape[:2]
+            roi = get_cheek_roi(landmarks, w, h)
+
+            if roi is None:
+                n_skipped += 1
+                idx += 1
+                continue
+
+            x1, y1, x2, y2 = roi
+            patch = frame[y1:y2, x1:x2]
+
+            if patch.size == 0:
+                n_skipped += 1
+                idx += 1
+                continue
+
+            # OpenCV = BGR
+            signal_b.append(float(patch[:, :, 0].mean()))
+            signal_g.append(float(patch[:, :, 1].mean()))
+            signal_r.append(float(patch[:, :, 2].mean()))
+
+            idx += 1
+
+        cap.release()
+
+        feats = extract_rppg_features(
+            signal_r=np.array(signal_r, dtype=np.float32),
+            signal_g=np.array(signal_g, dtype=np.float32),
+            signal_b=np.array(signal_b, dtype=np.float32),
+            fps=fps,
+            n_frames=max(n_used, 1),
+            n_skipped=n_skipped,
+        )
+
+        print("[VIDEO] rPPG raw video extrait.")
+        print("[VIDEO] rPPG:", {k: round(float(v), 4) for k, v in feats.items()})
+        print(f"[VIDEO] rPPG fps utilisé: {fps:.2f}")
+
+        return feats
+
+    # ==========================================================
+    # RAW VIDEO — NORMALIZATION
+    # ==========================================================
+
     def _normalize_raw_behavior(self, raw_features: dict):
+        """
+        Normalise les features direct-video avec les statistiques du train V3.
+
+        Le modèle V3 attend :
+        - 15 features normalisées
+        - 9 behavior classiques
+        - 6 rPPG
+        """
+
+        if self.behav_dim >= 15 and self.behav_stats is not None:
+            values = []
+            missing_stats = []
+
+            for col in self.MODEL_BEHAV_COLS:
+                value = float(raw_features.get(col, 0.0))
+
+                mean, std = self._get_stat_mean_std(col)
+
+                if mean is None or std is None:
+                    missing_stats.append(col)
+                    values.append(0.0)
+                    continue
+
+                if abs(std) < 1e-8:
+                    std = 1.0
+
+                value_norm = (value - mean) / std
+                values.append(float(value_norm))
+
+            if missing_stats:
+                print("[VIDEO][WARN] Stats manquantes pour:", missing_stats)
+
+            while len(values) < self.behav_dim:
+                values.append(0.0)
+
+            values = values[:self.behav_dim]
+
+            print("[VIDEO] Normalisation V3 behavior+rPPG appliquée.")
+            return values
+
         if self.behav_scaler is None:
-            print("[VIDEO][WARN] Aucun scaler behavior. Features webcam non normalisées.")
+            print("[VIDEO][WARN] Aucun scaler/stats. Features non normalisées.")
             values = [float(raw_features.get(c, 0.0)) for c in self.MODEL_BEHAV_COLS]
+
+            while len(values) < self.behav_dim:
+                values.append(0.0)
+
             return values[:self.behav_dim]
 
-        scaler = self.behav_scaler
-
         try:
-            if hasattr(scaler, "feature_names_in_"):
-                scaler_cols = list(scaler.feature_names_in_)
+            arr = np.array(
+                [[float(raw_features.get(c, 0.0)) for c in self.OLD_BEHAV_COLS]],
+                dtype=np.float32,
+            )
 
-                row = {}
-                for col in scaler_cols:
-                    row[col] = float(raw_features.get(col, 0.0))
+            arr_norm = self.behav_scaler.transform(arr)[0]
+            values = [float(x) for x in arr_norm]
 
-                df = pd.DataFrame([row], columns=scaler_cols)
-                arr_norm = scaler.transform(df)[0]
+            while len(values) < self.behav_dim:
+                values.append(0.0)
 
-                norm_map = {
-                    col: float(arr_norm[i])
-                    for i, col in enumerate(scaler_cols)
-                }
-
-                values = [float(norm_map.get(c, 0.0)) for c in self.MODEL_BEHAV_COLS]
-                return values[:self.behav_dim]
-
-            n_features = getattr(scaler, "n_features_in_", None)
-
-            if n_features == 9:
-                arr = np.array(
-                    [[float(raw_features.get(c, 0.0)) for c in self.MODEL_BEHAV_COLS]],
-                    dtype=np.float32,
-                )
-                arr_norm = scaler.transform(arr)[0]
-                return [float(x) for x in arr_norm[:self.behav_dim]]
-
-            if n_features == 21:
-                arr = np.array(
-                    [[float(raw_features.get(c, 0.0)) for c in self.FULL_BEHAV_COLS]],
-                    dtype=np.float32,
-                )
-                arr_norm = scaler.transform(arr)[0]
-
-                norm_map = {
-                    col: float(arr_norm[i])
-                    for i, col in enumerate(self.FULL_BEHAV_COLS)
-                }
-
-                values = [float(norm_map.get(c, 0.0)) for c in self.MODEL_BEHAV_COLS]
-                return values[:self.behav_dim]
-
-            print(f"[VIDEO][WARN] Scaler n_features_in_ inattendu: {n_features}")
-            values = [float(raw_features.get(c, 0.0)) for c in self.MODEL_BEHAV_COLS]
             return values[:self.behav_dim]
 
         except Exception as e:
-            print(f"[VIDEO][WARN] Normalisation behavior webcam échouée: {e}")
+            print(f"[VIDEO][WARN] Normalisation fallback échouée: {e}")
             values = [float(raw_features.get(c, 0.0)) for c in self.MODEL_BEHAV_COLS]
+
+            while len(values) < self.behav_dim:
+                values.append(0.0)
+
             return values[:self.behav_dim]
 
     def _extract_behavior_from_raw_video(self, video_path: Path):
+        """
+        Extraction finale des features pour vidéo directe.
+
+        Si behav_dim=15 :
+        - extrait behavior classique
+        - extrait rPPG
+        - fusionne les features
+        - applique la normalisation V3
+        """
+
         raw_features = self._extract_behavior_raw_unscaled(video_path)
+
+        if self.behav_dim >= 15:
+            rppg_features = self._extract_rppg_from_raw_video(video_path)
+            raw_features.update(rppg_features)
+
         norm_values = self._normalize_raw_behavior(raw_features)
 
         while len(norm_values) < self.behav_dim:
@@ -585,9 +856,9 @@ class VideoPADModel:
 
         norm_values = norm_values[:self.behav_dim]
 
-        print("[VIDEO] Behavior raw video extrait.")
-        print("[VIDEO] Raw behavior:", {k: round(float(v), 4) for k, v in raw_features.items()})
-        print("[VIDEO] Norm behavior:", [round(float(v), 4) for v in norm_values])
+        print("[VIDEO] Behavior+rPPG raw video extrait.")
+        print("[VIDEO] Raw features:", {k: round(float(v), 4) for k, v in raw_features.items()})
+        print("[VIDEO] Norm behavior+rPPG:", [round(float(v), 4) for v in norm_values])
 
         return torch.tensor([norm_values], dtype=torch.float32).to(self.device)
 
@@ -690,26 +961,6 @@ class VideoPADModel:
 
         return frames
 
-    def _sample_raw_rgb_arrays(self, frames_rgb):
-        if len(frames_rgb) >= self.seq_len:
-            start = max(0, (len(frames_rgb) - self.seq_len) // 2)
-            return frames_rgb[start:start + self.seq_len]
-
-        while len(frames_rgb) < self.seq_len:
-            frames_rgb.append(frames_rgb[-1])
-
-        return frames_rgb
-
-    def _sample_raw_gray_arrays(self, frames_gray):
-        if len(frames_gray) >= self.seq_len:
-            start = max(0, (len(frames_gray) - self.seq_len) // 2)
-            return frames_gray[start:start + self.seq_len]
-
-        while len(frames_gray) < self.seq_len:
-            frames_gray.append(frames_gray[-1])
-
-        return frames_gray
-
     def _predict_from_raw_video(self, video_path: Path):
         frames = self._read_raw_video_frames(video_path)
         frames = self._sample_raw_frames(frames)
@@ -722,7 +973,7 @@ class VideoPADModel:
         behav = self._extract_behavior_from_raw_video(video_path)
 
         print(f"[VIDEO] Raw video={video_path.name} | frames utilisées={len(images)}")
-        print("[VIDEO] Behavior raw video: features extraites + normalisées.")
+        print("[VIDEO] Behavior+rPPG raw video: features extraites + normalisées.")
 
         if self.use_behav:
             logits = self.model(seq, behav)

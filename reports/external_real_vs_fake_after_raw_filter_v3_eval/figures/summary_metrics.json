@@ -1,0 +1,14 @@
+{
+  "total": 120,
+  "real_count": 60,
+  "spoof_count": 60,
+  "REAL->REAL": 36,
+  "REAL->SPOOF": 24,
+  "SPOOF->REAL": 1,
+  "SPOOF->SPOOF": 59,
+  "accuracy": 0.791667,
+  "APCER": 0.016667,
+  "BPCER": 0.4,
+  "ACER": 0.208333,
+  "AUC": 0.815556
+}

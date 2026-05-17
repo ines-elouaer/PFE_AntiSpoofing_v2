@@ -1,0 +1,2 @@
+video_id,label,pred_label,score_spoof,original_video_id,label_name,subject_id,device_id,condition,attack_type,domain,source_dataset,split,pred_label_name,decision_correct
+REALVSFAKE__test_attack_73,1,0,0.1820252388715744,E:\PFE_EXTERNAL_DATA\real_vs_fake_kaggle\raw\test\attack\73.mp4,unknown,external_test_73,unknown,unknown,replay_attack,unknown,REAL_VS_FAKE_KAGGLE,unknown,REAL,False

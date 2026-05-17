@@ -1,0 +1,22 @@
+{
+  "best_params": {
+    "good_accept": 0.3,
+    "good_reject": 0.8,
+    "medium_accept": 0.25,
+    "medium_reject": 0.75,
+    "low_accept": 0.2,
+    "low_reject": 0.8
+  },
+  "best_summary": {
+    "real_accept": 33,
+    "real_retry": 10,
+    "real_reject": 17,
+    "spoof_accept": 1,
+    "spoof_retry": 8,
+    "spoof_reject": 51
+  },
+  "constraints": {
+    "max_spoof_accept": 1,
+    "max_spoof_retry": 10
+  }
+}

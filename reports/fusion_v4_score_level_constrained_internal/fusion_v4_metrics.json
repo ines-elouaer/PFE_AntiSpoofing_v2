@@ -1,0 +1,105 @@
+{
+  "visual_only": {
+    "total": 144,
+    "real_count": 33,
+    "spoof_count": 111,
+    "tn_real": 28,
+    "fp_real_as_spoof": 5,
+    "fn_spoof_as_real": 3,
+    "tp_spoof": 108,
+    "accuracy": 0.9444444444444444,
+    "precision_spoof": 0.9557522123893806,
+    "recall_spoof": 0.972972972972973,
+    "f1_spoof": 0.9642857142857143,
+    "APCER": 0.02702702702702703,
+    "BPCER": 0.15151515151515152,
+    "ACER": 0.08927108927108927,
+    "AUC": 0.9855309855309855,
+    "threshold": 0.5
+  },
+  "behavior_only": {
+    "total": 144,
+    "real_count": 33,
+    "spoof_count": 111,
+    "tn_real": 27,
+    "fp_real_as_spoof": 6,
+    "fn_spoof_as_real": 19,
+    "tp_spoof": 92,
+    "accuracy": 0.8263888888888888,
+    "precision_spoof": 0.9387755102040817,
+    "recall_spoof": 0.8288288288288288,
+    "f1_spoof": 0.8803827751196173,
+    "APCER": 0.17117117117117117,
+    "BPCER": 0.18181818181818182,
+    "ACER": 0.17649467649467648,
+    "AUC": 0.8299208299208299,
+    "threshold": 0.5
+  },
+  "rppg_only": {
+    "total": 144,
+    "real_count": 33,
+    "spoof_count": 111,
+    "tn_real": 16,
+    "fp_real_as_spoof": 17,
+    "fn_spoof_as_real": 40,
+    "tp_spoof": 71,
+    "accuracy": 0.6041666666666666,
+    "precision_spoof": 0.8068181818181818,
+    "recall_spoof": 0.6396396396396397,
+    "f1_spoof": 0.7135678391959799,
+    "APCER": 0.36036036036036034,
+    "BPCER": 0.5151515151515151,
+    "ACER": 0.43775593775593774,
+    "AUC": 0.677040677040677,
+    "threshold": 0.5
+  },
+  "fusion_v4_constrained": {
+    "total": 144,
+    "real_count": 33,
+    "spoof_count": 111,
+    "tn_real": 28,
+    "fp_real_as_spoof": 5,
+    "fn_spoof_as_real": 3,
+    "tp_spoof": 108,
+    "accuracy": 0.9444444444444444,
+    "precision_spoof": 0.9557522123893806,
+    "recall_spoof": 0.972972972972973,
+    "f1_spoof": 0.9642857142857143,
+    "APCER": 0.02702702702702703,
+    "BPCER": 0.15151515151515152,
+    "ACER": 0.08927108927108927,
+    "AUC": 0.9874419874419874,
+    "threshold": 0.5
+  },
+  "best_weights_from_val": {
+    "w_visual": 0.8,
+    "w_behavior": 0.15,
+    "w_rppg": 0.05
+  },
+  "constraints": {
+    "min_visual": 0.6,
+    "min_behavior": 0.15,
+    "max_rppg": 0.25
+  },
+  "used_features": {
+    "behavior_cols": [
+      "ear_mean",
+      "ear_std",
+      "ear_min",
+      "ear_max",
+      "blink_count",
+      "motion_mean",
+      "motion_std",
+      "motion_max",
+      "skipped_rate"
+    ],
+    "rppg_cols": [
+      "rppg_dominant_freq",
+      "rppg_hr_estimate",
+      "rppg_snr",
+      "rppg_signal_std",
+      "rppg_skipped_rate",
+      "rppg_valid"
+    ]
+  }
+}

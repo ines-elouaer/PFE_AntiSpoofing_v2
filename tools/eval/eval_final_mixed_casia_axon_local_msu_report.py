@@ -279,7 +279,7 @@ def main():
     parser.add_argument("--frames_csv", required=True)
     parser.add_argument("--behav_csv", required=True)
     parser.add_argument("--out_root", required=True)
-    parser.add_argument("--behav_dim", type=int, default=9)
+    parser.add_argument("--behav_dim", type=int, default=15)
     parser.add_argument("--behav_hidden", type=int, default=16)
 
     args = parser.parse_args()
@@ -318,6 +318,9 @@ def main():
         behav_dim=args.behav_dim,
         behav_hidden=args.behav_hidden,
     )
+
+
+
     pred_df, global_metrics = predict(model, loader, device)
 
     meta = load_meta(frames_csv)

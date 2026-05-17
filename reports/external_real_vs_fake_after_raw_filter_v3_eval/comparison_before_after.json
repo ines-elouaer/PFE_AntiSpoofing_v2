@@ -1,0 +1,56 @@
+{
+  "model": "E:\\PFE_AntiSpoofing_v2\\experiments\\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3\\seed42\\best_model.pth",
+  "mixed_test": {
+    "total": 120,
+    "real_count": 60,
+    "spoof_count": 60,
+    "tn_real": 36,
+    "fp_real_as_spoof": 24,
+    "fn_spoof_as_real": 1,
+    "tp_spoof": 59,
+    "accuracy": 0.7916666666666666,
+    "precision_spoof": 0.7108433734939759,
+    "recall_spoof": 0.9833333333333333,
+    "f1_spoof": 0.8251748251748252,
+    "APCER": 0.016666666666666666,
+    "BPCER": 0.4,
+    "ACER": 0.20833333333333334,
+    "AUC": 0.8155555555555556
+  },
+  "source_datasets": {
+    "REAL_VS_FAKE_KAGGLE": {
+      "total": 120,
+      "real_count": 60,
+      "spoof_count": 60,
+      "tn_real": 36,
+      "fp_real_as_spoof": 24,
+      "fn_spoof_as_real": 1,
+      "tp_spoof": 59,
+      "accuracy": 0.7916666666666666,
+      "precision_spoof": 0.7108433734939759,
+      "recall_spoof": 0.9833333333333333,
+      "f1_spoof": 0.8251748251748252,
+      "APCER": 0.016666666666666666,
+      "BPCER": 0.4,
+      "ACER": 0.20833333333333334,
+      "AUC": 0.8155555555555556
+    }
+  },
+  "outputs": {
+    "mixed_test": {
+      "predictions": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\mixed_test\\predictions.csv",
+      "metrics": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\mixed_test\\metrics.json",
+      "attack_analysis": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\mixed_test\\errors_by_attack_type.csv",
+      "results_txt": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\mixed_test\\results.txt"
+    },
+    "real_vs_fake_kaggle_test": {
+      "predictions": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\real_vs_fake_kaggle_test\\predictions.csv",
+      "metrics": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\real_vs_fake_kaggle_test\\metrics.json",
+      "attack_analysis": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\real_vs_fake_kaggle_test\\errors_by_attack_type.csv",
+      "results_txt": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\real_vs_fake_kaggle_test\\results.txt"
+    },
+    "metrics_by_source_dataset": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\metrics_by_source_dataset.csv",
+    "metrics_by_device": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\metrics_by_device.csv",
+    "metrics_by_attack_type": "E:\\PFE_AntiSpoofing_v2\\reports\\external_real_vs_fake_after_raw_filter_v3_eval\\metrics_by_attack_type.csv"
+  }
+}

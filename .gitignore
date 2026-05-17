@@ -27,3 +27,23 @@ models/
 **/*.pt
 **/*.ckpt
 **/*.onnx
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Model checkpoints / trained artifacts
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.joblib
+*.pkl
+
+# Generated reports
+reports/**/predictions.csv
+reports/**/metrics.json
+reports/**/results.txt
+reports/**/errors_by_attack_type.csv
+reports/**/metrics_by_*.csv

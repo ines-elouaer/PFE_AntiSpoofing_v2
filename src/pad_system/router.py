@@ -348,35 +348,18 @@ class PADRouter:
         # ======================================================
         # 3. Modèle PAD vidéo
         # ======================================================
-       
+            
+                # ======================================================
+        # 3. Modèle PAD vidéo
+        # ======================================================
+
         score = float(self.video_model.predict(input_value))
 
         # ======================================================
-        # Politique de décision
+        # 4. Politique de décision bancaire
         # ======================================================
-        is_raw_video_file = Path(str(input_value)).exists()
 
-        if is_raw_video_file and enable_liveness:
-            # Politique prudente pour les vidéos live / webcam.
-            # Objectif : éviter un faux REJECT brutal sur un vrai utilisateur
-            # lorsque le liveness actif est passé mais que le modèle PAD est instable.
-            if score < 0.30:
-                decision = "ACCEPT"
-            else:
-                decision = "RETRY"
-        else:
-            # ======================================================
-            # 3. Modèle PAD vidéo
-            # ======================================================
-
-            score = float(self.video_model.predict(input_value))
-
-            # ======================================================
-            # Politique de décision
-            # ======================================================
-
-            decision = banking_decision(score, profile="video")
-
+        decision = banking_decision(score, profile="video")
         label = label_from_decision(decision)
         if decision == "ACCEPT":
             next_action = "NONE"
