@@ -11,11 +11,19 @@ class ActiveLivenessSystem:
     Vérification active légère des challenges :
     - BLINK
     - TURN_LEFT
-    - TURN_RIGHT
     - SMILE
+    - EYEBROW_RAISE
 
-    Utilise MediaPipe FaceLandmarker.
+    TURN_RIGHT a été retiré car il génère souvent des instabilités
+    de pose en runtime webcam.
     """
+
+    SUPPORTED_CHALLENGES = {
+        "BLINK",
+        "TURN_LEFT",
+        "SMILE",
+        "EYEBROW_RAISE",
+    }
 
     def __init__(
         self,
@@ -99,6 +107,43 @@ class ActiveLivenessSystem:
         except Exception:
             return 0.0
 
+    def _extract_eyebrow_score(self, landmarks) -> float:
+        """
+        Score simple pour EYEBROW_RAISE.
+
+        Principe :
+        - On mesure la distance verticale entre sourcils et yeux.
+        - Si l'utilisateur lève les sourcils, cette distance augmente.
+        - On normalise par la largeur du visage pour être moins sensible
+          à la distance caméra-visage.
+        """
+
+        try:
+            # Points approximatifs FaceMesh :
+            # sourcil gauche / droit
+            left_brow = landmarks[70]
+            right_brow = landmarks[300]
+
+            # points supérieurs des yeux
+            left_eye = landmarks[159]
+            right_eye = landmarks[386]
+
+            # largeur approximative visage / distance inter-yeux
+            left_face = landmarks[33]
+            right_face = landmarks[263]
+
+            left_dist = abs(left_eye.y - left_brow.y)
+            right_dist = abs(right_eye.y - right_brow.y)
+
+            face_width = abs(right_face.x - left_face.x) + 1e-6
+
+            score = ((left_dist + right_dist) / 2.0) / face_width
+
+            return float(score)
+
+        except Exception:
+            return 0.0
+
     def analyze(
         self,
         video_path: str,
@@ -106,7 +151,7 @@ class ActiveLivenessSystem:
     ) -> Dict[str, Any]:
         challenge = str(challenge).upper().strip()
 
-        if challenge not in {"BLINK", "TURN_LEFT", "TURN_RIGHT", "SMILE"}:
+        if challenge not in self.SUPPORTED_CHALLENGES:
             return {
                 "status": "FAIL",
                 "passed": False,
@@ -135,6 +180,7 @@ class ActiveLivenessSystem:
         ear_values = []
         nose_x_values = []
         smile_scores = []
+        eyebrow_scores = []
 
         # Indices FaceMesh classiques
         left_eye = [33, 160, 158, 133, 153, 144]
@@ -183,7 +229,6 @@ class ActiveLivenessSystem:
                     pass
 
                 try:
-                    # Nose tip approximatif
                     nose = landmarks[1]
 
                     xs = [p.x for p in landmarks]
@@ -197,7 +242,15 @@ class ActiveLivenessSystem:
                 except Exception:
                     pass
 
-                smile_scores.append(self._extract_smile_score(result))
+                try:
+                    smile_scores.append(self._extract_smile_score(result))
+                except Exception:
+                    pass
+
+                try:
+                    eyebrow_scores.append(self._extract_eyebrow_score(landmarks))
+                except Exception:
+                    pass
 
             frame_idx += 1
 
@@ -235,6 +288,22 @@ class ActiveLivenessSystem:
                 "smile_score_mean": round(float(smile_arr.mean()), 4),
             })
 
+        if eyebrow_scores:
+            eyebrow_arr = np.array(eyebrow_scores, dtype=np.float32)
+
+            eyebrow_baseline = float(np.percentile(eyebrow_arr, 25))
+            eyebrow_peak = float(np.percentile(eyebrow_arr, 90))
+            eyebrow_amplitude = eyebrow_peak - eyebrow_baseline
+
+            metrics.update({
+                "eyebrow_score_min": round(float(eyebrow_arr.min()), 4),
+                "eyebrow_score_max": round(float(eyebrow_arr.max()), 4),
+                "eyebrow_score_mean": round(float(eyebrow_arr.mean()), 4),
+                "eyebrow_baseline": round(eyebrow_baseline, 4),
+                "eyebrow_peak": round(eyebrow_peak, 4),
+                "eyebrow_amplitude": round(float(eyebrow_amplitude), 4),
+            })
+
         if processed_frames == 0:
             return {
                 "status": "FAIL",
@@ -253,7 +322,10 @@ class ActiveLivenessSystem:
                 "metrics": metrics,
             }
 
+        # ======================================================
         # Challenge BLINK
+        # ======================================================
+
         if challenge == "BLINK":
             blink_closed_frames = metrics.get("blink_closed_frames", 0)
             ear_min = metrics.get("ear_min", 1.0)
@@ -262,42 +334,73 @@ class ActiveLivenessSystem:
 
             return {
                 "status": "PASS" if passed else "FAIL",
-                "passed": passed,
+                "passed": bool(passed),
                 "challenge": challenge,
                 "reason": "blink_passed" if passed else "blink_not_detected",
                 "metrics": metrics,
             }
 
-        # Challenge TURN_LEFT / TURN_RIGHT
-        if challenge in {"TURN_LEFT", "TURN_RIGHT"}:
+        # ======================================================
+        # Challenge TURN_LEFT
+        # ======================================================
+
+        if challenge == "TURN_LEFT":
             nose_range = metrics.get("nose_shift_range", 0.0)
             nose_min = metrics.get("nose_shift_min", 0.0)
             nose_max = metrics.get("nose_shift_max", 0.0)
 
             # Tolérant au miroir webcam : on exige surtout un mouvement latéral clair.
-            passed = nose_range >= 0.06 or abs(nose_min) >= 0.06 or abs(nose_max) >= 0.06
+            passed = (
+                nose_range >= 0.06
+                or abs(nose_min) >= 0.06
+                or abs(nose_max) >= 0.06
+            )
 
             return {
                 "status": "PASS" if passed else "FAIL",
-                "passed": passed,
+                "passed": bool(passed),
                 "challenge": challenge,
                 "reason": "head_turn_passed" if passed else "head_turn_not_detected",
                 "metrics": metrics,
             }
 
+        # ======================================================
         # Challenge SMILE
+        # ======================================================
+
         if challenge == "SMILE":
             smile_max = metrics.get("smile_score_max", 0.0)
             passed = smile_max >= 0.20
 
             return {
                 "status": "PASS" if passed else "FAIL",
-                "passed": passed,
+                "passed": bool(passed),
                 "challenge": challenge,
                 "reason": "smile_passed" if passed else "smile_not_detected",
                 "metrics": metrics,
             }
 
+        # ======================================================
+        # Challenge EYEBROW_RAISE
+        # ======================================================
+
+        if challenge == "EYEBROW_RAISE":
+            eyebrow_amplitude = metrics.get("eyebrow_amplitude", 0.0)
+            eyebrow_peak = metrics.get("eyebrow_peak", 0.0)
+
+            passed = eyebrow_amplitude >= 0.007 and eyebrow_peak >= 0.055
+
+            return {
+                "status": "PASS" if passed else "FAIL",
+                "passed": bool(passed),
+                "challenge": challenge,
+                "reason": (
+                    "eyebrow_raise_passed"
+                    if passed
+                    else "eyebrow_raise_not_detected"
+                ),
+                "metrics": metrics,
+            }
         return {
             "status": "FAIL",
             "passed": False,

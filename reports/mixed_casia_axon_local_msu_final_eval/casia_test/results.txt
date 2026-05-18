@@ -23,4 +23,4 @@ TP SPOOF correct : 17
 
 ========== ATTACK TYPE SUMMARY ==========
         attack_type  n  accuracy    APCER  BPCER     ACER  f1_spoof  mean_score  min_score  max_score
-casia_real_or_spoof 24  0.958333 0.055556    0.0 0.027778  0.971429    0.693192   0.001016   0.996938
+casia_real_or_spoof 24  0.958333 0.055556    0.0 0.027778  0.971429    0.692317   0.001091   0.996879

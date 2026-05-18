@@ -1,12 +1,10 @@
 from pathlib import Path
 import sys
 import json
-import warnings
-import csv
+import argparse
 
 import numpy as np
 import pandas as pd
-
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -27,14 +25,9 @@ from src.deep_learning.models_cnn_lstm import CNN_LSTM_PAD
 from src.deep_learning.datasets_sequence import CASIASequenceDataset
 
 
-warnings.filterwarnings("ignore")
-
-
 # ==========================================================
 # CONFIG
 # ==========================================================
-
-SEED = 42
 
 T = 16
 IMG_SIZE = 224
@@ -46,60 +39,22 @@ BEHAV_DIM = 9
 BEHAV_HIDDEN = 16
 TEMPORAL_POOL = "median"
 
-MIXED_MODEL_PATH = (
-    PROJECT_ROOT
-    / "experiments"
-    / "mixed_casia_axon"
-    / "seed42"
-    / "best_model_mixed_casia_axon.pth"
-)
-
-AXON_TEST_FRAMES = (
-    PROJECT_ROOT
-    / "data"
-    / "axon_prepared"
-    / "manifests"
-    / "splits"
-    / "axon_video_frames_test.csv"
-)
-
-AXON_TEST_BEHAV = (
-    PROJECT_ROOT
-    / "data"
-    / "axon_prepared"
-    / "manifests"
-    / "splits"
-    / "axon_video_behav_test.csv"
-)
-
-CASIA_TEST_FRAMES_CANDIDATES = [
-    PROJECT_ROOT / "data" / "processed" / "casia" / "splits_subject" / "test.csv",
-    PROJECT_ROOT / "data" / "processed" / "casia" / "splits_subject" / "casia_test.csv",
-    PROJECT_ROOT / "data" / "processed" / "casia" / "splits" / "test.csv",
-    PROJECT_ROOT / "data" / "processed" / "casia" / "test.csv",
+FEATURE_COLS = [
+    "ear_mean",
+    "ear_std",
+    "ear_min",
+    "ear_max",
+    "blink_count",
+    "motion_mean",
+    "motion_std",
+    "motion_max",
+    "skipped_rate",
 ]
-
-CASIA_TEST_BEHAV_CANDIDATES = [
-    PROJECT_ROOT / "data" / "processed" / "casia" / "behav" / "test_behav.csv",
-    PROJECT_ROOT / "data" / "processed" / "casia" / "behav" / "behav_test.csv",
-    PROJECT_ROOT / "data" / "processed" / "casia" / "behav" / "casia_test_behav.csv",
-    PROJECT_ROOT / "data" / "processed" / "casia" / "behav" / "test.csv",
-]
-
-OUT_DIR = PROJECT_ROOT / "reports" / "mixed_casia_axon_final_eval"
-OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ==========================================================
-# HELPERS
+# MODEL UTILS
 # ==========================================================
-
-def first_existing(paths):
-    for p in paths:
-        if p.exists():
-            return p
-    return None
-
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -112,19 +67,13 @@ def load_checkpoint_state(path: Path):
     ckpt = torch.load(str(path), map_location="cpu")
 
     if isinstance(ckpt, dict):
-        for key in [
-            "model_state_dict",
-            "state_dict",
-            "model_state",
-            "model",
-            "net",
-        ]:
+        for key in ["model_state_dict", "state_dict", "model_state", "model", "net"]:
             if key in ckpt and isinstance(ckpt[key], dict):
                 print(f"[INFO] Checkpoint state chargé depuis la clé: {key}")
                 return ckpt[key], ckpt
 
     if isinstance(ckpt, dict):
-        print("[WARN] Aucune clé standard trouvée, tentative checkpoint complet.")
+        print("[WARN] Aucune clé standard trouvée, utilisation directe du dict.")
         return ckpt, ckpt
 
     raise RuntimeError(f"Format checkpoint non reconnu: {type(ckpt)}")
@@ -141,7 +90,7 @@ def clean_state_dict_keys(state_dict):
     return new_state
 
 
-def create_model(device):
+def create_model(checkpoint_path: Path, device):
     model = CNN_LSTM_PAD(
         hidden=256,
         num_layers=1,
@@ -155,42 +104,102 @@ def create_model(device):
         behav_hidden=BEHAV_HIDDEN,
     )
 
-    state_dict, raw_ckpt = load_checkpoint_state(MIXED_MODEL_PATH)
+    state_dict, raw_ckpt = load_checkpoint_state(checkpoint_path)
     state_dict = clean_state_dict_keys(state_dict)
 
     missing, unexpected = model.load_state_dict(state_dict, strict=False)
 
     print("\n========== CHECKPOINT LOAD ==========")
-    print(f"Checkpoint      : {MIXED_MODEL_PATH}")
+    print(f"Checkpoint      : {checkpoint_path}")
+    print(f"use_behav       : {USE_BEHAV}")
+    print(f"behav_dim       : {BEHAV_DIM}")
+    print(f"behav_hidden    : {BEHAV_HIDDEN}")
+    print(f"temporal_pool   : {TEMPORAL_POOL}")
     print(f"Missing keys    : {len(missing)}")
     print(f"Unexpected keys : {len(unexpected)}")
 
-    if len(missing) > 0:
+    if missing:
         print("Missing examples:", missing[:10])
 
-    if len(unexpected) > 0:
+    if unexpected:
         print("Unexpected examples:", unexpected[:10])
-
-    if len(missing) == 0 and len(unexpected) == 0:
-        print("[OK] Modèle mixte chargé correctement.")
-    else:
-        print("[WARN] Checkpoint chargé avec clés manquantes/inattendues.")
 
     model = model.to(device)
     model.eval()
-    return model, raw_ckpt
+
+    return model
 
 
+# ==========================================================
+# DATASET / METRICS
+# ==========================================================
+def build_dataset(frames_csv: Path, behav_csv: Path):
+    print("\n========== DATASET BUILD ==========")
+    print(f"Frames CSV used : {frames_csv}")
+    print(f"Behav CSV used  : {behav_csv}")
+
+    ds = CASIASequenceDataset(
+        csv_path=str(frames_csv),
+        T=T,
+        img_size=IMG_SIZE,
+        aug_mode="none",
+        sample_mode="center_consecutive",
+        seed=42,
+        behav_csv=str(behav_csv),
+    )
+
+    return ds
+def unpack_batch(batch, device):
+    """
+    Récupère un batch du DataLoader et force la compatibilité
+    avec le modèle évalué.
+
+    Le checkpoint mixed_casia_axon_local_msu historique attend
+    un vecteur comportemental de dimension 9 :
+
+    - ear_mean
+    - ear_std
+    - ear_min
+    - ear_max
+    - blink_count
+    - motion_mean
+    - motion_std
+    - motion_max
+    - skipped_rate
+
+    Si le Dataset renvoie 15 features, on garde uniquement
+    les 9 premières, qui correspondent aux features historiques.
+    """
+
+    if len(batch) == 4:
+        x, y, vids, behav = batch
+
+        x = x.to(device)
+        y = y.to(device)
+        behav = behav.to(device)
+
+        if behav is not None:
+            if behav.shape[1] < BEHAV_DIM:
+                raise RuntimeError(
+                    f"Behavior dim invalide: reçu {behav.shape[1]}, "
+                    f"attendu au minimum {BEHAV_DIM}"
+                )
+
+            if behav.shape[1] > BEHAV_DIM:
+                print(
+                    f"[WARN] Behavior dim reçue = {behav.shape[1]} ; "
+                    f"réduction à BEHAV_DIM = {BEHAV_DIM}"
+                )
+                behav = behav[:, :BEHAV_DIM]
+
+        return x, y, list(vids), behav
+
+    if len(batch) == 3:
+        x, y, vids = batch
+        return x.to(device), y.to(device), list(vids), None
+
+    raise RuntimeError(f"Batch format non supporté: len={len(batch)}")
 def compute_pad_metrics(y_true, y_pred, scores):
-    """
-    label 0 = REAL
-    label 1 = SPOOF
-
-    APCER = spoof accepté à tort = spoof prédit REAL
-    BPCER = réel rejeté à tort = real prédit SPOOF
-    ACER = moyenne(APCER, BPCER)
-    """
-
     y_true = np.array(y_true).astype(int)
     y_pred = np.array(y_pred).astype(int)
     scores = np.array(scores).astype(float)
@@ -205,16 +214,14 @@ def compute_pad_metrics(y_true, y_pred, scores):
     apcer = fn / spoof_total if spoof_total > 0 else 0.0
     acer = (apcer + bpcer) / 2.0
 
-    metrics = {
+    out = {
         "total": int(len(y_true)),
         "real_count": int(real_total),
         "spoof_count": int(spoof_total),
-
         "tn_real": int(tn),
         "fp_real_as_spoof": int(fp),
         "fn_spoof_as_real": int(fn),
         "tp_spoof": int(tp),
-
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "precision_spoof": float(
             precision_score(y_true, y_pred, pos_label=1, zero_division=0)
@@ -225,360 +232,549 @@ def compute_pad_metrics(y_true, y_pred, scores):
         "f1_spoof": float(
             f1_score(y_true, y_pred, pos_label=1, zero_division=0)
         ),
-
         "APCER": float(apcer),
         "BPCER": float(bpcer),
         "ACER": float(acer),
     }
 
     try:
-        metrics["AUC"] = float(roc_auc_score(y_true, scores))
+        out["AUC"] = float(roc_auc_score(y_true, scores))
     except Exception:
-        metrics["AUC"] = None
+        out["AUC"] = None
 
-    return metrics
+    return out
 
 
-def banking_decision_video(score: float):
-    score = float(score)
+@torch.no_grad()
+def predict_model(model, loader, device):
+    criterion = nn.CrossEntropyLoss()
 
-    if score < 0.30:
-        return "ACCEPT"
+    all_vids = []
+    all_y = []
+    all_pred = []
+    all_scores = []
 
-    if score < 0.60:
-        return "RETRY"
+    total_loss = 0.0
+    total_samples = 0
 
-    return "REJECT"
+    for batch in loader:
+        x, y, vids, behav = unpack_batch(batch, device)
+        if total_samples == 0 and behav is not None:
+            print("\n========== FIRST BATCH DEBUG ==========")
+            print(f"x shape     : {tuple(x.shape)}")
+            print(f"y shape     : {tuple(y.shape)}")
+            print(f"behav shape : {tuple(behav.shape)}")
+
+        logits = model(x, behav=behav)
+        loss = criterion(logits, y)
+
+        probs = torch.softmax(logits, dim=1)
+        scores = probs[:, 1]
+        pred = torch.argmax(logits, dim=1)
+
+        bs = y.size(0)
+        total_loss += loss.item() * bs
+        total_samples += bs
+
+        all_vids.extend(vids)
+        all_y.extend(y.detach().cpu().numpy().tolist())
+        all_pred.extend(pred.detach().cpu().numpy().tolist())
+        all_scores.extend(scores.detach().cpu().numpy().tolist())
+
+    pred_df = pd.DataFrame(
+        {
+            "video_id": all_vids,
+            "label": all_y,
+            "pred_label": all_pred,
+            "score_spoof": all_scores,
+        }
+    )
+
+    metrics = compute_pad_metrics(all_y, all_pred, all_scores)
+    metrics["loss"] = float(total_loss / max(1, total_samples))
+
+    return pred_df, metrics
 
 
 def load_video_meta(frames_csv: Path):
-    df = pd.read_csv(frames_csv)
+    frames = pd.read_csv(frames_csv)
 
-    video_df = (
-        df.sort_values(["video_id", "frame_idx"])
+    meta = (
+        frames.sort_values(["video_id", "frame_idx"])
         .groupby("video_id")
         .first()
         .reset_index()
     )
 
-    meta_by_vid = {}
+    wanted_cols = [
+        "video_id",
+        "original_video_id",
+        "label_name",
+        "subject_id",
+        "device_id",
+        "condition",
+        "attack_type",
+        "domain",
+        "source_dataset",
+        "split",
+    ]
 
-    for _, row in video_df.iterrows():
-        vid = str(row["video_id"])
+    for col in wanted_cols:
+        if col not in meta.columns:
+            meta[col] = "unknown"
 
-        meta_by_vid[vid] = {
-            "video_id": vid,
-            "label": int(row["label"]),
-            "label_name": str(row.get("label_name", "REAL" if int(row["label"]) == 0 else "SPOOF")),
-            "attack_type": str(row.get("attack_type", "unknown")),
-            "level": str(row.get("level", "unknown")),
-            "domain": str(row.get("domain", "UNKNOWN")),
-            "subject_id": str(row.get("subject_id", "unknown")),
+    return meta[wanted_cols].copy()
+def prepare_behav_csv_for_model(behav_csv: Path, out_root: Path) -> Path:
+    """
+    Prépare un fichier behavior compatible avec le modèle chargé.
+
+    Le modèle mixed_casia_axon_local_msu historique attend BEHAV_DIM = 9.
+    Si le CSV contient plus de colonnes, par exemple rPPG ou pose,
+    on garde uniquement les 9 features utilisées à l'entraînement.
+    """
+
+    df = pd.read_csv(behav_csv)
+
+    required_cols = ["video_id"] + FEATURE_COLS
+    missing = [col for col in required_cols if col not in df.columns]
+
+    if missing:
+        raise ValueError(
+            f"Colonnes behavior manquantes dans {behav_csv}: {missing}"
+        )
+
+    keep_cols = ["video_id"]
+
+    if "label" in df.columns:
+        keep_cols.append("label")
+
+    keep_cols += FEATURE_COLS
+
+    filtered = df[keep_cols].copy()
+
+    out_root.mkdir(parents=True, exist_ok=True)
+    filtered_path = out_root / "mixed_test_behav_filtered_9_features.csv"
+
+    filtered.to_csv(filtered_path, index=False, encoding="utf-8")
+
+    print("\n========== BEHAVIOR CSV FILTER ==========")
+    print(f"Original behav CSV : {behav_csv}")
+    print(f"Filtered behav CSV : {filtered_path}")
+    print(f"Features used      : {FEATURE_COLS}")
+    print(f"BEHAV_DIM expected : {BEHAV_DIM}")
+    print(f"Filtered shape     : {filtered.shape}")
+
+    return filtered_path
+
+def load_baseline_metrics(path: Path) -> dict:
+    """
+    Charge les métriques baseline depuis un fichier JSON.
+
+    Objectif :
+    éviter les métriques hardcodées dans le script d'évaluation.
+    """
+
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Fichier baseline metrics introuvable: {path}\n"
+            "Créer le fichier reports/baseline_before_finetuning/metrics.json "
+            "ou passer un autre chemin avec --baseline_metrics_json."
+        )
+
+    with path.open("r", encoding="utf-8") as f:
+        metrics = json.load(f)
+
+    required = {"accuracy", "APCER", "BPCER", "ACER", "AUC"}
+    missing = required - set(metrics.keys())
+
+    if missing:
+        raise ValueError(
+            f"Métriques manquantes dans baseline JSON: {sorted(missing)}"
+        )
+
+    return metrics
+
+
+# ==========================================================
+# REPORTS
+# ==========================================================
+
+def attack_type_summary(pred_df: pd.DataFrame):
+    rows = []
+
+    for attack_type, g in pred_df.groupby("attack_type"):
+        metrics = compute_pad_metrics(
+            g["label"].values,
+            g["pred_label"].values,
+            g["score_spoof"].values,
+        )
+
+        row = {
+            "attack_type": attack_type,
+            "n": int(len(g)),
+            "accuracy": metrics["accuracy"],
+            "APCER": metrics["APCER"],
+            "BPCER": metrics["BPCER"],
+            "ACER": metrics["ACER"],
+            "f1_spoof": metrics["f1_spoof"],
+            "mean_score": float(g["score_spoof"].mean()),
+            "min_score": float(g["score_spoof"].min()),
+            "max_score": float(g["score_spoof"].max()),
         }
 
-    return meta_by_vid
+        rows.append(row)
 
+    if not rows:
+        return pd.DataFrame()
 
-def build_dataset(frames_csv: Path, behav_csv: Path):
-    return CASIASequenceDataset(
-        csv_path=str(frames_csv),
-        T=T,
-        img_size=IMG_SIZE,
-        aug_mode="none",
-        sample_mode="center_consecutive",
-        seed=SEED,
-        behav_csv=str(behav_csv),
+    return pd.DataFrame(rows).sort_values(
+        ["ACER", "n"],
+        ascending=[False, False],
     )
 
 
-def unpack_batch(batch, device):
-    if len(batch) == 4:
-        x, y, vids, behav = batch
-        return x.to(device), y.to(device), list(vids), behav.to(device)
+def subgroup_summary(pred_df: pd.DataFrame, group_col: str):
+    rows = []
 
-    if len(batch) == 3:
-        x, y, vids = batch
-        return x.to(device), y.to(device), list(vids), None
+    for group_value, g in pred_df.groupby(group_col):
+        metrics = compute_pad_metrics(
+            g["label"].values,
+            g["pred_label"].values,
+            g["score_spoof"].values,
+        )
 
-    raise RuntimeError(f"Batch format non supporté: len={len(batch)}")
+        row = {
+            group_col: group_value,
+            **metrics,
+            "mean_score": float(g["score_spoof"].mean()),
+            "min_score": float(g["score_spoof"].min()),
+            "max_score": float(g["score_spoof"].max()),
+        }
+
+        rows.append(row)
+
+    if not rows:
+        return pd.DataFrame()
+
+    return pd.DataFrame(rows).sort_values(group_col)
 
 
-@torch.no_grad()
-def evaluate_dataset(
-    model,
-    frames_csv: Path,
-    behav_csv: Path,
-    split_name: str,
-    device,
+def write_results_txt(
+    out_path: Path,
+    title: str,
+    metrics: dict,
+    attack_summary: pd.DataFrame,
 ):
-    if not frames_csv.exists():
-        raise FileNotFoundError(f"Frames CSV introuvable: {frames_csv}")
+    lines = []
 
-    if not behav_csv.exists():
-        raise FileNotFoundError(f"Behavior CSV introuvable: {behav_csv}")
+    lines.append(f"========== {title} FINAL EVALUATION ==========")
 
-    print("\n" + "=" * 70)
-    print(f"EVALUATION : {split_name}")
-    print("=" * 70)
-    print(f"Frames CSV : {frames_csv}")
-    print(f"Behav CSV  : {behav_csv}")
+    for k, v in metrics.items():
+        lines.append(f"{k}: {v}")
 
-    ds = build_dataset(frames_csv, behav_csv)
+    lines.append("")
+    lines.append("========== CONFUSION DETAILS ==========")
+    lines.append(f"TN REAL correct  : {metrics['tn_real']}")
+    lines.append(f"FP REAL as SPOOF : {metrics['fp_real_as_spoof']}")
+    lines.append(f"FN SPOOF as REAL : {metrics['fn_spoof_as_real']}")
+    lines.append(f"TP SPOOF correct : {metrics['tp_spoof']}")
+
+    lines.append("")
+    lines.append("========== ATTACK TYPE SUMMARY ==========")
+
+    if attack_summary is not None and len(attack_summary):
+        lines.append(attack_summary.to_string(index=False))
+    else:
+        lines.append("No attack type summary available.")
+
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def save_eval_block(name: str, pred_df: pd.DataFrame, out_root: Path):
+    """
+    Crée un dossier comme l'ancien rapport :
+    reports/.../{name}/
+      - predictions.csv
+      - metrics.json
+      - errors_by_attack_type.csv
+      - results.txt
+    """
+
+    out_dir = out_root / name
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    metrics = compute_pad_metrics(
+        pred_df["label"].values,
+        pred_df["pred_label"].values,
+        pred_df["score_spoof"].values,
+    )
+
+    attack_summary = attack_type_summary(pred_df)
+
+    predictions_path = out_dir / "predictions.csv"
+    metrics_path = out_dir / "metrics.json"
+    attack_path = out_dir / "errors_by_attack_type.csv"
+    results_path = out_dir / "results.txt"
+
+    pred_df.to_csv(predictions_path, index=False, encoding="utf-8")
+    attack_summary.to_csv(attack_path, index=False, encoding="utf-8")
+
+    with metrics_path.open("w", encoding="utf-8") as f:
+        json.dump(metrics, f, indent=2, ensure_ascii=False)
+
+    write_results_txt(
+        out_path=results_path,
+        title=name.upper(),
+        metrics=metrics,
+        attack_summary=attack_summary,
+    )
+
+    return {
+        "name": name,
+        "metrics": metrics,
+        "outputs": {
+            "predictions": str(predictions_path),
+            "metrics": str(metrics_path),
+            "attack_analysis": str(attack_path),
+            "results_txt": str(results_path),
+        },
+    }
+
+
+# ==========================================================
+# MAIN
+# ==========================================================
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--model",
+        default=str(
+            PROJECT_ROOT
+            / "experiments"
+            / "mixed_casia_axon_local_msu"
+            / "seed42"
+            / "best_model_mixed_casia_axon_local_msu.pth"
+        ),
+    )
+
+    parser.add_argument(
+        "--frames_csv",
+        default=str(
+            PROJECT_ROOT
+            / "data"
+            / "mixed_casia_axon_local_msu"
+            / "mixed_test_frames.csv"
+        ),
+    )
+
+    parser.add_argument(
+        "--behav_csv",
+        default=str(
+            PROJECT_ROOT
+            / "data"
+            / "mixed_casia_axon_local_msu"
+            / "mixed_test_behav.csv"
+        ),
+    )
+
+    parser.add_argument(
+        "--out_root",
+        default=str(
+            PROJECT_ROOT
+            / "reports"
+            / "mixed_casia_axon_local_msu_final_eval"
+        ),
+    )
+
+    parser.add_argument(
+        "--baseline_metrics_json",
+        default=str(
+            PROJECT_ROOT
+            / "reports"
+            / "baseline_before_finetuning"
+            / "metrics.json"
+        ),
+        help="Chemin vers les métriques baseline avant fine-tuning.",
+    )
+
+    args = parser.parse_args()
+
+    model_path = Path(args.model)
+    frames_csv = Path(args.frames_csv)
+    behav_csv = Path(args.behav_csv)
+    out_root = Path(args.out_root)
+    baseline_metrics_json = Path(args.baseline_metrics_json)
+
+    out_root.mkdir(parents=True, exist_ok=True)
+
+    for p in [model_path, frames_csv, behav_csv]:
+        if not p.exists():
+            raise FileNotFoundError(f"Fichier introuvable: {p}")
+
+    baseline_before_finetuning = load_baseline_metrics(baseline_metrics_json)
+
+    print("========== FINAL REPORT EVAL CONFIG ==========")
+    print(f"Project root : {PROJECT_ROOT}")
+    print(f"Model        : {model_path}")
+    print(f"Frames CSV   : {frames_csv}")
+    print(f"Behav CSV    : {behav_csv}")
+    print(f"Out root     : {out_root}")
+    print(f"Baseline JSON: {baseline_metrics_json}")
+
+    device = get_device()
+    print(f"Device       : {device}")
+
+    filtered_behav_csv = prepare_behav_csv_for_model(behav_csv, out_root)
+  
+    # Important : à partir d'ici, on remplace behav_csv par le fichier filtré
+    behav_csv = filtered_behav_csv
+
+    dataset = build_dataset(frames_csv, behav_csv)
 
     loader = DataLoader(
-        ds,
+        dataset,
         batch_size=BATCH_SIZE,
         shuffle=False,
         num_workers=NUM_WORKERS,
         pin_memory=torch.cuda.is_available(),
     )
 
-    meta_by_vid = load_video_meta(frames_csv)
+    model = create_model(model_path, device)
 
-    all_y = []
-    all_pred = []
-    all_scores = []
-    rows = []
+    pred_df, global_metrics = predict_model(model, loader, device)
 
-    for batch_idx, batch in enumerate(loader, start=1):
-        x, y, vids, behav = unpack_batch(batch, device)
+    meta_df = load_video_meta(frames_csv)
 
-        logits = model(x, behav=behav)
-        probs = torch.softmax(logits, dim=1)
-        scores = probs[:, 1]
-        preds = torch.argmax(logits, dim=1)
+    pred_df = pred_df.merge(meta_df, on="video_id", how="left")
+    pred_df["pred_label_name"] = pred_df["pred_label"].map({0: "REAL", 1: "SPOOF"})
+    pred_df["decision_correct"] = pred_df["label"] == pred_df["pred_label"]
 
-        y_cpu = y.detach().cpu().numpy().tolist()
-        pred_cpu = preds.detach().cpu().numpy().tolist()
-        score_cpu = scores.detach().cpu().numpy().tolist()
-
-        for vid, yt, yp, sc in zip(vids, y_cpu, pred_cpu, score_cpu):
-            meta = meta_by_vid.get(str(vid), {})
-
-            rows.append({
-                "split": split_name,
-                "video_id": str(vid),
-                "label": int(yt),
-                "label_name": "REAL" if int(yt) == 0 else "SPOOF",
-                "pred_label": int(yp),
-                "pred_label_name": "REAL" if int(yp) == 0 else "SPOOF",
-                "score_spoof": float(sc),
-                "banking_decision": banking_decision_video(float(sc)),
-                "correct": bool(int(yt) == int(yp)),
-                "attack_type": meta.get("attack_type", "unknown"),
-                "level": meta.get("level", "unknown"),
-                "domain": meta.get("domain", "UNKNOWN"),
-                "subject_id": meta.get("subject_id", "unknown"),
-            })
-
-        all_y.extend(y_cpu)
-        all_pred.extend(pred_cpu)
-        all_scores.extend(score_cpu)
-
-        if batch_idx % 25 == 0:
-            print(f"[INFO] Batch {batch_idx}/{len(loader)} traité")
-
-    pred_df = pd.DataFrame(rows)
-    metrics = compute_pad_metrics(all_y, all_pred, all_scores)
-
-    # Analyse par attack_type
-    attack_rows = []
-
-    if "attack_type" in pred_df.columns:
-        for attack_type, g in pred_df.groupby("attack_type"):
-            yt = g["label"].astype(int).values
-            yp = g["pred_label"].astype(int).values
-            sc = g["score_spoof"].astype(float).values
-
-            m = compute_pad_metrics(yt, yp, sc)
-
-            attack_rows.append({
-                "attack_type": attack_type,
-                "n": int(len(g)),
-                "accuracy": m["accuracy"],
-                "APCER": m["APCER"],
-                "BPCER": m["BPCER"],
-                "ACER": m["ACER"],
-                "f1_spoof": m["f1_spoof"],
-                "mean_score": float(np.mean(sc)),
-                "min_score": float(np.min(sc)),
-                "max_score": float(np.max(sc)),
-            })
-
-    attack_df = pd.DataFrame(attack_rows)
-
-    if len(attack_df) > 0:
-        attack_df = attack_df.sort_values("n", ascending=False)
-
-    return metrics, pred_df, attack_df
-
-
-def save_eval_outputs(split_name, metrics, pred_df, attack_df):
-    split_dir = OUT_DIR / split_name
-    split_dir.mkdir(parents=True, exist_ok=True)
-
-    pred_path = split_dir / "predictions.csv"
-    metrics_path = split_dir / "metrics.json"
-    attack_path = split_dir / "errors_by_attack_type.csv"
-    results_path = split_dir / "results.txt"
-
-    pred_df.to_csv(pred_path, index=False, encoding="utf-8")
-
-    with open(metrics_path, "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2, ensure_ascii=False)
-
-    if attack_df is not None and len(attack_df) > 0:
-        attack_df.to_csv(attack_path, index=False, encoding="utf-8")
-
-    with open(results_path, "w", encoding="utf-8") as f:
-        f.write(f"========== {split_name.upper()} FINAL EVALUATION ==========\n")
-        for k, v in metrics.items():
-            f.write(f"{k}: {v}\n")
-
-        f.write("\n========== CONFUSION DETAILS ==========\n")
-        f.write(f"TN REAL correct  : {metrics['tn_real']}\n")
-        f.write(f"FP REAL as SPOOF : {metrics['fp_real_as_spoof']}\n")
-        f.write(f"FN SPOOF as REAL : {metrics['fn_spoof_as_real']}\n")
-        f.write(f"TP SPOOF correct : {metrics['tp_spoof']}\n")
-
-        if attack_df is not None and len(attack_df) > 0:
-            f.write("\n========== ATTACK TYPE SUMMARY ==========\n")
-            f.write(attack_df.to_string(index=False))
-
-    return {
-        "predictions": str(pred_path),
-        "metrics": str(metrics_path),
-        "attack_analysis": str(attack_path),
-        "results_txt": str(results_path),
+    all_results = {
+        "model": str(model_path),
+        "mixed_test": None,
+        "by_source_dataset": {},
+        "by_device": {},
+        "outputs": {},
     }
 
+    # 1. Bloc global mixed_test
+    mixed_block = save_eval_block("mixed_test", pred_df, out_root)
+    all_results["mixed_test"] = mixed_block["metrics"]
+    all_results["outputs"]["mixed_test"] = mixed_block["outputs"]
 
-def print_metrics(title, metrics):
-    print("\n" + "-" * 70)
-    print(title)
-    print("-" * 70)
+    # 2. Blocs par source_dataset
+    source_name_map = {
+        "CASIA": "casia_test",
+        "AXON": "axon_test",
+        "LOCAL_REAL": "local_real_test",
+        "MSU_MFSD": "msu_mfsd_test",
+    }
 
-    keys = [
-        "total",
-        "real_count",
-        "spoof_count",
-        "tn_real",
-        "fp_real_as_spoof",
-        "fn_spoof_as_real",
-        "tp_spoof",
-        "accuracy",
-        "precision_spoof",
-        "recall_spoof",
-        "f1_spoof",
-        "APCER",
-        "BPCER",
-        "ACER",
-        "AUC",
-    ]
+    for source, source_df in pred_df.groupby("source_dataset"):
+        block_name = source_name_map.get(source, f"{str(source).lower()}_test")
+        block = save_eval_block(block_name, source_df.copy(), out_root)
 
-    for k in keys:
-        print(f"{k:<22}: {metrics.get(k)}")
+        all_results["by_source_dataset"][source] = block["metrics"]
+        all_results["outputs"][block_name] = block["outputs"]
 
+    # 3. Résumés CSV globaux par source / device / attack
+    by_source = subgroup_summary(pred_df, "source_dataset")
+    by_device = subgroup_summary(pred_df, "device_id")
+    by_attack = subgroup_summary(pred_df, "attack_type")
 
-def main():
-    device = get_device()
+    by_source_path = out_root / "metrics_by_source_dataset.csv"
+    by_device_path = out_root / "metrics_by_device.csv"
+    by_attack_path = out_root / "metrics_by_attack_type.csv"
 
-    casia_test_frames = first_existing(CASIA_TEST_FRAMES_CANDIDATES)
-    casia_test_behav = first_existing(CASIA_TEST_BEHAV_CANDIDATES)
+    by_source.to_csv(by_source_path, index=False, encoding="utf-8")
+    by_device.to_csv(by_device_path, index=False, encoding="utf-8")
+    by_attack.to_csv(by_attack_path, index=False, encoding="utf-8")
 
-    if casia_test_frames is None:
-        raise FileNotFoundError(
-            "CASIA test frames introuvable. Vérifie les chemins dans CASIA_TEST_FRAMES_CANDIDATES."
-        )
+    all_results["outputs"]["metrics_by_source_dataset"] = str(by_source_path)
+    all_results["outputs"]["metrics_by_device"] = str(by_device_path)
+    all_results["outputs"]["metrics_by_attack_type"] = str(by_attack_path)
 
-    if casia_test_behav is None:
-        raise FileNotFoundError(
-            "CASIA test behavior introuvable. Vérifie les chemins dans CASIA_TEST_BEHAV_CANDIDATES."
-        )
-
-    print("========== CONFIG ==========")
-    print(f"Project root       : {PROJECT_ROOT}")
-    print(f"Device             : {device}")
-    print(f"Mixed model        : {MIXED_MODEL_PATH}")
-    print(f"Axon test frames   : {AXON_TEST_FRAMES}")
-    print(f"Axon test behav    : {AXON_TEST_BEHAV}")
-    print(f"CASIA test frames  : {casia_test_frames}")
-    print(f"CASIA test behav   : {casia_test_behav}")
-    print(f"Output dir         : {OUT_DIR}")
-
-    for p in [MIXED_MODEL_PATH, AXON_TEST_FRAMES, AXON_TEST_BEHAV, casia_test_frames, casia_test_behav]:
-        if not p.exists():
-            raise FileNotFoundError(f"Fichier introuvable: {p}")
-
-    model, raw_ckpt = create_model(device)
-
-    axon_metrics, axon_pred_df, axon_attack_df = evaluate_dataset(
-        model=model,
-        frames_csv=AXON_TEST_FRAMES,
-        behav_csv=AXON_TEST_BEHAV,
-        split_name="axon_test",
-        device=device,
-    )
-
-    print_metrics("AXON TEST METRICS", axon_metrics)
-
-    axon_outputs = save_eval_outputs(
-        split_name="axon_test",
-        metrics=axon_metrics,
-        pred_df=axon_pred_df,
-        attack_df=axon_attack_df,
-    )
-
-    casia_metrics, casia_pred_df, casia_attack_df = evaluate_dataset(
-        model=model,
-        frames_csv=casia_test_frames,
-        behav_csv=casia_test_behav,
-        split_name="casia_test",
-        device=device,
-    )
-
-    print_metrics("CASIA TEST METRICS", casia_metrics)
-
-    casia_outputs = save_eval_outputs(
-        split_name="casia_test",
-        metrics=casia_metrics,
-        pred_df=casia_pred_df,
-        attack_df=casia_attack_df,
-    )
-
+    # 4. Comparison before/after sans métriques hardcodées
     comparison = {
-        "model": str(MIXED_MODEL_PATH),
-        "axon_test": axon_metrics,
-        "casia_test": casia_metrics,
-        "baseline_before_finetuning": {
-            "axon_full_casia_checkpoint": {
-                "accuracy": 0.7693498452012384,
-                "APCER": 0.20483870967741935,
-                "BPCER": 0.8461538461538461,
-                "ACER": 0.5254962779156327,
-                "AUC": 0.47332506203473945,
-                "note": "Baseline CASIA checkpoint evaluated on full Axon video set before mixed fine-tuning.",
-            }
+        "model": str(model_path),
+
+        "baseline_before_finetuning": baseline_before_finetuning,
+
+        "after_finetuning": {
+            "mixed_test": all_results["mixed_test"],
+            "source_datasets": all_results["by_source_dataset"],
         },
-        "outputs": {
-            "axon_test": axon_outputs,
-            "casia_test": casia_outputs,
+
+        "notes": {
+            "baseline_reference": str(baseline_metrics_json),
+            "current_model": (
+                "Fine-tuned from mixed_casia_axon using LOCAL_REAL "
+                "and MSU_MFSD real videos."
+            ),
+            "purpose": (
+                "Evaluate robustness after adapting to webcam/mobile "
+                "real capture domain."
+            ),
         },
+
+        "outputs": all_results["outputs"],
     }
 
-    comparison_path = OUT_DIR / "comparison_before_after.json"
+    comparison_path = out_root / "comparison_before_after.json"
 
-    with open(comparison_path, "w", encoding="utf-8") as f:
+    with comparison_path.open("w", encoding="utf-8") as f:
         json.dump(comparison, f, indent=2, ensure_ascii=False)
 
-    print("\n========== FINAL OUTPUTS ==========")
-    print(f"Axon predictions  : {axon_outputs['predictions']}")
-    print(f"Axon metrics      : {axon_outputs['metrics']}")
-    print(f"CASIA predictions : {casia_outputs['predictions']}")
-    print(f"CASIA metrics     : {casia_outputs['metrics']}")
-    print(f"Comparison JSON   : {comparison_path}")
+    # 5. Console report
+    print("\n========== MIXED TEST FINAL METRICS ==========")
 
-    print("\n[OK] Évaluation finale modèle mixte terminée.")
+    for k, v in all_results["mixed_test"].items():
+        print(f"{k}: {v}")
+
+    print("\n========== BASELINE BEFORE FINETUNING ==========")
+
+    for k, v in baseline_before_finetuning.items():
+        print(f"{k}: {v}")
+
+    print("\n========== BY SOURCE_DATASET ==========")
+    print(by_source.to_string(index=False))
+
+    print("\n========== BY DEVICE ==========")
+    print(by_device.to_string(index=False))
+
+    print("\n========== ERRORS ==========")
+    errors = pred_df[~pred_df["decision_correct"]].copy()
+
+    if len(errors) == 0:
+        print("Aucune erreur.")
+    else:
+        print(
+            errors[
+                [
+                    "video_id",
+                    "original_video_id",
+                    "label_name",
+                    "pred_label_name",
+                    "score_spoof",
+                    "source_dataset",
+                    "device_id",
+                    "subject_id",
+                    "attack_type",
+                ]
+            ]
+            .sort_values(["source_dataset", "score_spoof"])
+            .to_string(index=False)
+        )
+
+    print("\n========== SAVED ==========")
+    print(f"Report root               : {out_root}")
+    print(f"Comparison JSON           : {comparison_path}")
+    print(f"Metrics by source dataset : {by_source_path}")
+    print(f"Metrics by device         : {by_device_path}")
+    print(f"Metrics by attack type    : {by_attack_path}")
+    print("\n[OK] Rapport final généré.")
 
 
 if __name__ == "__main__":

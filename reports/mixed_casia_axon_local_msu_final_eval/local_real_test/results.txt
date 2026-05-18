@@ -23,4 +23,4 @@ TP SPOOF correct : 0
 
 ========== ATTACK TYPE SUMMARY ==========
 attack_type  n  accuracy  APCER    BPCER     ACER  f1_spoof  mean_score  min_score  max_score
- real_video 11  0.545455    0.0 0.454545 0.227273       0.0      0.4504   0.151585   0.845495
+ real_video 11  0.545455    0.0 0.454545 0.227273       0.0    0.446817   0.153711   0.837297

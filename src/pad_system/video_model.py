@@ -1,7 +1,8 @@
-from pathlib import Path
+﻿from pathlib import Path
 import math
 import warnings
 import json
+import pickle
 
 import cv2
 import numpy as np
@@ -20,18 +21,13 @@ class VideoPADModel:
     """
     Branche vidéo PAD finale.
 
-    Compatible avec le modèle V3 :
-    - MobileNetV3 + LSTM
-    - 15 features behavior+rPPG
-    - Gated fusion
-    - Normalisation avec les statistiques du train V3
-
-    Deux modes supportés :
-    1) vidéo brute existante (.avi/.mp4/.mov/.mkv)
-    2) video_id présent dans un CSV de frames
+    Version intégrée :
+    - V3 multimodal : MobileNetV3 + LSTM + behavior/rPPG + gated fusion
+    - Behavior-pose V6 : EAR + motion + Head Pose Dynamics
+    - Fusion V6 : 0.85 * score_V3 + 0.15 * score_behavior_pose
+    - Quality score vidéo pour la policy bancaire
     """
 
-    # 15 features du modèle V3
     MODEL_BEHAV_COLS = [
         "ear_mean",
         "ear_std",
@@ -50,7 +46,6 @@ class VideoPADModel:
         "rppg_valid",
     ]
 
-    # Anciennes colonnes behavior 9 features
     OLD_BEHAV_COLS = [
         "ear_mean",
         "ear_std",
@@ -63,6 +58,47 @@ class VideoPADModel:
         "skipped_rate",
     ]
 
+    BEHAVIOR_POSE_V6_COLS = [
+        "ear_mean",
+        "ear_std",
+        "ear_min",
+        "ear_max",
+        "blink_count",
+        "motion_mean",
+        "motion_std",
+        "motion_max",
+        "skipped_rate",
+        "yaw_std",
+        "pitch_std",
+        "roll_std",
+        "yaw_range",
+        "pitch_range",
+        "roll_range",
+        "yaw_delta_mean",
+        "pitch_delta_mean",
+        "roll_delta_mean",
+        "pose_autocorr",
+        "pose_valid_rate",
+    ]
+
+    POSE_LANDMARK_IDS = {
+        "nose_tip": 1,
+        "chin": 152,
+        "left_eye_outer": 33,
+        "right_eye_outer": 263,
+        "left_mouth": 61,
+        "right_mouth": 291,
+    }
+
+    MODEL_POINTS_3D = np.array([
+        [0.0, 0.0, 0.0],
+        [0.0, -63.6, -12.5],
+        [-43.3, 32.7, -26.0],
+        [43.3, 32.7, -26.0],
+        [-28.9, -28.9, -24.1],
+        [28.9, -28.9, -24.1],
+    ], dtype=np.float64)
+
     VIDEO_EXTS = [".avi", ".mp4", ".mov", ".mkv"]
 
     def __init__(
@@ -72,6 +108,7 @@ class VideoPADModel:
         behav_test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\mixed_val_behav_rppg_norm.csv",
         behavior_stats_json: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\behav_rppg_norm_stats.json",
         scaler_path: str = "",
+        behavior_pose_model_path: str = r"E:\PFE_AntiSpoofing_v2\reports\fusion_v6_behavior_pose\behavior_pose_clf.pkl",
         img_size: int = 224,
         seq_len: int = 16,
         sample_mode: str = "center_consecutive",
@@ -81,6 +118,9 @@ class VideoPADModel:
         self.behav_test_csv = Path(behav_test_csv)
         self.behavior_stats_json = Path(behavior_stats_json) if behavior_stats_json else None
         self.scaler_path = Path(scaler_path) if scaler_path else None
+        self.behavior_pose_model_path = (
+            Path(behavior_pose_model_path) if behavior_pose_model_path else None
+        )
 
         self.img_size = int(img_size)
         self.seq_len = int(seq_len)
@@ -109,6 +149,7 @@ class VideoPADModel:
         self.behav_df = self._load_behav_csv()
         self.behav_scaler = self._load_behavior_scaler()
         self.behav_stats = self._load_behavior_stats()
+        self.behavior_pose_clf = self._load_behavior_pose_model()
 
     # ==========================================================
     # MODEL LOADING
@@ -245,22 +286,6 @@ class VideoPADModel:
             return None
 
     def _load_behavior_stats(self):
-        """
-        Charge les statistiques de normalisation du train V3.
-
-        Supporte deux formats :
-        Format A:
-            {
-                "ear_mean": {"mean": ..., "std": ...}
-            }
-
-        Format B:
-            {
-                "mean": {"ear_mean": ...},
-                "std": {"ear_mean": ...}
-            }
-        """
-
         if self.behavior_stats_json is None:
             print("[VIDEO][WARN] Aucun fichier stats behavior+rPPG fourni.")
             return None
@@ -280,21 +305,38 @@ class VideoPADModel:
             print(f"[VIDEO][WARN] Impossible de charger stats behavior+rPPG: {e}")
             return None
 
+    def _load_behavior_pose_model(self):
+        """
+        Charge le classifieur behavior-pose V6.
+        Supporte :
+        - estimator sklearn direct avec predict_proba
+        - Pipeline sklearn avec predict_proba
+        - dict contenant scaler + clf/model
+        """
+
+        if self.behavior_pose_model_path is None:
+            print("[VIDEO][WARN] Aucun modèle behavior-pose fourni.")
+            return None
+
+        if not self.behavior_pose_model_path.exists():
+            print(f"[VIDEO][WARN] Modèle behavior-pose introuvable: {self.behavior_pose_model_path}")
+            return None
+
+        try:
+            with open(self.behavior_pose_model_path, "rb") as f:
+                obj = pickle.load(f)
+
+            print(f"[VIDEO] Modèle behavior-pose V6 chargé: {self.behavior_pose_model_path}")
+            return obj
+
+        except Exception as e:
+            print(f"[VIDEO][WARN] Impossible de charger behavior-pose V6: {e}")
+            return None
+
     def _get_stat_mean_std(self, col: str):
-        """
-        Récupère mean/std pour une colonne.
-
-        Format A :
-            stats[col]["mean"], stats[col]["std"]
-
-        Format B :
-            stats["mean"][col], stats["std"][col]
-        """
-
         if self.behav_stats is None:
             return None, None
 
-        # Format A
         if col in self.behav_stats and isinstance(self.behav_stats[col], dict):
             mean = self.behav_stats[col].get("mean", None)
             std = self.behav_stats[col].get("std", None)
@@ -302,7 +344,6 @@ class VideoPADModel:
             if mean is not None and std is not None:
                 return float(mean), float(std)
 
-        # Format B
         if "mean" in self.behav_stats and "std" in self.behav_stats:
             mean_map = self.behav_stats.get("mean", {})
             std_map = self.behav_stats.get("std", {})
@@ -374,7 +415,181 @@ class VideoPADModel:
         return sampled
 
     # ==========================================================
-    # BEHAVIOR FEATURES — CSV MODE
+    # SAFE STATS
+    # ==========================================================
+
+    @staticmethod
+    def _safe_mean(values):
+        return float(np.mean(values)) if len(values) > 0 else 0.0
+
+    @staticmethod
+    def _safe_std(values):
+        return float(np.std(values)) if len(values) > 0 else 0.0
+
+    @staticmethod
+    def _safe_min(values):
+        return float(np.min(values)) if len(values) > 0 else 0.0
+
+    @staticmethod
+    def _safe_max(values):
+        return float(np.max(values)) if len(values) > 0 else 0.0
+
+    @staticmethod
+    def _safe_range(values):
+        return float(np.max(values) - np.min(values)) if len(values) > 0 else 0.0
+
+    @staticmethod
+    def _safe_delta_mean(values):
+        if len(values) < 2:
+            return 0.0
+
+        values = np.array(values, dtype=np.float32)
+        return float(np.mean(np.abs(np.diff(values))))
+
+    @staticmethod
+    def _safe_autocorr(values):
+        if len(values) < 3:
+            return 0.0
+
+        values = np.array(values, dtype=np.float32)
+
+        if np.std(values[:-1]) < 1e-8 or np.std(values[1:]) < 1e-8:
+            return 0.0
+
+        corr = np.corrcoef(values[:-1], values[1:])[0, 1]
+
+        if np.isnan(corr):
+            return 0.0
+
+        return float(corr)
+
+    @staticmethod
+    def _dist_2d(a, b):
+        return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
+    def _compute_ear(self, pts, eye_idxs):
+        try:
+            p1, p2, p3, p4, p5, p6 = [pts[i] for i in eye_idxs]
+
+            vertical_1 = self._dist_2d(p2, p6)
+            vertical_2 = self._dist_2d(p3, p5)
+            horizontal = self._dist_2d(p1, p4)
+
+            if horizontal <= 1e-6:
+                return 0.0
+
+            return float((vertical_1 + vertical_2) / (2.0 * horizontal))
+
+        except Exception:
+            return 0.0
+
+    # ==========================================================
+    # VIDEO READ / SAMPLING
+    # ==========================================================
+
+    def _read_video_rgb_gray_arrays(self, video_path: Path):
+        cap = cv2.VideoCapture(str(video_path))
+
+        if not cap.isOpened():
+            raise RuntimeError(f"Impossible d'ouvrir la vidéo: {video_path}")
+
+        frames_rgb = []
+        frames_gray = []
+
+        while True:
+            ret, frame = cap.read()
+
+            if not ret:
+                break
+
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            frames_rgb.append(rgb)
+            frames_gray.append(gray)
+
+        cap.release()
+
+        if len(frames_rgb) == 0:
+            raise RuntimeError(f"Aucune frame lue depuis: {video_path}")
+
+        return frames_rgb, frames_gray
+
+    def _sample_raw_rgb_arrays(self, frames_rgb):
+        frames_rgb = list(frames_rgb)
+
+        if len(frames_rgb) >= self.seq_len:
+            start = max(0, (len(frames_rgb) - self.seq_len) // 2)
+            return frames_rgb[start:start + self.seq_len]
+
+        while len(frames_rgb) < self.seq_len:
+            frames_rgb.append(frames_rgb[-1])
+
+        return frames_rgb
+
+    def _sample_raw_gray_arrays(self, frames_gray):
+        frames_gray = list(frames_gray)
+
+        if len(frames_gray) >= self.seq_len:
+            start = max(0, (len(frames_gray) - self.seq_len) // 2)
+            return frames_gray[start:start + self.seq_len]
+
+        while len(frames_gray) < self.seq_len:
+            frames_gray.append(frames_gray[-1])
+
+        return frames_gray
+
+    def _read_raw_video_frames(self, video_path):
+        cap = cv2.VideoCapture(str(video_path))
+
+        if not cap.isOpened():
+            raise RuntimeError(f"Impossible d'ouvrir la vidéo: {video_path}")
+
+        frames = []
+
+        while True:
+            ret, frame = cap.read()
+
+            if not ret:
+                break
+
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
+            frames.append(img)
+
+        cap.release()
+
+        if not frames:
+            raise RuntimeError(f"Aucune frame lue depuis: {video_path}")
+
+        return frames
+
+    def _sample_raw_frames(self, frames):
+        frames = list(frames)
+
+        if len(frames) >= self.seq_len:
+            if self.sample_mode in ["consecutive", "center_consecutive", "consecutive_middle"]:
+                start = max(0, (len(frames) - self.seq_len) // 2)
+                frames = frames[start:start + self.seq_len]
+
+            elif self.sample_mode == "uniform":
+                idxs = [
+                    int(round(i * (len(frames) - 1) / (self.seq_len - 1)))
+                    for i in range(self.seq_len)
+                ]
+                frames = [frames[i] for i in idxs]
+
+            else:
+                raise ValueError(f"sample_mode invalide: {self.sample_mode}")
+
+        else:
+            while len(frames) < self.seq_len:
+                frames.append(frames[-1])
+
+        return frames
+
+    # ==========================================================
+    # BEHAVIOR V3 / rPPG
     # ==========================================================
 
     def _zero_behavior(self):
@@ -408,94 +623,6 @@ class VideoPADModel:
         values = values[:self.behav_dim]
 
         return torch.tensor([values], dtype=torch.float32).to(self.device)
-
-    # ==========================================================
-    # RAW VIDEO — BASIC BEHAVIOR HELPERS
-    # ==========================================================
-
-    @staticmethod
-    def _safe_mean(values):
-        return float(np.mean(values)) if len(values) > 0 else 0.0
-
-    @staticmethod
-    def _safe_std(values):
-        return float(np.std(values)) if len(values) > 0 else 0.0
-
-    @staticmethod
-    def _safe_min(values):
-        return float(np.min(values)) if len(values) > 0 else 0.0
-
-    @staticmethod
-    def _safe_max(values):
-        return float(np.max(values)) if len(values) > 0 else 0.0
-
-    @staticmethod
-    def _dist_2d(a, b):
-        return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
-
-    def _compute_ear(self, pts, eye_idxs):
-        try:
-            p1, p2, p3, p4, p5, p6 = [pts[i] for i in eye_idxs]
-
-            vertical_1 = self._dist_2d(p2, p6)
-            vertical_2 = self._dist_2d(p3, p5)
-            horizontal = self._dist_2d(p1, p4)
-
-            if horizontal <= 1e-6:
-                return 0.0
-
-            return float((vertical_1 + vertical_2) / (2.0 * horizontal))
-
-        except Exception:
-            return 0.0
-
-    def _read_video_rgb_gray_arrays(self, video_path: Path):
-        cap = cv2.VideoCapture(str(video_path))
-
-        if not cap.isOpened():
-            raise RuntimeError(f"Impossible d'ouvrir la vidéo: {video_path}")
-
-        frames_rgb = []
-        frames_gray = []
-
-        while True:
-            ret, frame = cap.read()
-
-            if not ret:
-                break
-
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-            frames_rgb.append(rgb)
-            frames_gray.append(gray)
-
-        cap.release()
-
-        if len(frames_rgb) == 0:
-            raise RuntimeError(f"Aucune frame lue depuis: {video_path}")
-
-        return frames_rgb, frames_gray
-
-    def _sample_raw_rgb_arrays(self, frames_rgb):
-        if len(frames_rgb) >= self.seq_len:
-            start = max(0, (len(frames_rgb) - self.seq_len) // 2)
-            return frames_rgb[start:start + self.seq_len]
-
-        while len(frames_rgb) < self.seq_len:
-            frames_rgb.append(frames_rgb[-1])
-
-        return frames_rgb
-
-    def _sample_raw_gray_arrays(self, frames_gray):
-        if len(frames_gray) >= self.seq_len:
-            start = max(0, (len(frames_gray) - self.seq_len) // 2)
-            return frames_gray[start:start + self.seq_len]
-
-        while len(frames_gray) < self.seq_len:
-            frames_gray.append(frames_gray[-1])
-
-        return frames_gray
 
     def _extract_behavior_raw_unscaled(self, video_path: Path):
         cap = cv2.VideoCapture(str(video_path))
@@ -562,9 +689,7 @@ class VideoPADModel:
             from mediapipe.tasks import python
             from mediapipe.tasks.python import vision
 
-            base_options = python.BaseOptions(
-                model_asset_path=str(face_model_path)
-            )
+            base_options = python.BaseOptions(model_asset_path=str(face_model_path))
 
             options = vision.FaceLandmarkerOptions(
                 base_options=base_options,
@@ -628,19 +753,7 @@ class VideoPADModel:
             "skipped_rate": float(skipped_rate),
         }
 
-    # ==========================================================
-    # RAW VIDEO — rPPG EXTRACTION
-    # ==========================================================
-
     def _extract_rppg_from_raw_video(self, video_path: Path, max_frames: int = 64):
-        """
-        Extrait les features rPPG depuis une vidéo brute.
-
-        - Clip central continu de 64 frames
-        - FPS réel de la vidéo
-        - ROI joues via MediaPipe landmarks
-        """
-
         from src.behavior.mp_landmarks import FaceLandmarkerHelper
         from src.behavior.extract_rppg import (
             get_cheek_roi,
@@ -731,7 +844,6 @@ class VideoPADModel:
                 idx += 1
                 continue
 
-            # OpenCV = BGR
             signal_b.append(float(patch[:, :, 0].mean()))
             signal_g.append(float(patch[:, :, 1].mean()))
             signal_r.append(float(patch[:, :, 2].mean()))
@@ -755,27 +867,13 @@ class VideoPADModel:
 
         return feats
 
-    # ==========================================================
-    # RAW VIDEO — NORMALIZATION
-    # ==========================================================
-
     def _normalize_raw_behavior(self, raw_features: dict):
-        """
-        Normalise les features direct-video avec les statistiques du train V3.
-
-        Le modèle V3 attend :
-        - 15 features normalisées
-        - 9 behavior classiques
-        - 6 rPPG
-        """
-
         if self.behav_dim >= 15 and self.behav_stats is not None:
             values = []
             missing_stats = []
 
             for col in self.MODEL_BEHAV_COLS:
                 value = float(raw_features.get(col, 0.0))
-
                 mean, std = self._get_stat_mean_std(col)
 
                 if mean is None or std is None:
@@ -833,16 +931,6 @@ class VideoPADModel:
             return values[:self.behav_dim]
 
     def _extract_behavior_from_raw_video(self, video_path: Path):
-        """
-        Extraction finale des features pour vidéo directe.
-
-        Si behav_dim=15 :
-        - extrait behavior classique
-        - extrait rPPG
-        - fusionne les features
-        - applique la normalisation V3
-        """
-
         raw_features = self._extract_behavior_raw_unscaled(video_path)
 
         if self.behav_dim >= 15:
@@ -861,6 +949,300 @@ class VideoPADModel:
         print("[VIDEO] Norm behavior+rPPG:", [round(float(v), 4) for v in norm_values])
 
         return torch.tensor([norm_values], dtype=torch.float32).to(self.device)
+
+    # ==========================================================
+    # BEHAVIOR-POSE V6
+    # ==========================================================
+
+    def _estimate_head_pose_from_landmarks(self, landmarks, w: int, h: int):
+        try:
+            image_points = []
+
+            for key in [
+                "nose_tip",
+                "chin",
+                "left_eye_outer",
+                "right_eye_outer",
+                "left_mouth",
+                "right_mouth",
+            ]:
+                idx = self.POSE_LANDMARK_IDS[key]
+                lm = landmarks[idx]
+                image_points.append([float(lm.x * w), float(lm.y * h)])
+
+            image_points = np.array(image_points, dtype=np.float64)
+
+            focal_length = float(w)
+            center = (w / 2.0, h / 2.0)
+
+            camera_matrix = np.array([
+                [focal_length, 0.0, center[0]],
+                [0.0, focal_length, center[1]],
+                [0.0, 0.0, 1.0],
+            ], dtype=np.float64)
+
+            dist_coeffs = np.zeros((4, 1), dtype=np.float64)
+
+            ok, rotation_vec, _ = cv2.solvePnP(
+                self.MODEL_POINTS_3D,
+                image_points,
+                camera_matrix,
+                dist_coeffs,
+                flags=cv2.SOLVEPNP_ITERATIVE,
+            )
+
+            if not ok:
+                return 0.0, 0.0, 0.0
+
+            rotation_mat, _ = cv2.Rodrigues(rotation_vec)
+            angles, _, _, _, _, _ = cv2.RQDecomp3x3(rotation_mat)
+
+            pitch = float(angles[0])
+            yaw = float(angles[1])
+            roll = float(angles[2])
+
+            return yaw, pitch, roll
+
+        except Exception:
+            return 0.0, 0.0, 0.0
+
+    def _extract_behavior_pose_v6_raw(self, video_path: Path):
+        default = {col: 0.0 for col in self.BEHAVIOR_POSE_V6_COLS}
+
+        cap = cv2.VideoCapture(str(video_path))
+
+        if not cap.isOpened():
+            print(f"[VIDEO][WARN] Impossible d'ouvrir la vidéo pour behavior-pose: {video_path}")
+            return default
+
+        frames_rgb = []
+        frames_gray = []
+
+        while True:
+            ret, frame = cap.read()
+
+            if not ret:
+                break
+
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            frames_rgb.append(rgb)
+            frames_gray.append(gray)
+
+        cap.release()
+
+        if len(frames_rgb) == 0:
+            return default
+
+        frames_rgb = self._sample_raw_rgb_arrays(frames_rgb)
+        frames_gray = self._sample_raw_gray_arrays(frames_gray)
+
+        motion_values = []
+
+        for i in range(1, len(frames_gray)):
+            diff = cv2.absdiff(frames_gray[i], frames_gray[i - 1])
+            motion_values.append(float(np.mean(diff)))
+
+        ear_values = []
+        yaw_values = []
+        pitch_values = []
+        roll_values = []
+
+        detected_frames = 0
+        total_frames = len(frames_rgb)
+
+        left_eye = [33, 160, 158, 133, 153, 144]
+        right_eye = [362, 385, 387, 263, 373, 380]
+
+        face_model_path = self.project_root / "models" / "face_landmarker.task"
+
+        if not face_model_path.exists():
+            print(f"[VIDEO][WARN] face_landmarker.task introuvable pour behavior-pose: {face_model_path}")
+
+            default.update({
+                "motion_mean": self._safe_mean(motion_values),
+                "motion_std": self._safe_std(motion_values),
+                "motion_max": self._safe_max(motion_values),
+                "skipped_rate": 1.0,
+                "pose_valid_rate": 0.0,
+            })
+
+            return default
+
+        try:
+            import mediapipe as mp
+            from mediapipe.tasks import python
+            from mediapipe.tasks.python import vision
+
+            base_options = python.BaseOptions(model_asset_path=str(face_model_path))
+
+            options = vision.FaceLandmarkerOptions(
+                base_options=base_options,
+                running_mode=vision.RunningMode.IMAGE,
+                num_faces=1,
+                min_face_detection_confidence=0.5,
+                min_face_presence_confidence=0.5,
+                min_tracking_confidence=0.5,
+            )
+
+            with vision.FaceLandmarker.create_from_options(options) as landmarker:
+                for rgb in frames_rgb:
+                    h, w = rgb.shape[:2]
+                    rgb = np.ascontiguousarray(rgb)
+
+                    mp_image = mp.Image(
+                        image_format=mp.ImageFormat.SRGB,
+                        data=rgb,
+                    )
+
+                    result = landmarker.detect(mp_image)
+
+                    if not result.face_landmarks:
+                        continue
+
+                    detected_frames += 1
+                    landmarks = result.face_landmarks[0]
+
+                    pts = {}
+                    for idx, lm in enumerate(landmarks):
+                        pts[idx] = (float(lm.x * w), float(lm.y * h))
+
+                    left_ear = self._compute_ear(pts, left_eye)
+                    right_ear = self._compute_ear(pts, right_eye)
+                    ear = (left_ear + right_ear) / 2.0
+
+                    if ear > 0:
+                        ear_values.append(float(ear))
+
+                    yaw, pitch, roll = self._estimate_head_pose_from_landmarks(
+                        landmarks,
+                        w,
+                        h,
+                    )
+
+                    yaw_values.append(float(yaw))
+                    pitch_values.append(float(pitch))
+                    roll_values.append(float(roll))
+
+        except Exception as e:
+            print(f"[VIDEO][WARN] Behavior-pose V6 extraction échouée: {e}")
+            detected_frames = 0
+            ear_values = []
+            yaw_values = []
+            pitch_values = []
+            roll_values = []
+
+        skipped_rate = 1.0 - (detected_frames / total_frames) if total_frames > 0 else 1.0
+        pose_valid_rate = detected_frames / total_frames if total_frames > 0 else 0.0
+
+        blink_count = 0
+        if len(ear_values) > 0:
+            closed = np.array(ear_values) < 0.18
+            blink_count = int(np.sum(closed))
+
+        features = {
+            "ear_mean": self._safe_mean(ear_values),
+            "ear_std": self._safe_std(ear_values),
+            "ear_min": self._safe_min(ear_values),
+            "ear_max": self._safe_max(ear_values),
+            "blink_count": float(blink_count),
+
+            "motion_mean": self._safe_mean(motion_values),
+            "motion_std": self._safe_std(motion_values),
+            "motion_max": self._safe_max(motion_values),
+            "skipped_rate": float(skipped_rate),
+
+            "yaw_std": self._safe_std(yaw_values),
+            "pitch_std": self._safe_std(pitch_values),
+            "roll_std": self._safe_std(roll_values),
+            "yaw_range": self._safe_range(yaw_values),
+            "pitch_range": self._safe_range(pitch_values),
+            "roll_range": self._safe_range(roll_values),
+            "yaw_delta_mean": self._safe_delta_mean(yaw_values),
+            "pitch_delta_mean": self._safe_delta_mean(pitch_values),
+            "roll_delta_mean": self._safe_delta_mean(roll_values),
+            "pose_autocorr": self._safe_autocorr(yaw_values),
+            "pose_valid_rate": float(pose_valid_rate),
+        }
+
+        print("[VIDEO] Behavior-pose V6 raw features:")
+        print({k: round(float(v), 4) for k, v in features.items()})
+
+        return features
+    def _is_behavior_pose_reliable(self, features: dict) -> tuple:
+        """
+        Vérifie si les features behavior-pose sont fiables en runtime webcam.
+
+        Retourne :
+        - reliable: bool
+        - reason: str
+        """
+
+        pose_valid_rate = float(features.get("pose_valid_rate", 0.0))
+        skipped_rate = float(features.get("skipped_rate", 1.0))
+
+        yaw_range = abs(float(features.get("yaw_range", 0.0)))
+        pitch_range = abs(float(features.get("pitch_range", 0.0)))
+        roll_range = abs(float(features.get("roll_range", 0.0)))
+
+        yaw_delta = abs(float(features.get("yaw_delta_mean", 0.0)))
+        pitch_delta = abs(float(features.get("pitch_delta_mean", 0.0)))
+        roll_delta = abs(float(features.get("roll_delta_mean", 0.0)))
+
+        if pose_valid_rate < 0.70:
+            return False, f"low_pose_valid_rate={pose_valid_rate:.3f}"
+
+        if skipped_rate > 0.30:
+            return False, f"high_skipped_rate={skipped_rate:.3f}"
+
+        if yaw_range > 90 or pitch_range > 90 or roll_range > 90:
+            return False, (
+                f"unstable_pose_range="
+                f"yaw:{yaw_range:.1f},pitch:{pitch_range:.1f},roll:{roll_range:.1f}"
+            )
+
+        if yaw_delta > 30 or pitch_delta > 30 or roll_delta > 30:
+            return False, (
+                f"unstable_pose_delta="
+                f"yaw:{yaw_delta:.1f},pitch:{pitch_delta:.1f},roll:{roll_delta:.1f}"
+            )
+
+        return True, "behavior_pose_reliable"
+    def _predict_behavior_pose_score(self, video_path: Path):
+        """
+        Calcule score_behavior_pose avec le modèle V6.
+        Si les features sont instables, retourne None pour ne pas utiliser
+        le score behavior-pose comme preuve d'attaque.
+        """
+
+        if self.behavior_pose_clf is None:
+            return None, None, "behavior_pose_model_missing"
+
+        try:
+            features = self._extract_behavior_pose_v6_raw(video_path)
+
+            reliable, reliability_reason = self._is_behavior_pose_reliable(features)
+
+            if not reliable:
+                print(f"[VIDEO][WARN] Behavior-pose non fiable: {reliability_reason}")
+                return None, features, reliability_reason
+
+            x = np.array(
+                [[float(features.get(col, 0.0)) for col in self.BEHAVIOR_POSE_V6_COLS]],
+                dtype=np.float32,
+            )
+
+            score = float(self.behavior_pose_clf.predict_proba(x)[0, 1])
+
+            print(f"[VIDEO] score_behavior_pose V6: {score:.4f}")
+
+            return score, features, reliability_reason
+
+        except Exception as e:
+            reason = f"behavior_pose_failed: {e}"
+            print(f"[VIDEO][WARN] score_behavior_pose V6 échoué: {e}")
+            return None, None, reason
 
     # ==========================================================
     # CSV VIDEO_ID INFERENCE
@@ -914,53 +1296,6 @@ class VideoPADModel:
     # RAW VIDEO INFERENCE
     # ==========================================================
 
-    def _read_raw_video_frames(self, video_path):
-        cap = cv2.VideoCapture(str(video_path))
-
-        if not cap.isOpened():
-            raise RuntimeError(f"Impossible d'ouvrir la vidéo: {video_path}")
-
-        frames = []
-
-        while True:
-            ret, frame = cap.read()
-
-            if not ret:
-                break
-
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(frame)
-            frames.append(img)
-
-        cap.release()
-
-        if not frames:
-            raise RuntimeError(f"Aucune frame lue depuis: {video_path}")
-
-        return frames
-
-    def _sample_raw_frames(self, frames):
-        if len(frames) >= self.seq_len:
-            if self.sample_mode in ["consecutive", "center_consecutive", "consecutive_middle"]:
-                start = max(0, (len(frames) - self.seq_len) // 2)
-                frames = frames[start:start + self.seq_len]
-
-            elif self.sample_mode == "uniform":
-                idxs = [
-                    int(round(i * (len(frames) - 1) / (self.seq_len - 1)))
-                    for i in range(self.seq_len)
-                ]
-                frames = [frames[i] for i in idxs]
-
-            else:
-                raise ValueError(f"sample_mode invalide: {self.sample_mode}")
-
-        else:
-            while len(frames) < self.seq_len:
-                frames.append(frames[-1])
-
-        return frames
-
     def _predict_from_raw_video(self, video_path: Path):
         frames = self._read_raw_video_frames(video_path)
         frames = self._sample_raw_frames(frames)
@@ -982,6 +1317,132 @@ class VideoPADModel:
 
         proba = torch.softmax(logits, dim=1)
         return float(proba[0, 1].item())
+
+    # ==========================================================
+    # VIDEO QUALITY + DETAILED PREDICTION
+    # ==========================================================
+
+    def compute_video_quality_score(self, video_path: str) -> float:
+        cap = cv2.VideoCapture(str(video_path))
+
+        if not cap.isOpened():
+            return 0.0
+
+        brightness_values = []
+        blur_values = []
+        valid_frames = 0
+        total_frames = 0
+
+        while True:
+            ret, frame = cap.read()
+
+            if not ret:
+                break
+
+            total_frames += 1
+
+            if total_frames % 3 != 0:
+                continue
+
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            brightness = float(np.mean(gray) / 255.0)
+            blur = float(np.log1p(cv2.Laplacian(gray, cv2.CV_64F).var()) / 10.0)
+
+            brightness_values.append(brightness)
+            blur_values.append(min(max(blur, 0.0), 1.0))
+            valid_frames += 1
+
+        cap.release()
+
+        if valid_frames == 0:
+            return 0.0
+
+        brightness_mean = float(np.mean(brightness_values))
+        brightness_std = float(np.std(brightness_values))
+        blur_mean = float(np.mean(blur_values))
+        frame_valid_rate = valid_frames / max(total_frames, 1)
+
+        brightness_balance = 1.0 - abs(brightness_mean - 0.5) * 2.0
+        brightness_balance = min(max(brightness_balance, 0.0), 1.0)
+
+        lighting_stability = 1.0 - min(max(brightness_std, 0.0), 1.0)
+
+        quality_score = (
+            0.35 * blur_mean +
+            0.30 * frame_valid_rate +
+            0.20 * brightness_balance +
+            0.15 * lighting_stability
+        )
+
+        return float(min(max(quality_score, 0.0), 1.0))
+
+    @torch.no_grad()
+    def predict_with_details(self, video_path_or_id: str) -> dict:
+        """
+        Prédiction finale détaillée V6.
+
+        Sorties :
+        - score_v3_multimodal : score du modèle vidéo V3
+        - score_behavior_pose : score du modèle behavior-pose V6
+        - score_final_v6      : fusion score-level
+        - video_quality_score : score qualité vidéo
+        - behavior_pose_status : indique si les features behavior-pose sont fiables ou instables
+        """
+
+        score_v3 = float(self.predict(video_path_or_id))
+
+        p = Path(str(video_path_or_id))
+
+        behavior_pose_features = None
+        behavior_pose_status = "not_computed"
+
+        if p.exists() and p.suffix.lower() in self.VIDEO_EXTS:
+            video_quality_score = self.compute_video_quality_score(str(p))
+
+            score_behavior_pose, behavior_pose_features, behavior_pose_status = (
+                self._predict_behavior_pose_score(p)
+            )
+        else:
+            video_quality_score = 0.70
+            score_behavior_pose = None
+            behavior_pose_status = "csv_or_video_id_mode"
+
+        if score_behavior_pose is not None:
+            score_final_v6 = (
+                0.85 * float(score_v3)
+                + 0.15 * float(score_behavior_pose)
+            )
+            fusion_status = "behavior_pose_loaded"
+        else:
+            score_final_v6 = float(score_v3)
+            fusion_status = "fallback_score_v3_only"
+
+        score_final_v6 = float(min(max(score_final_v6, 0.0), 1.0))
+
+        return {
+            "score_v3_multimodal": float(score_v3),
+
+            "score_behavior_pose": (
+                float(score_behavior_pose)
+                if score_behavior_pose is not None
+                else None
+            ),
+
+            "score_final_v6": float(score_final_v6),
+            "video_quality_score": float(video_quality_score),
+
+            "behavior_pose_status": behavior_pose_status,
+            "behavior_pose_features": behavior_pose_features,
+
+            "fusion": {
+                "type": "score_level_fusion_v6",
+                "formula": "score_final_v6 = 0.85 * score_v3_multimodal + 0.15 * score_behavior_pose",
+                "w_v3_multimodal": 0.85,
+                "w_behavior_pose": 0.15,
+                "status": fusion_status,
+            },
+        }
 
     # ==========================================================
     # PUBLIC PREDICT

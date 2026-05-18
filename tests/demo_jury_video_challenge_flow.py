@@ -185,6 +185,8 @@ def main():
     print("Liveness          :", liveness.get("status"))
     print("Raison liveness   :", liveness.get("reason"))
     print("Score vidéo       :", result.get("score"))
+    print("Qualité vidéo     :", result.get("video_quality_score"))
+    print("Détails modèle    :", result.get("model_details"))
     print("Label vidéo       :", result.get("label"))
     print("Décision finale   :", result.get("decision"))
     print("Action suivante   :", result.get("next_action"))

@@ -1,34 +1,42 @@
+﻿def quality_level(video_quality_score: float) -> str:
+    q = float(video_quality_score)
+
+    if q >= 0.70:
+        return "GOOD"
+
+    if q >= 0.45:
+        return "MEDIUM"
+
+    return "LOW"
+
+
 def banking_decision(
     score: float,
     profile: str = "video",
+    video_quality_score: float = 0.70,
 ) -> str:
     """
-    Convertit un score spoof en décision bancaire.
+    Politique bancaire finale quality-aware.
 
     Convention :
     - score proche de 0 => REAL
     - score proche de 1 => SPOOF
-
-    Version finale adaptée au flux vidéo challenge direct.
-
-    Politique vidéo :
-    - score < 0.30          => ACCEPT
-    - 0.30 <= score < 0.60  => RETRY
-    - score >= 0.60         => REJECT
-
-    Remarque :
-    La branche image/CelebA est désactivée dans l'architecture finale.
-    Ce fichier ne retourne donc plus VIDEO_CHALLENGE_REQUIRED.
     """
 
     score = float(score)
+    level = quality_level(video_quality_score)
 
-    # Profil unique actif dans le système final : vidéo.
-    if profile not in ["video", "default", "banking"]:
-        profile = "video"
+    if level == "GOOD":
+        t_accept = 0.30
+        t_reject = 0.80
 
-    t_accept = 0.30
-    t_reject = 0.60
+    elif level == "MEDIUM":
+        t_accept = 0.25
+        t_reject = 0.75
+
+    else:
+        t_accept = 0.20
+        t_reject = 0.80
 
     if score < t_accept:
         return "ACCEPT"
@@ -40,10 +48,6 @@ def banking_decision(
 
 
 def label_from_decision(decision: str) -> str:
-    """
-    Convertit une décision bancaire en label lisible.
-    """
-
     if decision == "ACCEPT":
         return "REAL"
 
@@ -51,3 +55,23 @@ def label_from_decision(decision: str) -> str:
         return "SPOOF"
 
     return "UNCERTAIN"
+
+
+def next_action_from_decision(decision: str) -> str:
+    if decision == "ACCEPT":
+        return "NONE"
+
+    if decision == "REJECT":
+        return "BLOCK_OR_MANUAL_REVIEW"
+
+    return "RETRY_VIDEO_CAPTURE"
+
+
+def message_from_decision(decision: str) -> str:
+    if decision == "ACCEPT":
+        return "Analyse vidéo terminée. Vidéo acceptée."
+
+    if decision == "REJECT":
+        return "Vidéo rejetée. Suspicion d'attaque de présentation."
+
+    return "Analyse vidéo ambiguë. Nouvelle capture recommandée."

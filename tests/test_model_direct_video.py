@@ -121,17 +121,27 @@ def main():
     )
 
     # 3. Prédiction directe
-    score = float(model.predict(str(OUTPUT_VIDEO)))
+    details = model.predict_with_details(str(OUTPUT_VIDEO))
 
-    decision = banking_decision(score, profile="video")
+    score = float(details["score_final_v6"])
+    video_quality_score = float(details.get("video_quality_score", 0.70))
+
+    decision = banking_decision(
+        score,
+        profile="video",
+        video_quality_score=video_quality_score,
+    )
+
     label = label_from_decision(decision)
-
     print("\n---------------- RESULTAT WEBCAM DIRECT ----------------")
     print("Vidéo testée :", OUTPUT_VIDEO)
     print("Score spoof :", round(score, 4))
     print("Label       :", label)
     print("Décision    :", decision)
-
+    print("Score V3 multimodal :", round(details["score_v3_multimodal"], 4))
+    print("Score final V6      :", round(details["score_final_v6"], 4))
+    print("Qualité vidéo       :", round(video_quality_score, 4))
+    print("Détails modèle      :", details.get("fusion"))
     if score < 0.30:
         interpretation = "Le modèle considère la vidéo webcam comme plutôt REELLE."
     elif score < 0.60:

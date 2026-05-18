@@ -9,7 +9,11 @@ from src.pad_system.active_liveness_system import ActiveLivenessSystem
 try:
     from src.pad_system.banking_adapter import banking_decision, label_from_decision
 except Exception:
-    def banking_decision(score: float, profile: str = "video") -> str:
+    def banking_decision(
+        score: float,
+        profile: str = "video",
+        video_quality_score: float = 0.70,
+    ) -> str:
         """
         Fallback local si banking_adapter.py n'est pas disponible.
 
@@ -17,6 +21,7 @@ except Exception:
         - score proche de 0 => REAL
         - score proche de 1 => SPOOF
         """
+
         score = float(score)
 
         if score < 0.30:
@@ -42,20 +47,20 @@ VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv"}
 
 class PADRouter:
     """
-    Routeur principal du système PAD.
+    Routeur principal du système PAD bancaire.
 
-    Version finale adaptée au flux société :
-    - pas de branche image ;
-    - pas de modèle CelebA ;
-    - pas de VIDEO_CHALLENGE_REQUIRED depuis une image ;
-    - flux principal :
+    Flux final :
         challenge/start
-        -> vidéo challenge
+        -> capture vidéo
         -> validation vidéo
         -> validation challenge_id
         -> liveness actif
-        -> modèle PAD vidéo CNN+LSTM+Behavior
-        -> décision ACCEPT / RETRY / REJECT.
+        -> modèle PAD vidéo V6
+        -> quality-aware policy
+        -> règle runtime robuste
+        -> décision ACCEPT / RETRY / REJECT
+
+    La branche image est volontairement désactivée.
     """
 
     def __init__(
@@ -78,7 +83,9 @@ class PADRouter:
             min_height=64,
         )
 
-        self.challenge_manager = ChallengeManager(ttl_seconds=challenge_ttl_seconds)
+        self.challenge_manager = ChallengeManager(
+            ttl_seconds=challenge_ttl_seconds
+        )
 
         self.video_model = VideoPADModel() if load_video_model else None
 
@@ -120,7 +127,7 @@ class PADRouter:
 
         selected_challenge = challenge_type or challenge
 
-        # Cas spécial debug : video_id dataset, ex: "13_1" ou "13_1.avi"
+        # Cas debug : identifiant vidéo dataset, ex: "13_1" ou "13_1.avi"
         if self.allow_dataset_video_id and self._looks_like_dataset_video_id(file_path):
             video_id = self._normalize_dataset_video_id(file_path)
 
@@ -233,8 +240,9 @@ class PADRouter:
         expected_challenge = challenge
 
         # ======================================================
-        # 1. Validation challenge_id si demandée
+        # 1. Validation challenge_id
         # ======================================================
+
         if require_challenge_validation:
             if not challenge_id:
                 return {
@@ -298,6 +306,7 @@ class PADRouter:
         # ======================================================
         # 2. Liveness actif
         # ======================================================
+
         if enable_liveness and is_real_video_file and expected_challenge is not None:
             liveness_result = self._run_liveness(
                 video_path=input_value,
@@ -305,8 +314,6 @@ class PADRouter:
             )
 
             if not liveness_result.get("passed", False):
-                # Si le challenge est valide mais liveness échoue,
-                # on marque le challenge comme utilisé pour éviter replay.
                 if require_challenge_validation and challenge_id:
                     self.challenge_manager.mark_used(challenge_id)
 
@@ -323,7 +330,11 @@ class PADRouter:
                     "validation": validation,
                     "session_id": session_id,
                     "challenge_id": challenge_id,
-                    "challenge": challenge_validation.get("challenge") if challenge_validation else None,
+                    "challenge": (
+                        challenge_validation.get("challenge")
+                        if challenge_validation
+                        else None
+                    ),
                     "original_input": original_input,
                 }
 
@@ -346,22 +357,68 @@ class PADRouter:
             }
 
         # ======================================================
-        # 3. Modèle PAD vidéo
-        # ======================================================
-            
-                # ======================================================
-        # 3. Modèle PAD vidéo
+        # 3. Modèle PAD vidéo V6
         # ======================================================
 
-        score = float(self.video_model.predict(input_value))
+        model_details = self.video_model.predict_with_details(input_value)
+
+        score = float(model_details["score_final_v6"])
+        video_quality_score = float(model_details.get("video_quality_score", 0.70))
+        behavior_pose_status = model_details.get("behavior_pose_status", "")
 
         # ======================================================
-        # 4. Politique de décision bancaire
+        # 4. Décision bancaire quality-aware
         # ======================================================
 
-        decision = banking_decision(score, profile="video")
+        decision = banking_decision(
+            score,
+            profile="video",
+            video_quality_score=video_quality_score,
+        )
+
         label = label_from_decision(decision)
-        if decision == "ACCEPT":
+
+        # ======================================================
+        # 5. Runtime robust guard
+        # ======================================================
+        # Règle finale :
+        # - Score très haut >= 0.90 : REJECT même si behavior-pose instable.
+        #   Justification : un spoof peut produire des landmarks instables.
+        #
+        # - Score haut mais non extrême + behavior-pose instable :
+        #   RETRY pour éviter un faux rejet définitif.
+        #
+        # - Score zone moyenne :
+        #   décision standard de la politique bancaire.
+
+        instability_detected = (
+            isinstance(behavior_pose_status, str)
+            and (
+                behavior_pose_status.startswith("low_pose_valid_rate")
+                or behavior_pose_status.startswith("high_skipped_rate")
+                or behavior_pose_status.startswith("unstable_pose")
+            )
+        )
+
+        if decision == "REJECT" and instability_detected and score >= 0.90:
+            decision = "REJECT"
+            label = "SPOOF"
+            next_action = "NONE"
+            message = (
+                "Analyse vidéo terminée. Vidéo rejetée comme attaque probable "
+                "malgré une instabilité des features comportementales."
+            )
+
+        elif decision == "REJECT" and instability_detected and score < 0.90:
+            decision = "RETRY"
+            label = "UNCERTAIN"
+            next_action = "RETRY_VIDEO_CAPTURE"
+            message = (
+                "Vidéo instable avec score élevé. "
+                "Nouvelle capture recommandée."
+            )
+
+        elif decision == "ACCEPT":
             next_action = "NONE"
             message = "Analyse vidéo terminée. Vidéo acceptée."
 
@@ -377,10 +434,15 @@ class PADRouter:
             next_action = "RETRY_VIDEO_CAPTURE"
             message = "Décision vidéo incertaine."
 
+        # ======================================================
+        # 6. Marquer le challenge comme utilisé
+        # ======================================================
+
         used_result = None
 
         if require_challenge_validation and challenge_id:
             used_result = self.challenge_manager.mark_used(challenge_id)
+
         return {
             "type": "video",
             "branch": "video_dynamic_decision_system",
@@ -390,6 +452,19 @@ class PADRouter:
             "next_action": next_action,
             "liveness": liveness_result,
             "model_called": True,
+            "model_details": model_details,
+            "video_quality_score": round(video_quality_score, 4),
+            "behavior_pose_status": behavior_pose_status,
+            "runtime_instability_guard": {
+                "enabled": True,
+                "triggered": bool(instability_detected),
+                "reason": behavior_pose_status if instability_detected else None,
+                "score_extreme_reject_kept": bool(
+                    decision == "REJECT"
+                    and instability_detected
+                    and score >= 0.90
+                ),
+            },
             "message": message,
             "validation": validation,
             "session_id": session_id,
@@ -397,7 +472,9 @@ class PADRouter:
             "challenge": (
                 used_result.get("challenge")
                 if used_result and used_result.get("success")
-                else challenge_validation.get("challenge") if challenge_validation else None
+                else challenge_validation.get("challenge")
+                if challenge_validation
+                else None
             ),
             "original_input": original_input,
         }
@@ -419,6 +496,7 @@ class PADRouter:
         - démo webcam
         - tests.
         """
+
         return self.challenge_manager.create_challenge(
             source=source,
             challenge_type=challenge_type,
@@ -435,6 +513,7 @@ class PADRouter:
         """
         Charge le système de liveness actif basé sur MediaPipe FaceLandmarker.
         """
+
         model_path = self.project_root / "models" / "face_landmarker.task"
 
         try:
@@ -524,7 +603,7 @@ class PADRouter:
             "challenge": challenge,
             "reason": "unsupported_liveness_result_format",
             "metrics": {
-                "raw_result": str(result)
+                "raw_result": str(result),
             },
         }
 
@@ -538,6 +617,7 @@ class PADRouter:
         session_id: Optional[str],
         challenge_id: Optional[str],
     ) -> Dict[str, Any]:
+
         next_action = "RETRY_VIDEO_CAPTURE"
 
         if validation.reason == "image_input_disabled":
@@ -574,6 +654,7 @@ class PADRouter:
         Cette option est utile pour les tests sur CASIA/Axon préparés.
         Elle n'est pas destinée à l'API publique.
         """
+
         p = Path(str(value))
 
         if p.exists():

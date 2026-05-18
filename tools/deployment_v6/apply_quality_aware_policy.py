@@ -13,8 +13,18 @@ def quality_level(q):
     else:
         return "LOW"
 
-
 def decide(score, q):
+    """
+    Politique quality-aware finale.
+
+    Convention :
+    - score proche de 0 => REAL probable
+    - score proche de 1 => SPOOF probable
+    """
+
+    score = float(score)
+    q = float(q)
+
     level = quality_level(q)
 
     if level == "GOOD":
@@ -40,32 +50,6 @@ def decide(score, q):
         return "RETRY", "low_quality_retry_zone"
     else:
         return "REJECT", "low_quality_high_spoof_score"
-    level = quality_level(q)
-
-    if level == "GOOD":
-        if score < 0.35:
-            return "ACCEPT", "good_quality_low_spoof_score"
-        elif score < 0.75:
-            return "RETRY", "good_quality_gray_zone"
-        else:
-            return "REJECT", "good_quality_high_spoof_score"
-
-    if level == "MEDIUM":
-        if score < 0.32:
-            return "ACCEPT", "medium_quality_low_spoof_score"
-        elif score < 0.85:
-            return "RETRY", "medium_quality_gray_zone"
-        else:
-            return "REJECT", "medium_quality_high_spoof_score"
-
-    # LOW quality
-    if score < 0.30:
-        return "ACCEPT", "low_quality_low_spoof_score"
-    elif score < 0.90:
-        return "RETRY", "low_quality_wide_retry_zone"
-    else:
-        return "REJECT", "low_quality_very_high_spoof_score"
-
 
 def summarize_policy(df):
     total = len(df)

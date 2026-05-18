@@ -7,17 +7,17 @@ import random
 
 CHALLENGE_TYPES = [
     "BLINK",
-    "TURN_LEFT",
-    "TURN_RIGHT",
     "SMILE",
+    "TURN_LEFT",
+    "EYEBROW_RAISE",
 ]
 
 
 CHALLENGE_INSTRUCTIONS = {
     "BLINK": "Clignez les yeux.",
-    "TURN_LEFT": "Tournez légèrement la tête vers la gauche.",
-    "TURN_RIGHT": "Tournez légèrement la tête vers la droite.",
     "SMILE": "Souriez pendant quelques secondes.",
+    "TURN_LEFT": "Tournez legerement la tete vers la gauche.",
+    "EYEBROW_RAISE": "Levez les sourcils pendant une seconde.",
 }
 
 
