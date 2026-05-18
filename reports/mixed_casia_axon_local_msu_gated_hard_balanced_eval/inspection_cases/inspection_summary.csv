@@ -1,5 +1,0 @@
-case,count,csv
-real_as_spoof,4,E:\PFE_AntiSpoofing_v2\reports\mixed_casia_axon_local_msu_gated_hard_balanced_eval\inspection_cases\real_as_spoof\real_as_spoof.csv
-real_as_real,29,E:\PFE_AntiSpoofing_v2\reports\mixed_casia_axon_local_msu_gated_hard_balanced_eval\inspection_cases\real_as_real\real_as_real.csv
-spoof_as_real,7,E:\PFE_AntiSpoofing_v2\reports\mixed_casia_axon_local_msu_gated_hard_balanced_eval\inspection_cases\spoof_as_real\spoof_as_real.csv
-spoof_as_spoof,104,E:\PFE_AntiSpoofing_v2\reports\mixed_casia_axon_local_msu_gated_hard_balanced_eval\inspection_cases\spoof_as_spoof\spoof_as_spoof.csv

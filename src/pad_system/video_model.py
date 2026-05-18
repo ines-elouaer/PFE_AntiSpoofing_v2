@@ -102,17 +102,17 @@ class VideoPADModel:
     VIDEO_EXTS = [".avi", ".mp4", ".mov", ".mkv"]
 
     def __init__(
-        self,
-        checkpoint_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3\seed42\best_model.pth",
-        test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu\mixed_val_frames.csv",
-        behav_test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\mixed_val_behav_rppg_norm.csv",
-        behavior_stats_json: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\behav_rppg_norm_stats.json",
-        scaler_path: str = "",
-        behavior_pose_model_path: str = r"E:\PFE_AntiSpoofing_v2\reports\fusion_v6_behavior_pose\behavior_pose_clf.pkl",
-        img_size: int = 224,
-        seq_len: int = 16,
-        sample_mode: str = "center_consecutive",
-    ):
+    self,
+    checkpoint_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\03_final_models\video_v6_behavior_pose\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3\seed42\best_model.pth",
+    test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu\mixed_val_frames.csv",
+    behav_test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\mixed_val_behav_rppg_norm.csv",
+    behavior_stats_json: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\behav_rppg_norm_stats.json",
+    scaler_path: str = "",
+    behavior_pose_model_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\03_final_models\banking_demo_models\final_models\behavior_pose_v6\behavior_pose_clf.pkl",
+    img_size: int = 224,
+    seq_len: int = 16,
+    sample_mode: str = "center_consecutive",
+):
         self.checkpoint_path = Path(checkpoint_path)
         self.test_csv = Path(test_csv)
         self.behav_test_csv = Path(behav_test_csv)

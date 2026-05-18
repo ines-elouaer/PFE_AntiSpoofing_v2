@@ -129,7 +129,7 @@ def main():
     print("\n[0] Initialisation du système")
     print("-" * 58)
     print("Chargement des modules en cours...")
-    print("Modèle attendu : E:\\PFE_AntiSpoofing_v2\\experiments\\mixed_casia_axon_local_msu\\seed42\\best_model_mixed_casia_axon_local_msu.pth")
+    print("Modèle utilisé : V6 final — gated rPPG + behavior-pose")
 
     router = PADRouter(
         enable_liveness=True,

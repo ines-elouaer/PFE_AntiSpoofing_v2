@@ -1,5 +1,0 @@
-model,REAL->REAL,REAL->SPOOF,SPOOF->REAL,SPOOF->SPOOF,BPCER,APCER,ACER,mean_score_spoof
-baseline_concat,23,10,3,108,30.3,2.7,16.5,0.7877
-v1_gated_hard,29,4,7,104,12.12,6.31,9.21,0.7439
-v2_balanced_security,26,7,4,107,21.21,3.6,12.41,0.7854
-v3_rppg,28,5,3,108,15.15,2.7,8.93,0.7818

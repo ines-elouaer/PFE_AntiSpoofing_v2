@@ -1,3 +1,0 @@
-model,REAL->REAL,REAL->SPOOF,SPOOF->REAL,SPOOF->SPOOF,BPCER,APCER,ACER,mean_score_spoof
-baseline_concat,23,10,3,108,0.303,0.027,0.165,0.7877
-gated_hard_balanced,29,4,7,104,0.1212,0.0631,0.0921,0.7439

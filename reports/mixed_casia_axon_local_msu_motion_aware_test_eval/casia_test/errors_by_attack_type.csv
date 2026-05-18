@@ -1,2 +1,0 @@
-attack_type,total,real_count,spoof_count,accuracy,APCER,BPCER,ACER,AUC,tn_real,fp_real_as_spoof,fn_spoof_as_real,tp_spoof,mean_score,min_score,max_score
-casia_real_or_spoof,24,6,18,0.9583333333333334,0.05555555555555555,0.0,0.027777777777777776,1.0,6,0,1,17,0.6923505047598155,0.0009845405584201217,0.9968947172164917

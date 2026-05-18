@@ -1,7 +1,0 @@
-source_dataset,device_id,REAL_AS_REAL,REAL_AS_SPOOF,SPOOF_AS_REAL,SPOOF_AS_SPOOF,total
-AXON,axon_camera,4.0,0.0,2.0,91.0,97.0
-CASIA,casia_camera,6.0,0.0,1.0,17.0,24.0
-LOCAL_REAL,pc,5.0,3.0,0.0,0.0,8.0
-LOCAL_REAL,samsung,1.0,2.0,0.0,0.0,3.0
-MSU_MFSD,android,3.0,3.0,0.0,0.0,6.0
-MSU_MFSD,laptop,4.0,2.0,0.0,0.0,6.0

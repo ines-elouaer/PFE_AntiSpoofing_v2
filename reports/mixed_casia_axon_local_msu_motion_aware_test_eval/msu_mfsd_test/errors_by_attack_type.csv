@@ -1,2 +1,0 @@
-attack_type,total,real_count,spoof_count,accuracy,APCER,BPCER,ACER,AUC,tn_real,fp_real_as_spoof,fn_spoof_as_real,tp_spoof,mean_score,min_score,max_score
-real_video,12,12,0,0.5,0.0,0.5,0.25,,6,6,0,0,0.41375192926110077,0.004739136900752783,0.9423303604125977
