@@ -1282,7 +1282,19 @@
       updateChallengeStatus(null, "En attente"); setCameraStatus("Caméra inactive", "idle"); showWelcomePage();
     });
 
-    function apiBase() { return document.getElementById("apiUrl").value.replace(/\/$/, ""); }
+    function apiBase() {
+  const input =
+    document.getElementById("apiBase") ||
+    document.getElementById("apiUrl") ||
+    document.getElementById("apiBaseUrl") ||
+    document.getElementById("backendUrl");
+
+  if (input && input.value && input.value.trim()) {
+    return input.value.trim().replace(/\/$/, "");
+  }
+
+  return "http://127.0.0.1:8000";
+}
     function showToast(message) { const t = document.getElementById("toast"); t.textContent = message; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 3300); }
     function setFlowStatus(message) { document.getElementById("flowStatus").textContent = message; }
     function setCameraStatus(text, mode = "idle") { const dot = document.getElementById("cameraDot"); document.getElementById("cameraStatus").textContent = text; document.getElementById("recordingPill").textContent = text; dot.className = "dot"; if (mode === "online") dot.classList.add("online"); if (mode === "recording") dot.classList.add("recording-dot"); }
