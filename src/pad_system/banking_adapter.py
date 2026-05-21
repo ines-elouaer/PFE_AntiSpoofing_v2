@@ -69,9 +69,9 @@ def next_action_from_decision(decision: str) -> str:
 
 def message_from_decision(decision: str) -> str:
     if decision == "ACCEPT":
-        return "Analyse vidéo terminée. Vidéo acceptée."
+        return "Analyse video terminee. Video acceptee."
 
     if decision == "REJECT":
-        return "Vidéo rejetée. Suspicion d'attaque de présentation."
+        return "Vidéo rejetee. Suspicion d'attaque de presentation."
 
-    return "Analyse vidéo ambiguë. Nouvelle capture recommandée."
+    return "Analyse video ambiguë. Nouvelle capture recommandée."

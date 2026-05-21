@@ -763,3 +763,19 @@
 2026-05-21 20:59:33 | INFO | pad_api | Challenge créé | challenge_id=57238906-d1bf-4c9b-b54a-427a0a2e7664 | type=TURN_LEFT
 2026-05-21 20:59:39 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1779393579702.webm | saved_path=E:\PFE_AntiSpoofing_v2\data\runtime_uploads\upload_20260521_205939_742152.webm | challenge_id=57238906-d1bf-4c9b-b54a-427a0a2e7664 | enable_liveness=True | require_challenge_validation=True
 2026-05-21 20:59:44 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.998 | label=SPOOF | api_total=4.5295s | router=4.5191s | result=E:\PFE_AntiSpoofing_v2\data\runtime_results\result_20260521_205939_742152.json
+2026-05-21 21:08:09 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-05-21 21:08:27 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-05-21 21:08:27 | INFO | pad_api | Version: v6.0
+2026-05-21 21:08:27 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-05-21 21:08:35 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-05-21 21:08:40 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-05-21 21:08:40 | INFO | pad_api | Version: v6.0
+2026-05-21 21:08:40 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-05-21 21:08:43 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-05-21 21:08:49 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-05-21 21:08:49 | INFO | pad_api | Version: v6.0
+2026-05-21 21:08:49 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-05-21 21:08:57 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-05-21 21:09:03 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-05-21 21:09:03 | INFO | pad_api | Version: v6.0
+2026-05-21 21:09:03 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose

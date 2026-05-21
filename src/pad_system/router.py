@@ -470,19 +470,19 @@ class PADRouter:
 
         elif decision == "ACCEPT":
             next_action = "NONE"
-            message = "Analyse vidéo terminée. Vidéo acceptée."
+            message = "Analyse video terminee. Video acceptee."
 
         elif decision == "REJECT":
             next_action = "NONE"
-            message = "Analyse vidéo terminée. Vidéo rejetée comme attaque probable."
+            message = "Analyse video terminee. Video rejetee comme attaque probable."
 
         elif decision == "RETRY":
             next_action = "RETRY_VIDEO_CAPTURE"
-            message = "Analyse vidéo ambiguë. Nouvelle capture recommandée."
+            message = "Analyse video ambiguë. Nouvelle capture recommandée."
 
         else:
             next_action = "RETRY_VIDEO_CAPTURE"
-            message = "Décision vidéo incertaine."
+            message = "Décision video incertaine."
 
         runtime_profile["runtime_guard_sec"] = round(
             time.perf_counter() - t0,
