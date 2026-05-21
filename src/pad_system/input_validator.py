@@ -6,7 +6,7 @@ import cv2
 
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
-VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv"}
+VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
 
 
 @dataclass

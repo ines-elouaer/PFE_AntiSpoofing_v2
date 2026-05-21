@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:," />
+  <title>SecureBank PAD — Démo FOMA V6</title>
+  <!-- FIX 4: Lucide icons instead of emojis -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<style>
+  :root {
+    --bg: #f7fafc;
+    --panel: rgba(255, 255, 255, 0.9);
+
+    /* FIX 1: Navy moins saturé — transition visuelle douce */
+    --navy: #0b1b34;
+    --navy-2: #102a4c;
+
+    --primary: #4f46e5;
+    --primary-2: #3730a3;
+
+    --bank-blue: #123b66;
+    --bank-blue-2: #2563eb;
+    --bank-blue-soft: #eaf2fb;
+
+    --success: #16a34a;
+    --success-bg: #eaf8ef;
+
+    --warning: #f59e0b;
+    --warning-bg: #fff7e6;
+
+    --danger: #dc2626;
+    --danger-bg: #feecec;
+
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #d8e2ef;
+
+    --shadow: 0 22px 55px rgba(15, 23, 42, 0.1);
+    --soft-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, Segoe UI, Arial, sans-serif; }
+
+  body {
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(18, 59, 102, 0.10), transparent 32%),
+      radial-gradient(circle at 88% 0%, rgba(22, 163, 74, 0.08), transparent 30%),
+      linear-gradient(135deg, #f7fafc 0%, #eef4fa 100%);
+    overflow-x: hidden;
+  }
+
+  .hidden { display: none !important; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 265px minmax(720px, 1fr) 430px;
+    min-height: 100vh;
+    align-items: stretch;
+  }
+
+  /* FIX 1: Sidebar moins saturée — #1a2940 au lieu de quasi-noir */
+  .sidebar {
+    background:
+      linear-gradient(180deg, rgba(20, 38, 70, 0.97), rgba(26, 41, 64, 0.97)),
+      radial-gradient(circle at top, rgba(18, 59, 102, 0.25), transparent 42%);
+    color: #fff;
+    padding: 26px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 34px; }
+  .brand-icon {
+    width: 50px; height: 50px; border-radius: 17px; display: grid; place-items: center;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.28), rgba(22, 163, 74, 0.14));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.22);
+  }
+  .brand h1 { font-size: 23px; letter-spacing: -0.03em; }
+  .brand p { font-size: 12px; color: #bac7e9; margin-top: 4px; }
+
+  .nav { display: grid; gap: 10px; }
+  .nav-item {
+    padding: 15px 16px; color: #dce6ff; display: flex; align-items: center; gap: 12px;
+    border-radius: 16px; font-size: 14px; border: 1px solid transparent; cursor: pointer; user-select: none;
+  }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(18,59,102,0.6), rgba(26,41,64,0.8));
+    color: #fff; box-shadow: 0 8px 20px rgba(18, 59, 102, 0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .sidebar-card {
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.13);
+    padding: 18px; border-radius: 21px; color: #dce5ff; backdrop-filter: blur(14px);
+  }
+  .sidebar-card h3 { color: #fff; margin: 8px 0 4px; }
+
+  .main { padding: 26px 30px 22px; }
+
+  .right-panel {
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.58);
+    border-left: 1px solid var(--border);
+    backdrop-filter: blur(18px);
+
+    /* Même hauteur visuelle que la zone centrale, sans scroll interne */
+    height: auto;
+    min-height: 100%;
+    align-self: stretch;
+
+    overflow: visible;
+    max-height: none;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-panel-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-panel-section.secondary {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .right-panel-section.secondary .right-card:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .right-panel-section.secondary .right-card:last-child .log-actions {
+    margin-top: auto;
+  }
+
+  /* FIX 3: Panneau admin — hiérarchie visuelle claire */
+  .right-panel-section {
+    margin-bottom: 8px;
+  }
+  .right-panel-section-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); padding: 0 4px 6px; border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .right-panel-section.secondary .right-card {
+    background: #f8fafc;
+    border-color: #e8eef5;
+  }
+  .right-panel-section.secondary .right-card h3 {
+    font-size: 13px; color: var(--muted);
+  }
+  .right-panel-section.secondary .metric b,
+  .right-panel-section.secondary .risk-card b {
+    font-size: 14px;
+  }
+
+  .topbar {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 18px; margin-bottom: 22px;
+  }
+
+  .title-badge, .welcome-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--bank-blue); background: var(--bank-blue-soft);
+    border: 1px solid #cfe0f2; padding: 7px 10px; border-radius: 999px;
+    font-weight: 850; font-size: 12px; margin-bottom: 10px;
+  }
+
+  .title h2, .history-header-page h2 {
+    font-size: 31px; line-height: 1.1; letter-spacing: -0.04em; margin-bottom: 8px; color: var(--navy);
+  }
+  .title p, .history-header-page p { color: var(--muted); font-size: 14px; max-width: 760px; line-height: 1.45; }
+
+  .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+  .input {
+    border: 1px solid var(--border); background: rgba(255, 255, 255, 0.94);
+    padding: 12px 13px; border-radius: 13px; outline: none; color: var(--text);
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
+  }
+
+  .btn {
+    border: none; border-radius: 14px; padding: 13px 17px; cursor: pointer;
+    font-weight: 850; transition: 0.18s ease; white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-1px); opacity: 0.96; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: white; box-shadow: 0 14px 30px rgba(79, 70, 229, 0.18);
+  }
+  .btn-outline { background: rgba(255, 255, 255, 0.86); border: 1px solid var(--border); color: var(--text); }
+
+  /* FIX 1: Bouton Annuler discret — plus de rouge vif */
+  .btn-danger {
+    background: rgba(255,255,255,0.7);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+  .btn-danger:hover {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: #fecaca;
+  }
+
+  .btn-new-verification { border-color: rgba(18, 59, 102, 0.25); color: var(--bank-blue); background: #ffffff; }
+  .btn-new-verification:hover { background: var(--bank-blue-soft); }
+
+  .panel, .right-card {
+    background: var(--panel); border: 1px solid var(--border);
+    box-shadow: var(--shadow); border-radius: 27px; backdrop-filter: blur(20px);
+  }
+  .panel { padding: 24px; }
+  .right-card { padding: 18px; margin-bottom: 15px; }
+
+  .welcome-main {
+    grid-column: 2 / 4; min-height: 100vh; padding: 40px;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(18, 59, 102, 0.10), transparent 32%),
+      radial-gradient(circle at 88% 0%, rgba(22, 163, 74, 0.08), transparent 30%),
+      linear-gradient(135deg, #f7fafc 0%, #eef4fa 100%);
+  }
+
+  .welcome-hero {
+    width: min(1180px, 100%); background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--border); border-radius: 34px; box-shadow: var(--shadow);
+    padding: 44px; position: relative; overflow: hidden;
+  }
+  .welcome-hero::before {
+    content: ""; position: absolute; width: 360px; height: 360px; border-radius: 50%;
+    right: -120px; top: -140px; background: rgba(18, 59, 102, 0.08);
+  }
+  .welcome-hero h1 {
+    max-width: 760px; font-size: 44px; line-height: 1.05;
+    letter-spacing: -0.05em; color: var(--navy); margin-bottom: 16px; position: relative;
+  }
+  .welcome-subtitle { max-width: 760px; color: var(--muted); font-size: 16px; line-height: 1.65; margin-bottom: 28px; position: relative; }
+
+  .welcome-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; position: relative; }
+
+  .welcome-card { background: #fff; border: 1px solid var(--border); border-radius: 24px; padding: 20px; box-shadow: var(--soft-shadow); }
+
+  /* FIX 4: Icône SVG propre à la place des emojis */
+  .welcome-icon {
+    width: 46px; height: 46px; border-radius: 16px;
+    background: var(--bank-blue-soft); display: grid; place-items: center; margin-bottom: 14px;
+    color: var(--bank-blue);
+  }
+  .welcome-icon svg { width: 22px; height: 22px; stroke: var(--bank-blue); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .welcome-card h3 { color: var(--navy); font-size: 16px; margin-bottom: 8px; }
+  .welcome-card p { color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+  .welcome-policy {
+    background: linear-gradient(135deg, #ffffff, #f8fbff); border: 1px solid var(--border);
+    border-radius: 24px; padding: 22px; margin: 18px 0 24px; position: relative;
+  }
+  .welcome-policy h3 { color: var(--navy); margin-bottom: 14px; }
+
+  .policy-row {
+    display: grid; grid-template-columns: 18px 80px 1fr; gap: 12px;
+    align-items: center; padding: 10px 0; border-top: 1px solid #e6edf7;
+  }
+  .policy-row:first-of-type { border-top: 0; }
+  .policy-row strong { color: var(--navy); font-size: 13px; }
+  .policy-row p { color: var(--muted); font-size: 13px; }
+  .policy-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .policy-dot.accept { background: var(--success); }
+  .policy-dot.retry { background: var(--warning); }
+  .policy-dot.reject { background: var(--danger); }
+
+  .welcome-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; position: relative; }
+  .welcome-start-btn { min-width: 240px; height: 52px; font-size: 15px; box-shadow: 0 14px 30px rgba(79, 70, 229, 0.18); }
+  .welcome-note { margin-top: 14px; color: var(--muted); font-size: 13px; position: relative; }
+
+  .admin-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .layout.client-mode { grid-template-columns: 265px minmax(690px, 1fr); }
+  .layout.client-mode #verificationMain { grid-column: 2 / 3; }
+  .layout.admin-mode { grid-template-columns: 265px minmax(720px, 1fr) 430px; }
+  .layout.admin-mode #verificationMain { grid-column: 2 / 3; }
+
+  .admin-only { display: none !important; }
+  .layout.admin-mode .admin-only { display: block !important; }
+  .layout.client-mode .admin-only { display: none !important; }
+  .layout.client-mode .admin-tools { display: none !important; }
+  .layout.client-mode #verificationRightPanel { display: none !important; }
+  .layout.client-mode .instruction-card { align-content: center; }
+  .layout.client-mode .panel { padding-bottom: 20px; }
+
+  .client-instruction-box {
+    background: linear-gradient(135deg, #ffffff, #f8fbff); border: 1px solid var(--border);
+    border-radius: 20px; padding: 18px; text-align: left; box-shadow: var(--soft-shadow);
+  }
+  .client-instruction-box h4 { color: var(--navy); font-size: 15px; margin-bottom: 8px; }
+  .client-instruction-box p { color: var(--text); font-weight: 850; font-size: 15px; line-height: 1.45; margin-bottom: 8px; }
+  .client-instruction-box span { color: var(--muted); font-size: 12px; line-height: 1.45; display: block; }
+
+  .admin-challenge-box { margin-top: 12px; }
+
+  .client-result-card {
+    margin-top: 14px; display: flex; gap: 13px; align-items: center;
+    border: 1px solid var(--border); border-radius: 18px; padding: 15px;
+    background: #f8fafc; box-shadow: var(--soft-shadow);
+  }
+  .client-result-card.accept { background: var(--success-bg); border-color: rgba(22, 163, 74, 0.3); color: var(--success); }
+  .client-result-card.retry { background: var(--warning-bg); border-color: rgba(245, 158, 11, 0.35); color: #b45309; }
+  .client-result-card.reject { background: var(--danger-bg); border-color: rgba(220, 38, 38, 0.35); color: var(--danger); }
+  .client-result-icon { width: 38px; height: 38px; border-radius: 999px; display: grid; place-items: center; background: var(--bank-blue); color: #fff; font-weight: 950; flex: 0 0 auto; }
+  .client-result-card.accept .client-result-icon { background: var(--success); }
+  .client-result-card.retry .client-result-icon { background: var(--warning); }
+  .client-result-card.reject .client-result-icon { background: var(--danger); }
+  .client-result-card b { display: block; font-size: 15px; margin-bottom: 3px; }
+  .client-result-card span { display: block; font-size: 13px; line-height: 1.45; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); position: relative; margin-bottom: 26px; }
+  .steps::before {
+    content: ""; position: absolute; top: 25px; left: 17%; width: 66%; height: 3px;
+    background: linear-gradient(90deg, var(--bank-blue-2), #dbe3f5 45%, #dbe3f5); border-radius: 999px;
+  }
+  .step { text-align: center; z-index: 1; }
+  .circle {
+    width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 10px;
+    display: grid; place-items: center; background: #eef4fa; color: #8994ae;
+    border: 1px solid #d8def2; font-weight: 900;
+  }
+  .step.active .circle, .step.done .circle {
+    background: linear-gradient(135deg, var(--bank-blue), var(--bank-blue-2));
+    color: white; box-shadow: 0 12px 25px rgba(18, 59, 102, 0.24);
+  }
+  .step b { font-size: 14px; }
+  .step p { font-size: 12px; margin-top: 5px; color: var(--muted); }
+
+  /* FIX 2: Grille plus équilibrée — 1.3fr / 0.9fr */
+  .verification-grid { display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 24px; align-items: stretch; }
+
+  .camera-card {
+    border-radius: 22px; overflow: hidden; min-height: 480px; position: relative;
+    display: grid; place-items: center; color: white;
+    background:
+      linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.8)),
+      radial-gradient(circle at 50% 30%, rgba(18, 59, 102, 0.24), transparent 45%);
+    box-shadow: var(--soft-shadow);
+  }
+  video { width: 100%; height: 480px; object-fit: cover; background: #0f172a; }
+
+  .camera-placeholder { position: absolute; text-align: center; color: #d9e3ff; padding: 24px; }
+  .big-icon { font-size: 52px; margin-bottom: 12px; }
+
+  .camera-status, .recording-pill {
+    position: absolute; top: 18px; padding: 9px 13px; border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45); color: white; backdrop-filter: blur(10px); font-size: 12px; z-index: 2;
+  }
+  .camera-status { left: 18px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .recording-pill { right: 18px; }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; }
+  .dot.online { background: #22c55e; box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.18); }
+  .dot.recording-dot { background: #ef4444; box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.18); animation: blink 0.8s infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+  .face-frame {
+    position: absolute; width: 300px; height: 380px;
+    border: 2px dashed rgba(255, 255, 255, 0.78); border-radius: 50%;
+    pointer-events: none; box-shadow: inset 0 0 35px rgba(255, 255, 255, 0.08);
+  }
+
+  .action-row { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .status-line { margin-top: 16px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  #secureSessionBanner { display: none !important; }
+
+  .instruction-card {
+    border: 1px solid var(--border); border-radius: 22px; padding: 25px;
+    background: rgba(255, 255, 255, 0.92); text-align: center; min-height: 480px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: var(--soft-shadow);
+  }
+
+  .instruction-icon {
+    width: 78px; height: 78px; margin: 0 auto 16px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--bank-blue-soft), #eaf8ef);
+    color: var(--bank-blue); display: grid; place-items: center; font-size: 34px;
+  }
+  .instruction-card h3 { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+
+  /* FIX 2: Texte instruction moins lourd */
+  .instruction-text {
+    font-size: 22px; line-height: 1.4; font-weight: 700;
+    margin-bottom: 16px; letter-spacing: -0.02em; color: var(--navy);
+  }
+  .instruction-text span { color: var(--bank-blue); }
+
+  .mini-progress { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin: 18px auto 0; max-width: 210px; }
+  .mini-progress span { height: 6px; border-radius: 999px; background: #d9deea; }
+  .mini-progress span.active { background: linear-gradient(90deg, var(--bank-blue), var(--bank-blue-2)); }
+
+  .timer { font-size: 40px; font-weight: 950; color: var(--bank-blue); margin-top: 10px; }
+  .small { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+  .challenge-status-card { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .challenge-status-card div { background: #f8fbff; border: 1px solid var(--border); border-radius: 16px; padding: 11px; text-align: center; }
+  .challenge-status-card span { display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px; }
+  .challenge-status-card b { color: var(--bank-blue); font-size: 12px; }
+
+  .attempt-panel {
+    margin-top: 22px; display: grid; grid-template-columns: 1fr 1.5fr 1fr;
+    border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: rgba(255, 255, 255, 0.82);
+  }
+  .attempt-box { padding: 20px; text-align: center; border-right: 1px solid var(--border); }
+  .attempt-box:last-child { border-right: none; }
+  .attempt-box p { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .attempt-box b { color: var(--bank-blue); font-size: 24px; }
+
+  .bank-policy-card {
+    margin-top: 18px; background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border); border-radius: 24px; padding: 18px; box-shadow: var(--soft-shadow);
+  }
+  .policy-header { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .policy-header h3 { color: var(--navy); font-size: 16px; margin-bottom: 4px; }
+  .policy-header p { color: var(--muted); font-size: 13px; }
+  .policy-badge { background: var(--bank-blue-soft); color: var(--bank-blue); border: 1px solid #cfe0f2; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 900; white-space: nowrap; }
+
+  .policy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .policy-item { border: 1px solid var(--border); border-radius: 18px; padding: 13px; background: #fff; }
+  .policy-item b { display: block; font-size: 13px; margin-bottom: 5px; }
+  .policy-item span { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .policy-item.accept b { color: var(--success); }
+  .policy-item.retry b { color: #b45309; }
+  .policy-item.reject b { color: var(--danger); }
+  .policy-item.wait b { color: var(--bank-blue); }
+
+  .right-card h3 { font-size: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 6px; }
+  .model-title { font-size: 22px; font-weight: 950; margin: 8px 0; }
+
+  .badge { display: inline-flex; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 900; margin-left: 8px; }
+  .badge-success { background: #dcfce7; color: #15803d; }
+
+  .result-box { border-radius: 16px; padding: 18px; text-align: center; border: 1px solid var(--border); background: #f8fafc; margin-bottom: 14px; }
+  .result-box.accept { background: var(--success-bg); border-color: rgba(22, 163, 74, 0.3); color: var(--success); }
+  .result-box.retry { background: var(--warning-bg); border-color: rgba(245, 158, 11, 0.35); color: #b45309; }
+  .result-box.reject { background: var(--danger-bg); border-color: rgba(220, 38, 38, 0.35); color: var(--danger); }
+  .result-box h2 { font-size: 32px; margin-top: 4px; letter-spacing: -0.02em; }
+
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 14px; background: #fff; }
+  .metric { padding: 12px; text-align: center; border-right: 1px solid var(--border); }
+  .metric:last-child { border-right: none; }
+  .metric p { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .metric b { color: var(--bank-blue); font-size: 17px; }
+
+  .message-box { padding: 13px; border-radius: 14px; background: #f8fafc; border: 1px solid var(--border); color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+  .attempt-list { display: grid; gap: 10px; }
+  .attempt-row { display: grid; grid-template-columns: 30px 1fr 74px; align-items: center; font-size: 13px; color: var(--muted); gap: 8px; }
+  .attempt-number { width: 24px; height: 24px; border-radius: 50%; background: var(--bank-blue-soft); color: var(--bank-blue); display: grid; place-items: center; font-weight: 900; }
+
+  .risk-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .risk-card { border: 1px solid var(--border); border-radius: 15px; padding: 13px; background: #fff; font-size: 12px; color: var(--muted); }
+  .risk-card b { display: block; font-size: 18px; color: var(--text); margin-top: 6px; }
+
+  .json-box, .history-json, .model-tech-json {
+    overflow: auto; background: #0f172a; color: #dbeafe; padding: 14px;
+    border-radius: 14px; font-size: 12px; white-space: pre-wrap; border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .json-box { max-height: 280px; display: none; margin-top: 12px; }
+  .log-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+
+  .footer { margin-top: 24px; color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; }
+
+  .toast {
+    position: fixed; top: 22px; left: 50%;
+    transform: translateX(-50%) translateY(-14px);
+    background: rgba(7, 18, 38, 0.96); color: white; padding: 14px 18px;
+    border-radius: 16px; box-shadow: var(--shadow); z-index: 300;
+    opacity: 0; pointer-events: none; transition: 0.2s ease;
+    max-width: 580px; text-align: center; line-height: 1.45;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .history-main { grid-column: 2 / 4; max-height: 100vh; overflow-y: auto; }
+  .history-header-page { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 24px; }
+
+  .history-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .history-stat-card { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 22px; padding: 20px; box-shadow: var(--soft-shadow); }
+  .history-stat-card p { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .history-stat-card b { font-size: 30px; color: var(--bank-blue); }
+
+  .history-filters { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 22px; padding: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; box-shadow: var(--soft-shadow); }
+  .history-table-card { background: rgba(255, 255, 255, 0.94); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; }
+  .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .history-table thead { background: #f1f5f9; }
+  .history-table th { text-align: left; padding: 15px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .history-table td { padding: 15px; border-top: 1px solid var(--border); color: var(--text); vertical-align: top; }
+
+  .history-decision { display: inline-flex; padding: 6px 10px; border-radius: 999px; font-weight: 900; font-size: 12px; }
+  .history-decision.accept { background: var(--success-bg); color: var(--success); }
+  .history-decision.retry { background: var(--warning-bg); color: #b45309; }
+  .history-decision.reject { background: var(--danger-bg); color: var(--danger); }
+  .history-decision.other { background: var(--bank-blue-soft); color: var(--bank-blue); }
+
+  .history-small { color: var(--muted); font-size: 12px; line-height: 1.45; word-break: break-word; }
+  .history-empty { text-align: center; padding: 42px; color: var(--muted); }
+  .history-detail-btn { border: 1px solid var(--border); background: #fff; border-radius: 12px; padding: 8px 10px; cursor: pointer; font-weight: 800; color: var(--bank-blue); }
+  .history-json { max-height: 360px; display: none; margin-top: 12px; }
+
+  .model-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(15, 23, 42, 0.62); backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center; padding: 28px;
+  }
+  .model-details-card {
+    width: min(980px, 96vw); max-height: 92vh; overflow-y: auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid var(--border); border-radius: 28px; padding: 26px;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+  }
+  .model-details-header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; margin-bottom: 22px; }
+  .model-details-header h2 { color: var(--navy); font-size: 30px; letter-spacing: -0.04em; margin: 8px 0; }
+  .model-details-header p { color: var(--muted); font-size: 14px; }
+  /* FIX 1: Bouton Fermer dans la modale aussi discret */
+  .model-details-header .btn-danger {
+    background: rgba(255,255,255,0.7); color: var(--muted);
+    border: 1px solid var(--border); font-size: 13px; padding: 10px 16px;
+  }
+  .model-details-header .btn-danger:hover { background: var(--danger-bg); color: var(--danger); border-color: #fecaca; }
+
+  .model-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .model-info-item { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 20px; padding: 16px; }
+  .model-info-item.full { grid-column: 1 / -1; }
+  .model-info-item span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 7px; }
+  .model-info-item b { color: var(--navy); font-size: 15px; line-height: 1.45; }
+
+  .model-tech-section { margin-top: 18px; background: #fff; border: 1px solid var(--border); border-radius: 22px; padding: 16px; }
+  .model-tech-title { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .model-tech-title h3 { color: var(--navy); font-size: 16px; }
+  .model-tech-json { max-height: 300px; }
+
+
+
+
+
+  /* Résultat final affiché au centre de la carte de droite */
+  .instruction-card.result-accept,
+  .instruction-card.result-retry,
+  .instruction-card.result-reject {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 480px;
+    padding: 42px;
+  }
+
+  .instruction-card.result-accept > div:first-child,
+  .instruction-card.result-retry > div:first-child,
+  .instruction-card.result-reject > div:first-child {
+    width: 100%;
+    max-width: 620px;
+    margin: auto;
+  }
+
+  .instruction-card.result-accept > div:nth-child(2),
+  .instruction-card.result-retry > div:nth-child(2),
+  .instruction-card.result-reject > div:nth-child(2) {
+    display: none !important;
+  }
+
+  .instruction-card.result-accept {
+    border-color: rgba(22, 163, 74, 0.42);
+    background: linear-gradient(180deg, #ffffff 0%, #ecfdf3 100%);
+  }
+
+  .instruction-card.result-retry {
+    border-color: rgba(245, 158, 11, 0.42);
+    background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
+  }
+
+  .instruction-card.result-reject {
+    border-color: rgba(220, 38, 38, 0.42);
+    background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%);
+  }
+
+  .instruction-card.result-accept .instruction-icon,
+  .instruction-card.result-retry .instruction-icon,
+  .instruction-card.result-reject .instruction-icon {
+    width: 92px;
+    height: 92px;
+    margin: 0 auto 22px;
+    border-radius: 999px;
+    font-size: 42px;
+    color: #ffffff;
+    font-weight: 950;
+  }
+
+  .instruction-card.result-accept .instruction-icon {
+    background: #16a34a;
+    box-shadow: 0 18px 38px rgba(22, 163, 74, 0.22);
+  }
+
+  .instruction-card.result-retry .instruction-icon {
+    background: #f59e0b;
+    box-shadow: 0 18px 38px rgba(245, 158, 11, 0.22);
+  }
+
+  .instruction-card.result-reject .instruction-icon {
+    background: #dc2626;
+    box-shadow: 0 18px 38px rgba(220, 38, 38, 0.22);
+  }
+
+  .instruction-card.result-accept h3,
+  .instruction-card.result-retry h3,
+  .instruction-card.result-reject h3 {
+    font-size: 21px;
+    margin-bottom: 14px;
+    color: #071b3a;
+  }
+
+  .instruction-card.result-accept .instruction-text,
+  .instruction-card.result-retry .instruction-text,
+  .instruction-card.result-reject .instruction-text {
+    font-size: 30px;
+    line-height: 1.28;
+    font-weight: 950;
+    letter-spacing: -0.03em;
+  }
+
+  .instruction-card.result-accept .instruction-text,
+  .instruction-card.result-accept .instruction-text span {
+    color: #15803d;
+  }
+
+  .instruction-card.result-retry .instruction-text,
+  .instruction-card.result-retry .instruction-text span {
+    color: #b45309;
+  }
+
+  .instruction-card.result-reject .instruction-text,
+  .instruction-card.result-reject .instruction-text span {
+    color: #b91c1c;
+  }
+
+  .instruction-card.result-accept .mini-progress,
+  .instruction-card.result-retry .mini-progress,
+  .instruction-card.result-reject .mini-progress {
+    display: none !important;
+  }
+
+  .instruction-card.result-accept .timer,
+  .instruction-card.result-retry .timer,
+  .instruction-card.result-reject .timer {
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 750;
+    line-height: 1.55;
+    color: #475569;
+  }
+
+  /* Page Paramètres sécurité avancés */
+  .settings-main {
+    grid-column: 2 / -1;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .settings-header-page {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  .settings-page-card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+
+  .settings-section {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--soft-shadow);
+  }
+
+  .settings-section:last-child { margin-bottom: 0; }
+
+  .settings-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .settings-section-header h3 {
+    color: var(--navy);
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  .settings-section-header p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .settings-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: var(--bank-blue-soft);
+    color: var(--bank-blue);
+    border: 1px solid #cfe0f2;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .settings-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .settings-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .settings-info-card {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 17px;
+    background: linear-gradient(135deg, #ffffff, #f8fbff);
+    min-height: 118px;
+  }
+
+  .settings-info-card .settings-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 15px;
+    display: grid;
+    place-items: center;
+    background: var(--bank-blue-soft);
+    color: var(--bank-blue);
+    margin-bottom: 13px;
+    font-weight: 900;
+  }
+
+  .settings-info-card h4 {
+    color: var(--navy);
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .settings-info-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .decision-rule-row {
+    display: grid;
+    grid-template-columns: 18px 90px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-top: 1px solid #e6edf7;
+  }
+
+  .decision-rule-row:first-of-type { border-top: none; }
+  .decision-rule-row strong { color: var(--navy); font-size: 13px; }
+  .decision-rule-row p { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+  .settings-param-card {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 15px;
+    background: #fff;
+  }
+
+  .settings-param-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 7px;
+  }
+
+  .settings-param-card b {
+    display: block;
+    color: var(--navy);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .settings-param-card.accept b { color: var(--success); }
+  .settings-param-card.retry b { color: #b45309; }
+  .settings-param-card.reject b { color: var(--danger); }
+  .settings-param-card.blue b { color: var(--bank-blue); }
+
+  .settings-note {
+    border: 1px solid #cfe0f2;
+    background: #f8fbff;
+    color: var(--muted);
+    border-radius: 16px;
+    padding: 13px 15px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .settings-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 1250px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar, .right-panel { display: none; }
+    .welcome-main, .history-main { grid-column: 1 / -1; }
+    .welcome-main { padding: 22px; }
+    .welcome-grid, .history-stats-grid { grid-template-columns: 1fr 1fr; }
+    .verification-grid, .attempt-panel, .policy-grid { grid-template-columns: 1fr; }
+    .attempt-box { border-right: none; border-bottom: 1px solid var(--border); }
+    .attempt-box:last-child { border-bottom: none; }
+    .history-table-card { overflow-x: auto; }
+    .history-table { min-width: 1180px; }
+    .history-header-page { flex-direction: column; }
+    .welcome-hero h1 { font-size: 34px; }
+  }
+  @media (max-width: 700px) {
+    .welcome-grid { grid-template-columns: 1fr; }
+    .welcome-hero { padding: 28px; }
+    .policy-row { grid-template-columns: 16px 1fr; }
+    .policy-row p { grid-column: 2; }
+  }
+</style>
+</head>
+
+<body>
+  <div class="toast" id="toast"></div>
+
+  <div id="appLayout" class="layout client-mode">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-icon">
+            <!-- FIX 4: icône SVG shield à la place de l'emoji -->
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7eb8f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div><h1>SecureBank</h1><p>Vérification bancaire intelligente</p></div>
+        </div>
+        <div class="nav">
+          <div id="navVerification" class="nav-item active" onclick="showWelcomePage()">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Vérification identité
+          </div>
+          <div id="navHistory" class="nav-item" onclick="showHistoryPage()">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Journal des vérifications
+          </div>
+          <div id="navSettings" class="nav-item" onclick="showSettingsPage()">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Paramètres sécurité
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-card"><p>Sécurisé par</p><h3>FOMA V6</h3><p>Anti-spoofing vidéo • Challenge actif • Liveness</p></div>
+    </aside>
+
+    <main id="welcomeMain" class="main welcome-main">
+      <section class="welcome-hero">
+        <div class="welcome-badge">● SecureBank Identity Verification</div>
+        <h1>Bienvenue dans SecureBank Identity Verification</h1>
+        <p class="welcome-subtitle">Cette démonstration simule un parcours bancaire sécurisé pour vérifier l'identité d'un utilisateur à partir d'une vidéo capturée en temps réel.</p>
+        <div class="welcome-grid">
+          <!-- FIX 4: icônes SVG propres -->
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3>Challenge actif</h3>
+            <p>Un challenge est généré automatiquement afin de limiter les attaques par photo, vidéo rejouée ou tentative de réutilisation.</p>
+          </div>
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h3>Détection de vivacité</h3>
+            <p>Le système vérifie que l'utilisateur réalise bien l'action demandée : clignement, sourire ou mouvement de tête.</p>
+          </div>
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 1 9 9c0 4.97-4.03 9-9 9S3 15.97 3 11a9 9 0 0 1 9-9z"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3>Modèle PAD FOMA V6</h3>
+            <p>Le modèle analyse la vidéo avec une approche multimodale : CNN-LSTM, rPPG, comportement et posture.</p>
+          </div>
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <h3>Décision bancaire</h3>
+            <p>La réponse finale est adaptée au contexte bancaire : ACCEPT, RETRY ou REJECT.</p>
+          </div>
+        </div>
+        <div class="welcome-policy">
+          <h3>Politique de sécurité</h3>
+          <div class="policy-row"><span class="policy-dot accept"></span><strong>ACCEPT</strong><p>Identité vérifiée et accès autorisé.</p></div>
+          <div class="policy-row"><span class="policy-dot retry"></span><strong>RETRY</strong><p>Nouvelle capture demandée si le score ou la qualité est ambiguë.</p></div>
+          <div class="policy-row"><span class="policy-dot reject"></span><strong>REJECT</strong><p>Risque d'attaque détecté ou non-respect du challenge.</p></div>
+        </div>
+        <div class="welcome-actions">
+          <button class="btn btn-primary welcome-start-btn" onclick="startWelcomeVerification()">Commencer la vérification</button>
+          <button class="btn btn-outline" onclick="getModelInfo(true)">Voir infos modèle V6</button>
+        </div>
+        <p class="welcome-note">La caméra sera activée uniquement après le démarrage de la vérification.</p>
+      </section>
+    </main>
+
+    <main id="verificationMain" class="main hidden">
+      <div class="topbar">
+        <div class="title"><div class="title-badge">● Session client sécurisée</div><h2>Confirmer votre identité</h2><p>Suivez les instructions affichées à l'écran pour sécuriser votre accès bancaire.</p></div>
+        <div class="top-actions">
+          
+          <!-- FIX 1: adminModeBtn label dynamique via JS -->
+          <button id="adminModeBtn" class="btn btn-outline" onclick="toggleAdminMode()">Mode administrateur</button>
+          <!-- FIX 1: Annuler discret -->
+          <button class="btn btn-danger" onclick="resetSession()">Annuler</button>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="steps">
+          <div id="step1" class="step done"><div class="circle">✓</div><b>Préparation</b><p>Positionnement du visage</p></div>
+          <div id="step2" class="step active"><div class="circle">2</div><b>Instruction</b><p>Challenge actif</p></div>
+          <div id="step3" class="step"><div class="circle">3</div><b>Résultat</b><p>Décision bancaire</p></div>
+        </div>
+        <!-- FIX 2: grille rééquilibrée via CSS -->
+        <div class="verification-grid">
+          <div>
+            <div class="camera-card">
+              <div class="camera-status"><span id="cameraDot" class="dot"></span><span id="cameraStatus">Caméra inactive</span></div>
+              <div class="recording-pill" id="recordingPill">En attente</div>
+              <video id="cameraPreview" autoplay muted playsinline></video>
+              <div class="camera-placeholder" id="cameraPlaceholder"><div class="big-icon">🎥</div><b>Caméra prête</b><p class="small" style="margin-top:8px;color:#cbd5e1">Cliquez sur démarrer pour lancer la vérification.</p></div>
+              <div class="face-frame"></div>
+            </div>
+            <div class="action-row">
+              <button id="newVerificationBtn" class="btn btn-outline btn-new-verification" onclick="startNewVerification()">Nouvelle vérification</button>
+              <button id="startBtn" class="btn btn-primary" onclick="startBankingFlow()">Démarrer la vérification</button>
+            </div>
+            <p class="status-line" id="flowStatus">Initialisation de la caméra et création d'un nouveau challenge...</p>
+            <div id="clientResultCard" class="client-result-card hidden">
+              <div class="client-result-icon" id="clientResultIcon">✓</div>
+              <div><b id="clientResultTitle">Résultat en attente</b><span id="clientResultMessage">La décision finale sera affichée ici.</span></div>
+            </div>
+          </div>
+          <div class="instruction-card">
+            <div>
+              <div class="instruction-icon" id="instructionIcon">🧑‍💼</div>
+              <h3>Instruction actuelle</h3>
+              <!-- FIX 2: taille et poids réduits via CSS -->
+              <div id="instructionText" class="instruction-text">Prêt pour la <span>vérification</span></div>
+              <div class="mini-progress"><span id="bar1"></span><span id="bar2"></span><span id="bar3"></span><span id="bar4"></span><span id="bar5"></span><span id="bar6"></span></div>
+              <div class="timer" id="timerText">--</div>
+            </div>
+            <div>
+              <div class="client-instruction-box">
+                <h4>Challenge de vivacité actif</h4>
+                <p id="clientSecurityInstruction">Suivez l'instruction affichée à l'écran.</p>
+                <span>Cette étape permet de vérifier que la vidéo est capturée en temps réel.</span>
+              </div>
+              <div class="admin-challenge-box admin-only">
+                <p class="small">Challenge ID</p>
+                <input id="challengeId" class="input" placeholder="créé automatiquement" style="width:100%;margin-top:8px" readonly />
+                <div class="challenge-status-card">
+                  <div><span>Challenge</span><b id="challengeTypeView">--</b></div>
+                  <div><span>Statut</span><b id="challengeStatusView">En attente</b></div>
+                  <div><span>Usage unique</span><b id="challengeSingleUseView">Oui</b></div>
+                </div>
+                <p class="small" style="margin-top:16px">Le challenge est à usage unique. Après analyse, il est marqué comme utilisé pour éviter une réutilisation frauduleuse.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="attempt-panel">
+          <div class="attempt-box"><p>Tentatives RETRY</p><b><span id="retryCount">0</span> / 3</b></div>
+          <div class="attempt-box"><p>Règle de sécurité</p><b>120 secondes</b><p>Après 3 tentatives non concluantes, une pause de 120 secondes est appliquée.</p></div>
+          <div class="attempt-box"><p>Prochaine tentative dans</p><b id="cooldownText">--:--</b></div>
+        </div>
+        <div class="bank-policy-card admin-only">
+          <div class="policy-header"><div><h3>Politique de sécurité bancaire</h3><p>Système de décision métier appliqué après l'analyse PAD.</p></div><span class="policy-badge">ACCEPT / RETRY / REJECT</span></div>
+          <div class="policy-grid">
+            <div class="policy-item accept"><b>ACCEPT</b><span>Identité vérifiée</span></div>
+            <div class="policy-item retry"><b>RETRY</b><span>Nouvelle capture demandée</span></div>
+            <div class="policy-item reject"><b>REJECT</b><span>Risque d'attaque détecté</span></div>
+            <div class="policy-item wait"><b>3 RETRY</b><span>Attente de 120 secondes</span></div>
+          </div>
+        </div>
+        <div class="footer"><span>🔒 Connexion locale sécurisée</span></div>
+      </section>
+    </main>
+
+    <!-- FIX 3: Panneau admin avec hiérarchie claire — sections Critique / Technique -->
+    <aside id="verificationRightPanel" class="right-panel hidden">
+
+      <!-- Section critique : modèle + résultat -->
+      <div class="right-panel-section">
+        <div class="right-panel-section-label">Modèle & Décision</div>
+
+        <div class="right-card">
+          <h3>◼ Mode administrateur</h3>
+          <p class="small">Modèle actif</p>
+          <div class="model-title">FOMA V6 <span class="badge badge-success">Actif</span></div>
+          <p class="small" id="modelSummary">CNN + LSTM + rPPG + behavior-pose</p>
+          <button class="btn btn-outline" style="width:100%;margin-top:14px" onclick="openModelDetails()">Voir détails du modèle →</button>
+          <pre id="modelJson" class="json-box"></pre>
+        </div>
+
+        <div class="right-card">
+          <h3>● Résultat de l'analyse</h3>
+          <div id="resultBox" class="result-box"><p>Décision finale</p><h2 id="decision">--</h2></div>
+          <div class="metrics">
+            <div class="metric"><p>Score PAD</p><b id="score">--</b></div>
+            <div class="metric"><p>Liveness</p><b id="liveness">--</b></div>
+            <div class="metric"><p>Qualité</p><b id="quality">--</b><small id="qualityLabel" style="display:block;margin-top:4px;color:var(--muted)">--</small></div>
+          </div>
+          <div class="message-box" id="message">Analyse en attente.</div>
+          <button class="btn btn-outline" style="width:100%;margin-top:14px" onclick="toggleJson('resultJson')">Voir réponse complète</button>
+          <pre id="resultJson" class="json-box"></pre>
+        </div>
+      </div>
+
+      <!-- Section secondaire : détails techniques -->
+      <div class="right-panel-section secondary">
+        <div class="right-panel-section-label">Détails techniques</div>
+
+        <div class="right-card">
+          <h3>● Tentatives</h3>
+          <div id="attemptList" class="attempt-list">
+            <div class="attempt-row"><div class="attempt-number">1</div><div>--</div><div>--:--</div></div>
+          </div>
+        </div>
+
+        <div class="right-card">
+          <h3>● Performance runtime</h3>
+          <div class="risk-row">
+            <div class="risk-card">Capture vidéo<b id="captureTime">--</b></div>
+            <div class="risk-card">Analyse complète<b id="responseTime">--</b></div>
+          </div>
+          <div class="risk-row" style="margin-top:10px">
+            <div class="risk-card">Total parcours<b id="totalTime">--</b></div>
+            <div class="risk-card">Dernier test<b id="lastTestTime">--:--</b></div>
+          </div>
+          <div class="message-box" style="margin-top:12px"><strong>Statut :</strong> <span id="responseStatus">En attente d'analyse.</span></div>
+          
+        </div>
+      </div>
+
+    </aside>
+
+    <main id="historyMain" class="main history-main hidden">
+      <div class="history-header-page">
+        <div><div class="title-badge">● Journal des vérifications</div><h2>Journal des vérifications PAD</h2><p>Cette interface présente toutes les tentatives réalisées pendant la démo bancaire : décision, score PAD, liveness, qualité vidéo, challenge et fichiers sauvegardés.</p></div>
+        <div class="top-actions">
+          <button class="btn btn-outline" onclick="downloadJson()">Export JSON</button>
+          <button class="btn btn-outline" onclick="downloadTxt()">Export TXT</button>
+          <button class="btn btn-danger" onclick="clearHistoryPage()">Vider historique</button>
+          <button class="btn btn-primary" onclick="showVerificationPage()">Retour vérification</button>
+        </div>
+      </div>
+      <div class="history-stats-grid">
+        <div class="history-stat-card"><p>Total tentatives</p><b id="histTotal">0</b></div>
+        <div class="history-stat-card"><p>Acceptées</p><b id="histAccept">0</b></div>
+        <div class="history-stat-card"><p>Retry</p><b id="histRetry">0</b></div>
+        <div class="history-stat-card"><p>Rejetées</p><b id="histReject">0</b></div>
+      </div>
+      <div class="history-filters">
+        <input id="historySearch" class="input" placeholder="Rechercher par décision, challenge, message..." oninput="renderHistoryPage()" style="min-width:300px" />
+        <select id="historyFilter" class="input" onchange="renderHistoryPage()">
+          <option value="ALL">Toutes les décisions</option>
+          <option value="ACCEPT">ACCEPT</option>
+          <option value="RETRY">RETRY</option>
+          <option value="REJECT">REJECT</option>
+          <option value="OTHER">Autres</option>
+        </select>
+        <button class="btn btn-outline" onclick="renderHistoryPage()">Actualiser</button>
+      </div>
+      <div class="history-table-card">
+        <table class="history-table">
+          <thead><tr><th>#</th><th>Décision</th><th>Score PAD</th><th>Liveness</th><th>Qualité</th><th>Challenge</th><th>Heure</th><th>Fichiers</th><th>Raison métier</th><th>Détails</th></tr></thead>
+          <tbody id="historyTableBody"><tr><td colspan="10" class="history-empty">Aucune tentative enregistrée.</td></tr></tbody>
+        </table>
+      </div>
+    </main>
+
+    <main id="settingsMain" class="main settings-main hidden">
+      <div class="settings-header-page">
+        <div>
+          <div class="title-badge">● Paramètres sécurité avancés</div>
+          <h2 style="font-size:31px;line-height:1.1;letter-spacing:-0.04em;margin-bottom:8px;color:var(--navy)">Paramètres de sécurité bancaire</h2>
+          <p style="color:var(--muted);font-size:14px;max-width:820px;line-height:1.45">
+            Cette page regroupe les règles appliquées dans le prototype PAD FOMA V6 : décision métier, tentatives, challenge actif, journalisation et limites de production.
+          </p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-outline" onclick="showVerificationPage()">Retour vérification</button>
+          <button class="btn btn-primary" onclick="getModelInfo(true)">Voir modèle V6</button>
+        </div>
+      </div>
+
+      <section class="settings-page-card">
+        <div class="settings-section">
+          <div class="settings-grid-4">
+            <div class="settings-info-card">
+              <div class="settings-icon">⚖</div>
+              <h4>Politique de décision</h4>
+              <p>Le système applique une logique métier bancaire : ACCEPT pour autoriser, RETRY pour demander une nouvelle capture, REJECT en cas de risque d’attaque.</p>
+            </div>
+            <div class="settings-info-card">
+              <div class="settings-icon">↻</div>
+              <h4>Gestion des tentatives</h4>
+              <p>Après 3 tentatives RETRY non concluantes, une pause de 120 secondes est appliquée pour limiter les répétitions abusives.</p>
+            </div>
+            <div class="settings-info-card">
+              <div class="settings-icon">ID</div>
+              <h4>Challenge à usage unique</h4>
+              <p>Chaque vérification crée un challenge temporaire. Après analyse, il est marqué comme utilisé pour éviter toute réutilisation.</p>
+            </div>
+            <div class="settings-info-card">
+              <div class="settings-icon">▤</div>
+              <h4>Traçabilité</h4>
+              <p>Les décisions, résultats JSON, vidéos uploadées et messages système sont conservés pour faciliter l’audit technique de la démonstration.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Règles de décision</h3>
+              <p>Traduction métier des sorties du modèle PAD et du module de vivacité.</p>
+            </div>
+            <span class="settings-status-badge">ACCEPT / RETRY / REJECT</span>
+          </div>
+          <div class="decision-rule-row">
+            <span class="policy-dot accept"></span>
+            <strong>ACCEPT</strong>
+            <p>L’identité est vérifiée : liveness validé, score PAD faible et qualité vidéo suffisante.</p>
+          </div>
+          <div class="decision-rule-row">
+            <span class="policy-dot retry"></span>
+            <strong>RETRY</strong>
+            <p>Nouvelle capture demandée si la vivacité échoue, si la qualité est moyenne ou si le score PAD est ambigu.</p>
+          </div>
+          <div class="decision-rule-row">
+            <span class="policy-dot reject"></span>
+            <strong>REJECT</strong>
+            <p>Vérification refusée lorsqu’un risque d’attaque de présentation est détecté.</p>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Configuration du prototype</h3>
+              <p>Paramètres utilisés dans la démonstration locale.</p>
+            </div>
+            <span class="settings-status-badge">Démo locale R&D</span>
+          </div>
+          <div class="settings-grid-4">
+            <div class="settings-param-card accept"><span>Modèle actif</span><b>FOMA V6 — MobileNetV3 + LSTM + rPPG + behavior-pose</b></div>
+            <div class="settings-param-card retry"><span>RETRY max</span><b>3 tentatives avant pause de sécurité</b></div>
+            <div class="settings-param-card blue"><span>Pause</span><b>120 secondes après 3 RETRY</b></div>
+            <div class="settings-param-card reject"><span>Production</span><b>Non certifié production bancaire réelle</b></div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Features comportementales FOMA V6</h3>
+              <p>Indices utilisés par le système pour renforcer la détection PAD.</p>
+            </div>
+            <span class="settings-status-badge">20 features</span>
+          </div>
+          <div class="settings-grid-4">
+            <div class="settings-param-card blue"><span>EAR ×5</span><b>Détection des yeux et clignement</b></div>
+            <div class="settings-param-card blue"><span>Motion ×3</span><b>Mouvement facial et stabilité vidéo</b></div>
+            <div class="settings-param-card blue"><span>Pose ×11</span><b>Yaw, pitch, roll et dynamique de tête</b></div>
+            <div class="settings-param-card blue"><span>rPPG</span><b>Indice physiologique extrait du flux vidéo</b></div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Limites et usage démonstrateur</h3>
+              <p>Ce prototype est conçu pour une soutenance PFE et une démonstration technique locale.</p>
+            </div>
+            <span class="settings-status-badge">Prototype contrôlé</span>
+          </div>
+          <div class="settings-grid-3">
+            <div class="settings-param-card"><span>Runtime</span><b>Analyse locale dépendante du GPU, de la caméra et de la qualité de capture.</b></div>
+            <div class="settings-param-card"><span>Sécurité</span><b>Les paramètres sont affichés pour la démo ; en production ils seraient côté backend.</b></div>
+            <div class="settings-param-card"><span>Audit</span><b>Les exports JSON/TXT servent à tracer les décisions et préparer l’analyse jury.</b></div>
+          </div>
+          <p class="settings-note" style="margin-top:14px">
+            Note prototype : dans une version production, ces règles seraient protégées par authentification administrateur, chiffrement, journal d’audit sécurisé et validation métier bancaire.
+          </p>
+          <div class="settings-actions">
+            <button class="btn btn-outline" onclick="downloadJson()">Export JSON</button>
+            <button class="btn btn-outline" onclick="downloadTxt()">Export TXT</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modelDetailsOverlay" class="model-overlay hidden">
+    <div class="model-details-card">
+      <div class="model-details-header">
+        <div><span class="title-badge">● Modèle actif</span><h2>FOMA V6 — Détails du modèle</h2><p>Prototype PAD bancaire multimodal pour la détection d'attaques de présentation faciale.</p></div>
+        <button class="btn btn-danger" onclick="closeModelDetails()">Fermer</button>
+      </div>
+      <div class="model-info-grid">
+        <div class="model-info-item"><span>Modèle</span><b>FOMA V6</b></div>
+        <div class="model-info-item"><span>Type de système</span><b>PAD vidéo bancaire</b></div>
+        <div class="model-info-item"><span>Architecture</span><b>MobileNetV3 + LSTM + fusion comportementale</b></div>
+        <div class="model-info-item"><span>Mode runtime</span><b>Challenge actif + liveness + modèle PAD V6</b></div>
+        <div class="model-info-item"><span>Features</span><b>EAR, blink_count, motion, rPPG, head pose</b></div>
+        <div class="model-info-item"><span>Fusion</span><b>0.85 score multimodal + 0.15 behavior-pose</b></div>
+        <div class="model-info-item"><span>Sortie métier</span><b>ACCEPT / RETRY / REJECT</b></div>
+        <div class="model-info-item"><span>Datasets</span><b>CASIA-FASD + AxonLabs + MSU + données locales</b></div>
+        <div class="model-info-item full"><span>Objectif</span><b>Détecter les attaques de présentation faciale dans un contexte bancaire.</b></div>
+        
+      </div>
+      <div class="model-tech-section">
+        <div class="model-tech-title"><h3>Détails techniques API — optionnel</h3><button class="btn btn-outline" onclick="loadModelTechnicalDetails()">Charger JSON technique</button></div>
+        <p class="small" style="margin-bottom:10px">Ces informations sont destinées à la traçabilité technique du prototype.</p>
+        <pre id="modelTechnicalJson" class="model-tech-json">Cliquez sur "Charger JSON technique" pour afficher les informations retournées par /model/info.</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentChallenge = null, currentResult = null, modelInfo = null, stream = null;
+    let mediaRecorder = null, recordedChunks = [];
+    let retryCount = Number(localStorage.getItem("pad_retry_count") || "0");
+    let cooldownUntil = Number(localStorage.getItem("pad_cooldown_until") || "0");
+    let analysisLogs = JSON.parse(localStorage.getItem("pad_analysis_logs") || "[]");
+    let adminMode = false, countdownInterval = null, cooldownInterval = null;
+    let requestStartTime = null, lastResponseTimeMs = null, totalStartTime = null, lastTotalTimeMs = null;
+    const RECORD_SECONDS = 6;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateRetryUI(); updateLogUI(); updateCooldownUI(); getModelInfo(false);
+      updateChallengeStatus(null, "En attente"); setCameraStatus("Caméra inactive", "idle"); showWelcomePage();
+    });
+
+    function apiBase() { return document.getElementById("apiUrl").value.replace(/\/$/, ""); }
+    function showToast(message) { const t = document.getElementById("toast"); t.textContent = message; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 3300); }
+    function setFlowStatus(message) { document.getElementById("flowStatus").textContent = message; }
+    function setCameraStatus(text, mode = "idle") { const dot = document.getElementById("cameraDot"); document.getElementById("cameraStatus").textContent = text; document.getElementById("recordingPill").textContent = text; dot.className = "dot"; if (mode === "online") dot.classList.add("online"); if (mode === "recording") dot.classList.add("recording-dot"); }
+    function setSteps(state) { const s1 = document.getElementById("step1"), s2 = document.getElementById("step2"), s3 = document.getElementById("step3"); s1.className = "step"; s2.className = "step"; s3.className = "step"; if (state === "prepare") s1.classList.add("active"); if (state === "challenge") { s1.classList.add("done"); s2.classList.add("active"); } if (state === "result") { s1.classList.add("done"); s2.classList.add("done"); s3.classList.add("active"); } }
+    function challengeIcon(type) { return { BLINK: "👁️", SMILE: "😊", TURN_LEFT: "↩️", EYEBROW_RAISE: "🤨" }[type] || "🧑‍💼"; }
+    function formatInstruction(challenge) { if (!challenge) return "Regardez la caméra<br><span>Nous allons vérifier que vous êtes bien présent.</span>"; if (challenge.challenge_type === "BLINK") return "Clignez des yeux <span>maintenant</span>."; if (challenge.challenge_type === "SMILE") return "Souriez pendant <span>quelques secondes</span>."; if (challenge.challenge_type === "TURN_LEFT") return "Tournez lentement la tête <span>vers la gauche</span>."; if (challenge.challenge_type === "EYEBROW_RAISE") return "Levez les <span>sourcils</span>."; return challenge.instruction || "Suivez <span>l'instruction demandée</span>."; }
+    function updateChallengeStatus(challenge, status = "En attente") { document.getElementById("challengeTypeView").textContent = challenge?.challenge_type || "--"; document.getElementById("challengeStatusView").textContent = status; document.getElementById("challengeSingleUseView").textContent = "Oui"; updateClientSecurityInstruction(challenge, status); }
+    function updateClientSecurityInstruction(challenge, status = "En attente") { const el = document.getElementById("clientSecurityInstruction"); if (!el) return; if (!challenge) { el.textContent = "Regardez la caméra et attendez l'instruction de sécurité."; return; } if (challenge.challenge_type === "BLINK") el.textContent = "Clignez des yeux lorsque l'instruction s'affiche."; else if (challenge.challenge_type === "SMILE") el.textContent = "Souriez quelques secondes face à la caméra."; else if (challenge.challenge_type === "TURN_LEFT") el.textContent = "Tournez lentement la tête vers la gauche."; else if (challenge.challenge_type === "EYEBROW_RAISE") el.textContent = "Levez les sourcils lorsque l'instruction s'affiche."; else el.textContent = "Suivez l'instruction demandée pour confirmer votre présence."; }
+
+
+    function clearInstructionResultState() {
+      const card = document.querySelector(".instruction-card");
+      if (!card) return;
+      card.classList.remove("result-accept", "result-retry", "result-reject");
+    }
+
+    function setInstructionCardToResult(result) {
+      const card = document.querySelector(".instruction-card");
+      const icon = document.getElementById("instructionIcon");
+      const title = card ? card.querySelector("h3") : null;
+      const text = document.getElementById("instructionText");
+      const timer = document.getElementById("timerText");
+      const decision = String(result?.decision || "").toUpperCase();
+
+      if (!card || !icon || !title || !text || !timer) return;
+
+      card.classList.remove("result-accept", "result-retry", "result-reject");
+
+      if (decision === "ACCEPT") {
+        card.classList.add("result-accept");
+        icon.textContent = "✓";
+        title.textContent = "Vérification réussie";
+        text.innerHTML = "Identité vérifiée<br><span>Votre identité est vérifiée. Vous pouvez continuer.</span>";
+        timer.textContent = "Vivacité validée et qualité vidéo suffisante.";
+        return;
+      }
+
+      if (decision === "RETRY") {
+        const reason = result?.liveness?.reason || result?.message || "Nouvelle capture demandée.";
+        card.classList.add("result-retry");
+        icon.textContent = "↻";
+        title.textContent = "Nouvelle tentative requise";
+        text.innerHTML = "Vérification non concluante<br><span>Veuillez réessayer.</span>";
+        timer.textContent = reason;
+        return;
+      }
+
+      if (decision === "REJECT") {
+        card.classList.add("result-reject");
+        icon.textContent = "!";
+        title.textContent = "Vérification refusée";
+        text.innerHTML = "Vérification refusée<br><span>pour raison de sécurité.</span>";
+        timer.textContent = "Risque d’attaque ou non-respect du challenge détecté.";
+        return;
+      }
+
+      title.textContent = "Résultat de vérification";
+      icon.textContent = "ID";
+      text.innerHTML = "Résultat <span>indisponible</span>";
+      timer.textContent = "Veuillez relancer une nouvelle vérification.";
+    }
+
+    function applyAdminModeUI() {
+      const layout = document.getElementById("appLayout"), panel = document.getElementById("verificationRightPanel"), btn = document.getElementById("adminModeBtn");
+      if (!layout) return;
+      layout.classList.toggle("admin-mode", adminMode); layout.classList.toggle("client-mode", !adminMode);
+      if (btn) btn.textContent = adminMode ? "Masquer admin" : "Mode administrateur";
+      const verificationVisible = !document.getElementById("verificationMain").classList.contains("hidden");
+      if (panel) { if (adminMode && verificationVisible) panel.classList.remove("hidden"); else panel.classList.add("hidden"); }
+    }
+
+    function toggleAdminMode() { adminMode = !adminMode; applyAdminModeUI(); showToast(adminMode ? "Mode administrateur activé." : "Mode client bancaire activé."); }
+
+    function setActiveNav(activeId) {
+      ["navVerification", "navHistory", "navSettings"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle("active", id === activeId);
+      });
+    }
+
+    function hideAllMainPages() {
+      ["welcomeMain", "verificationMain", "historyMain", "settingsMain"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+      });
+      const rightPanel = document.getElementById("verificationRightPanel");
+      if (rightPanel) rightPanel.classList.add("hidden");
+    }
+
+    function showWelcomePage() {
+      hideAllMainPages();
+      document.getElementById("welcomeMain").classList.remove("hidden");
+      setActiveNav("navVerification");
+      applyAdminModeUI();
+    }
+
+    function startWelcomeVerification() {
+      hideAllMainPages();
+      adminMode = false;
+      document.getElementById("verificationMain").classList.remove("hidden");
+      setActiveNav("navVerification");
+      applyAdminModeUI();
+      showToast("Parcours de vérification prêt. Cliquez sur Démarrer la vérification.");
+    }
+
+    function showVerificationPage() { startWelcomeVerification(); }
+
+    function showHistoryPage() {
+      hideAllMainPages();
+      document.getElementById("historyMain").classList.remove("hidden");
+      setActiveNav("navHistory");
+      renderHistoryPage();
+    }
+
+    function showSettingsPage() {
+      hideAllMainPages();
+      document.getElementById("settingsMain").classList.remove("hidden");
+      setActiveNav("navSettings");
+      showToast("Paramètres de sécurité affichés.");
+    }
+
+    function prepareNewAttemptUI() {
+      clearInstructionResultState();
+      currentChallenge = null; currentResult = null; recordedChunks = []; clearInterval(countdownInterval); requestStartTime = null; lastResponseTimeMs = null; totalStartTime = null; lastTotalTimeMs = null;
+      document.getElementById("challengeId").value = ""; updateChallengeStatus(null, "En attente"); document.getElementById("instructionText").innerHTML = "Préparation de la <span>vérification</span>..."; document.getElementById("instructionIcon").textContent = "🛡️"; document.getElementById("timerText").textContent = "--"; updateMiniBars(0);
+      document.getElementById("captureTime").innerText = "--"; document.getElementById("responseTime").innerText = "--"; document.getElementById("totalTime").innerText = "--"; document.getElementById("lastTestTime").innerText = "--:--"; document.getElementById("responseStatus").innerText = "En attente d'analyse.";
+      document.getElementById("resultBox").className = "result-box"; document.getElementById("decision").innerText = "--"; document.getElementById("score").innerText = "--"; document.getElementById("quality").innerText = "--"; updateQualityLabel(null); document.getElementById("liveness").innerText = "--"; document.getElementById("message").innerText = "Analyse en attente."; document.getElementById("resultJson").textContent = "";
+      document.getElementById("clientResultCard").className = "client-result-card hidden"; document.getElementById("clientResultTitle").textContent = "Résultat en attente"; document.getElementById("clientResultMessage").textContent = "La décision finale sera affichée ici."; document.getElementById("startBtn").textContent = "Démarrer la vérification"; setSteps("prepare"); setFlowStatus("Préparation d'une nouvelle vérification...");
+    }
+
+    async function checkHealth() { try { const res = await fetch(`${apiBase()}/health`); if (!res.ok) throw new Error(await res.text()); const data = await res.json(); showToast(`API opérationnelle : ${data.service || "PAD API"} ${data.version || ""}`); } catch (e) { showToast("API non accessible. Lance FastAPI sur le port 8000."); } }
+    async function getModelInfo(show = true) { const modelText = `Modèle V6 — FOMA\n\nArchitecture   : MobileNetV3 + LSTM + Behav MLP\nFeatures       : 20 (EAR×5 + Motion×3 + Pose×11 + skipped)\nFusion         : w_visual=0.85 · w_behavior=0.15\nDataset        : CASIA-FASD + AxonLabs + MSU-MFSD + données locales\nACER interne   : 7.41%\nAUC interne    : 98.96%\n\nDécision       : ACCEPT / RETRY / REJECT\nLiveness actif : BLINK / SMILE / TURN_LEFT`; try { const res = await fetch(`${apiBase()}/model/info`); if (!res.ok) throw new Error(await res.text()); modelInfo = await res.json(); document.getElementById("modelSummary").textContent = modelInfo.model_name || "FOMA V6 — gated rPPG + behavior-pose"; document.getElementById("modelJson").textContent = `${modelText}\n\nInformations techniques API :\n${JSON.stringify(modelInfo, null, 2)}`; } catch (e) { modelInfo = { model_name: "FOMA V6" }; document.getElementById("modelJson").textContent = modelText; } if (show) { showToast("Informations modèle V6 chargées."); openModelDetails(); } }
+    function openModelDetails() { document.getElementById("modelDetailsOverlay").classList.remove("hidden"); }
+    function closeModelDetails() { document.getElementById("modelDetailsOverlay").classList.add("hidden"); }
+    async function loadModelTechnicalDetails() { const box = document.getElementById("modelTechnicalJson"); try { const res = await fetch(`${apiBase()}/model/info`); const data = await res.json(); if (!res.ok) throw new Error(data.detail || "Erreur /model/info"); modelInfo = data; box.textContent = JSON.stringify(data, null, 2); } catch (e) { box.textContent = "Impossible de charger /model/info.\n\n" + e.message; } }
+
+    async function startNewVerification() { if (cooldownUntil && Date.now() < cooldownUntil) { const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000); showToast(`Sécurité activée : patientez encore ${remaining} secondes.`); return; } prepareNewAttemptUI(); await startBankingFlow(); }
+    async function startBankingFlow() { const startBtn = document.getElementById("startBtn"); try { if (cooldownUntil && Date.now() < cooldownUntil) { const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000); showToast(`Sécurité activée : patientez encore ${remaining} secondes.`); return; } startBtn.disabled = true; prepareNewAttemptUI(); setFlowStatus("Initialisation de la caméra..."); await startCamera(); setFlowStatus("Création du challenge bancaire..."); currentChallenge = await createChallenge(); if (!currentChallenge?.challenge_id) throw new Error("Challenge non créé par l'API."); document.getElementById("challengeId").value = currentChallenge.challenge_id; updateChallengeStatus(currentChallenge, "Créé"); document.getElementById("instructionText").innerHTML = formatInstruction(currentChallenge); document.getElementById("instructionIcon").textContent = challengeIcon(currentChallenge.challenge_type); setSteps("challenge"); setFlowStatus(`Challenge créé : ${currentChallenge.challenge_type}. Réalisez l'instruction devant la caméra.`); await startRecordingWithCountdown(RECORD_SECONDS); } catch (e) { console.error(e); showToast(`Erreur : ${e.message}`); setFlowStatus("Erreur pendant la vérification. Réessayez."); startBtn.disabled = false; setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle"); } }
+    async function startCamera() { if (stream) { setCameraStatus("Caméra active", "online"); return; } stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }, audio: false }); const video = document.getElementById("cameraPreview"); video.srcObject = stream; await video.play(); document.getElementById("cameraPlaceholder").style.display = "none"; setCameraStatus("Caméra active", "online"); }
+    async function createChallenge() { const res = await fetch(`${apiBase()}/pad/challenge/start`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }); if (!res.ok) throw new Error(`Création challenge échouée : ${await res.text()}`); return await res.json(); }
+    async function startRecordingWithCountdown(seconds) { totalStartTime = performance.now(); if (!stream) throw new Error("Caméra non initialisée."); if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); recordedChunks = []; setCameraStatus("Enregistrement vidéo", "recording"); let mimeType = "video/webm"; if (MediaRecorder.isTypeSupported("video/webm;codecs=vp8")) mimeType = "video/webm;codecs=vp8"; mediaRecorder = new MediaRecorder(stream, { mimeType }); mediaRecorder.ondataavailable = e => { if (e.data?.size > 0) recordedChunks.push(e.data); }; mediaRecorder.onerror = () => { document.getElementById("startBtn").disabled = false; setCameraStatus("Erreur enregistrement", "idle"); showToast("Erreur pendant l'enregistrement vidéo."); }; mediaRecorder.onstop = async () => { try { setCameraStatus("Vidéo enregistrée", "online"); const blob = new Blob(recordedChunks, { type: "video/webm" }); if (blob.size === 0) throw new Error("Vidéo vide. Réessayez."); setFlowStatus("Envoi de la vidéo à l'API PAD..."); await sendVideoToAPI(blob); } catch (e) { document.getElementById("startBtn").disabled = false; showToast(`Erreur envoi vidéo : ${e.message}`); setFlowStatus("Erreur pendant l'envoi de la vidéo."); } }; mediaRecorder.start(); startVisualCountdown(seconds); setTimeout(() => { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); }, seconds * 1000); }
+    function startVisualCountdown(seconds) { clearInterval(countdownInterval); let remaining = seconds; document.getElementById("timerText").textContent = `${remaining}s`; updateMiniBars(0); countdownInterval = setInterval(() => { remaining -= 1; const elapsed = seconds - remaining; document.getElementById("timerText").textContent = `${Math.max(remaining, 0)}s`; updateMiniBars(elapsed); if (remaining <= 0) clearInterval(countdownInterval); }, 1000); }
+    function updateMiniBars(activeCount) { for (let i = 1; i <= 6; i++) { const bar = document.getElementById(`bar${i}`); if (!bar) continue; i <= activeCount ? bar.classList.add("active") : bar.classList.remove("active"); } }
+    async function sendVideoToAPI(blob) { if (!currentChallenge?.challenge_id) throw new Error("Aucun challenge actif."); const formData = new FormData(); const videoName = `banking_challenge_${Date.now()}.webm`; formData.append("video", blob, videoName); formData.append("challenge_id", currentChallenge.challenge_id); formData.append("enable_liveness", "true"); formData.append("require_challenge_validation", "true"); requestStartTime = performance.now(); const res = await fetch(`${apiBase()}/pad/analyze-video`, { method: "POST", body: formData }); lastResponseTimeMs = performance.now() - requestStartTime; lastTotalTimeMs = totalStartTime ? performance.now() - totalStartTime : null; const result = await res.json(); if (!res.ok) { updateResponseTimeUI(false); throw new Error(result.detail || "Erreur analyse vidéo."); } currentResult = result; updateResponseTimeUI(true); handleAnalysisResult(result, videoName); }
+
+    function handleAnalysisResult(result, videoName = "runtime_camera.webm") {
+      const oldChallenge = currentChallenge;
+      const decisionValue = result.decision || "--";
+
+      setSteps("result");
+
+      document.getElementById("decision").innerText = decisionValue;
+      document.getElementById("score").innerText = result.score ?? "--";
+      document.getElementById("quality").innerText = result.video_quality_score ?? "--";
+      updateQualityLabel(result.video_quality_score);
+      document.getElementById("liveness").innerText = result.liveness?.status || "--";
+      document.getElementById("message").innerText = result.message || "Analyse terminée.";
+      document.getElementById("resultJson").textContent = JSON.stringify(result, null, 2);
+
+      updateChallengeStatus(
+        result.challenge || oldChallenge,
+        result.challenge?.used ? "Utilisé" : oldChallenge ? "Utilisé" : "En attente"
+      );
+
+      const box = document.getElementById("resultBox");
+      box.className = "result-box";
+      if (decisionValue === "ACCEPT") box.classList.add("accept");
+      if (decisionValue === "RETRY") box.classList.add("retry");
+      if (decisionValue === "REJECT") box.classList.add("reject");
+
+      /* Résultat client : affiché dans la grande carte de challenge, pas sous la caméra */
+      setInstructionCardToResult(result);
+      const clientCard = document.getElementById("clientResultCard");
+      if (clientCard) clientCard.className = "client-result-card hidden";
+
+      const startBtn = document.getElementById("startBtn");
+
+      if (decisionValue === "ACCEPT") {
+        retryCount = 0;
+        cooldownUntil = 0;
+        setFlowStatus("Identité vérifiée avec succès. Session sécurisée terminée.");
+        setCameraStatus("Analyse terminée", "online");
+        startBtn.textContent = "Démarrer la vérification";
+        startBtn.classList.add("hidden");
+      } else if (decisionValue === "RETRY") {
+        retryCount += 1;
+        if (retryCount >= 3) {
+          cooldownUntil = Date.now() + 120000;
+          showToast("Sécurité : 3 RETRY consécutifs. Attente de 120 secondes.");
+        }
+        setFlowStatus("Nouvelle capture recommandée. Le système ne rejette pas définitivement une vidéo ambiguë.");
+        setCameraStatus("Nouvelle tentative possible", "online");
+        startBtn.classList.remove("hidden");
+        startBtn.textContent = "Réessayer la vérification";
+      } else if (decisionValue === "REJECT") {
+        setFlowStatus("Vidéo rejetée comme attaque probable. Le résultat est enregistré dans les logs.");
+        setCameraStatus("Analyse terminée", "online");
+        startBtn.classList.remove("hidden");
+        startBtn.textContent = "Démarrer la vérification";
+      } else {
+        setFlowStatus("Décision incertaine. Vous pouvez refaire une vérification.");
+        setCameraStatus("Analyse terminée", "online");
+      }
+
+      currentChallenge = null;
+      recordedChunks = [];
+      startBtn.disabled = false;
+      document.getElementById("challengeId").value = "";
+
+      localStorage.setItem("pad_retry_count", String(retryCount));
+      localStorage.setItem("pad_cooldown_until", String(cooldownUntil));
+
+      addAttemptLog(result, videoName, oldChallenge);
+      updateRetryUI();
+      updateCooldownUI();
+    }
+
+    function addAttemptLog(result, videoName, challengeBeforeReset) { const now = new Date(); const item = { timestamp: now.toISOString(), time: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), video_name: videoName, challenge_id: result.challenge_id || challengeBeforeReset?.challenge_id || null, challenge: result.challenge || challengeBeforeReset || null, decision: result.decision || null, label: result.label || null, score: result.score ?? null, liveness: result.liveness || null, video_quality_score: result.video_quality_score ?? null, message: result.message || null, saved_video_path: result.saved_video_path || null, saved_result_path: result.saved_result_path || null, model_details: result.model_details || null, full_response: result }; analysisLogs.unshift(item); analysisLogs = analysisLogs.slice(0, 50); localStorage.setItem("pad_analysis_logs", JSON.stringify(analysisLogs, null, 2)); updateLogUI(); renderHistoryPage(); }
+    function updateRetryUI() { document.getElementById("retryCount").textContent = retryCount; document.getElementById("startBtn").disabled = Boolean(cooldownUntil && Date.now() < cooldownUntil); }
+    function updateCooldownUI() { clearInterval(cooldownInterval); const el = document.getElementById("cooldownText"); function tick() { if (!cooldownUntil || Date.now() >= cooldownUntil) { el.textContent = "--:--"; cooldownUntil = 0; if (retryCount >= 3) retryCount = 0; localStorage.setItem("pad_cooldown_until", "0"); localStorage.setItem("pad_retry_count", String(retryCount)); updateRetryUI(); clearInterval(cooldownInterval); return; } const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000); el.textContent = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`; document.getElementById("startBtn").disabled = true; } tick(); if (cooldownUntil && Date.now() < cooldownUntil) cooldownInterval = setInterval(tick, 1000); }
+    function updateLogUI() { const list = document.getElementById("attemptList"); if (!list) return; if (!analysisLogs.length) { list.innerHTML = '<div class="attempt-row"><div class="attempt-number">1</div><div>--</div><div>--:--</div></div>'; return; } list.innerHTML = analysisLogs.slice(0, 6).map((x, i) => `<div class="attempt-row"><div class="attempt-number">${i + 1}</div><div>${x.decision || "--"} · ${x.score !== null && x.score !== undefined ? Number(x.score).toFixed(3) : "--"}</div><div>${x.time || "--:--"}</div></div>`).join(""); }
+    function updateQualityLabel(value) { const el = document.getElementById("qualityLabel"); if (!el) return; if (value === null || value === undefined || Number.isNaN(Number(value))) { el.textContent = "--"; return; } const q = Number(value); if (q >= 0.80) el.textContent = "🟢 Bonne"; else if (q >= 0.30) el.textContent = "🟡 Moyenne"; else el.textContent = "🔴 Faible"; }
+    function updateResponseTimeUI(success = true) { const captureEl = document.getElementById("captureTime"), responseEl = document.getElementById("responseTime"), totalEl = document.getElementById("totalTime"), lastTestEl = document.getElementById("lastTestTime"), statusEl = document.getElementById("responseStatus"); if (!captureEl || !responseEl || !totalEl || !lastTestEl || !statusEl) return; const captureSeconds = RECORD_SECONDS; const totalSeconds = lastTotalTimeMs ? lastTotalTimeMs / 1000 : null; let apiSeconds = totalSeconds !== null ? Math.max(totalSeconds - captureSeconds, 0) : (lastResponseTimeMs ? lastResponseTimeMs / 1000 : null); captureEl.innerText = `${captureSeconds.toFixed(2)} s`; responseEl.innerText = apiSeconds !== null ? `${apiSeconds.toFixed(2)} s` : "--"; totalEl.innerText = totalSeconds !== null ? `${totalSeconds.toFixed(2)} s` : "--"; lastTestEl.innerText = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }); if (!success) { statusEl.innerText = "Erreur pendant l'appel API."; return; } if (apiSeconds !== null && apiSeconds < 1.5) statusEl.innerText = "Analyse complète rapide après capture. Démo fluide."; else if (apiSeconds !== null && apiSeconds < 3) statusEl.innerText = "Analyse complète acceptable pour un prototype IA local."; else statusEl.innerText = "Analyse complète locale : challenge actif + liveness + PAD V6 + qualité vidéo + logs."; }
+    function toggleJson(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "block" ? "none" : "block"; }
+    function downloadJson() { const payload = { exported_at: new Date().toISOString(), model_info: modelInfo, last_result: currentResult, logs: analysisLogs }; downloadFile("pad_v6_demo_export.json", JSON.stringify(payload, null, 2), "application/json"); }
+    function downloadTxt() { const lines = ["PAD V6 BANKING DEMO — EXPORT", `Exported at: ${new Date().toISOString()}`, ""]; analysisLogs.forEach((x, i) => { lines.push(`--- Attempt ${i + 1} ---`, `Time: ${x.time}`, `Decision: ${x.decision}`, `Label: ${x.label}`, `Score: ${x.score}`, `Quality: ${x.video_quality_score}`, `Liveness: ${x.liveness ? x.liveness.status : "--"}`, `Business reason: ${getBusinessReason(x)}`, `Challenge: ${x.challenge ? x.challenge.challenge_type : "--"}`, `Message: ${x.message}`, `Video: ${x.saved_video_path}`, `Result: ${x.saved_result_path}`, ""); }); downloadFile("pad_v6_demo_export.txt", lines.join("\n"), "text/plain"); }
+    function downloadFile(filename, content, type) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+    function decisionClass(decision) { if (decision === "ACCEPT") return "accept"; if (decision === "RETRY") return "retry"; if (decision === "REJECT") return "reject"; return "other"; }
+    function formatScore(value) { if (value === null || value === undefined || Number.isNaN(Number(value))) return "--"; return Number(value).toFixed(4); }
+    function formatQuality(value) { if (value === null || value === undefined || Number.isNaN(Number(value))) return "--"; const q = Number(value); let label = "🟡 Moyenne"; if (q >= 0.80) label = "🟢 Bonne"; else if (q < 0.30) label = "🔴 Faible"; return `${q.toFixed(4)}<br><span class="history-small">${label}</span>`; }
+   function fileNameOnly(path) {
+  if (!path) return "--";
+  return String(path).split(/[\\/]/).pop();
+}
+    function getBusinessReason(x) { const decision = x.decision, score = x.score, livenessStatus = x.liveness ? x.liveness.status : "--", livenessReason = x.liveness ? x.liveness.reason : ""; if (decision === "ACCEPT") return "Identité vérifiée : liveness validé et score PAD faible."; if (decision === "RETRY") { if (livenessStatus === "FAIL" || livenessStatus === "ERROR") return `Nouvelle capture demandée : liveness non validé (${livenessReason || "challenge échoué"}).`; if (score !== null && score !== undefined) return "Nouvelle capture recommandée : score PAD ambigu ou qualité moyenne."; return "Nouvelle capture recommandée : données insuffisantes pour accepter."; } if (decision === "REJECT") return "Risque d'attaque détecté : score PAD élevé ou comportement suspect."; return "Décision non standard : vérification manuelle recommandée."; }
+    function renderHistoryPage() { const logs = Array.isArray(analysisLogs) ? analysisLogs : []; const filterEl = document.getElementById("historyFilter"), searchEl = document.getElementById("historySearch"), body = document.getElementById("historyTableBody"); if (!body) return; const filter = filterEl ? filterEl.value : "ALL", search = searchEl ? searchEl.value.toLowerCase().trim() : ""; document.getElementById("histTotal").textContent = logs.length; document.getElementById("histAccept").textContent = logs.filter(x => x.decision === "ACCEPT").length; document.getElementById("histRetry").textContent = logs.filter(x => x.decision === "RETRY").length; document.getElementById("histReject").textContent = logs.filter(x => x.decision === "REJECT").length; let rows = logs; if (filter !== "ALL") rows = filter === "OTHER" ? rows.filter(x => !["ACCEPT", "RETRY", "REJECT"].includes(x.decision)) : rows.filter(x => x.decision === filter); if (search) rows = rows.filter(x => [x.decision, x.label, x.message, x.challenge?.challenge_type, x.challenge_id].join(" ").toLowerCase().includes(search)); if (!rows.length) { body.innerHTML = `<tr><td colspan="10" class="history-empty">Aucun résultat pour ce filtre.</td></tr>`; return; } body.innerHTML = rows.map((x, index) => { const decision = x.decision || "--", challengeType = x.challenge ? x.challenge.challenge_type : "--", challengeId = x.challenge_id || "--", livenessStatus = x.liveness ? x.liveness.status : "--", livenessReason = x.liveness ? x.liveness.reason : "--", videoPath = fileNameOnly(x.saved_video_path), resultPath = fileNameOnly(x.saved_result_path), detailId = `historyJson_${index}`; return `<tr><td>${index + 1}</td><td><span class="history-decision ${decisionClass(decision)}">${decision}</span><div class="history-small">${x.label || "--"}</div></td><td><strong>${formatScore(x.score)}</strong></td><td><strong>${livenessStatus}</strong><div class="history-small">${livenessReason}</div></td><td>${formatQuality(x.video_quality_score)}</td><td><strong>${challengeType}</strong><div class="history-small">${challengeId}</div></td><td><strong>${x.time || "--:--"}</strong><div class="history-small">${x.timestamp || ""}</div></td><td><div class="history-small">Vidéo : ${videoPath}<br>Résultat : ${resultPath}</div></td><td><div class="history-small">${getBusinessReason(x)}</div></td><td><button class="history-detail-btn" onclick="toggleHistoryJson('${detailId}')">Voir JSON</button><pre id="${detailId}" class="history-json">${JSON.stringify(x.full_response || x, null, 2)}</pre></td></tr>`; }).join(""); }
+    function toggleHistoryJson(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "block" ? "none" : "block"; }
+    function clearHistoryPage() { if (!confirm("Voulez-vous vraiment supprimer l'historique local de la démo ?")) return; analysisLogs = []; localStorage.setItem("pad_analysis_logs", "[]"); updateLogUI(); renderHistoryPage(); showToast("Historique supprimé."); }
+    function resetSession() { try { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); } catch(e) {} clearInstructionResultState(); clearInterval(countdownInterval); currentChallenge = null; currentResult = null; recordedChunks = []; requestStartTime = null; lastResponseTimeMs = null; totalStartTime = null; lastTotalTimeMs = null; retryCount = 0; cooldownUntil = 0; localStorage.setItem("pad_retry_count", "0"); localStorage.setItem("pad_cooldown_until", "0"); document.getElementById("challengeId").value = ""; updateChallengeStatus(null, "En attente"); document.getElementById("startBtn").disabled = false; document.getElementById("startBtn").classList.remove("hidden"); document.getElementById("startBtn").textContent = "Démarrer la vérification"; document.getElementById("clientResultCard").className = "client-result-card hidden"; document.getElementById("instructionText").innerHTML = "Regardez la caméra<br><span>Nous allons vérifier que vous êtes bien présent.</span>"; document.getElementById("instructionIcon").textContent = "🧑‍💼"; document.getElementById("resultBox").className = "result-box"; document.getElementById("decision").innerText = "--"; document.getElementById("score").innerText = "--"; document.getElementById("quality").innerText = "--"; updateQualityLabel(null); document.getElementById("liveness").innerText = "--"; document.getElementById("message").innerText = "Analyse en attente."; document.getElementById("resultJson").textContent = ""; document.getElementById("timerText").textContent = "--"; document.getElementById("captureTime").innerText = "--"; document.getElementById("responseTime").innerText = "--"; document.getElementById("totalTime").innerText = "--"; document.getElementById("lastTestTime").innerText = "--:--"; document.getElementById("responseStatus").innerText = "En attente d'analyse."; updateMiniBars(0); updateRetryUI(); updateCooldownUI(); setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle"); setSteps("challenge"); setFlowStatus("Session réinitialisée. Vous pouvez démarrer une nouvelle vérification."); showToast("Session réinitialisée."); }
+  </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from typing import Optional, Dict, Any
 
@@ -42,7 +43,7 @@ except Exception:
         return "UNCERTAIN"
 
 
-VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv"}
+VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
 
 
 class PADRouter:
@@ -61,6 +62,9 @@ class PADRouter:
         -> décision ACCEPT / RETRY / REJECT
 
     La branche image est volontairement désactivée.
+
+    Cette version ajoute un runtime_profile pour diagnostiquer
+    le temps de chaque étape avant Docker.
     """
 
     def __init__(
@@ -69,6 +73,7 @@ class PADRouter:
         load_video_model: bool = True,
         challenge_ttl_seconds: int = 60,
         allow_dataset_video_id: bool = True,
+        challenge_storage_mode: str = "sqlite",
     ):
         self.default_enable_liveness = enable_liveness
         self.allow_dataset_video_id = allow_dataset_video_id
@@ -84,7 +89,8 @@ class PADRouter:
         )
 
         self.challenge_manager = ChallengeManager(
-            ttl_seconds=challenge_ttl_seconds
+            ttl_seconds=challenge_ttl_seconds,
+            storage_mode=challenge_storage_mode,
         )
 
         self.video_model = VideoPADModel() if load_video_model else None
@@ -212,6 +218,21 @@ class PADRouter:
 
         print(f"[INFO] Analyse vidéo: {input_value}")
 
+        router_t0 = time.perf_counter()
+        runtime_profile: Dict[str, Any] = {
+            "profiling_enabled": True,
+            "input_value": str(input_value),
+            "enable_liveness": bool(enable_liveness),
+            "require_challenge_validation": bool(require_challenge_validation),
+        }
+
+        def finish_profile() -> Dict[str, Any]:
+            runtime_profile["router_total_sec"] = round(
+                time.perf_counter() - router_t0,
+                4,
+            )
+            return runtime_profile
+
         if self.video_model is None:
             return {
                 "type": "video",
@@ -228,6 +249,7 @@ class PADRouter:
                     "metrics": {},
                 },
                 "model_called": False,
+                "runtime_profile": finish_profile(),
                 "message": "Modèle vidéo non chargé.",
                 "validation": validation,
                 "session_id": session_id,
@@ -260,6 +282,7 @@ class PADRouter:
                         "metrics": {},
                     },
                     "model_called": False,
+                    "runtime_profile": finish_profile(),
                     "message": (
                         "challenge_id manquant. Il faut démarrer un challenge "
                         "avant d'envoyer la vidéo."
@@ -271,7 +294,12 @@ class PADRouter:
                     "original_input": original_input,
                 }
 
+            t0 = time.perf_counter()
             challenge_validation = self.challenge_manager.validate_challenge(challenge_id)
+            runtime_profile["challenge_validation_sec"] = round(
+                time.perf_counter() - t0,
+                4,
+            )
 
             if not challenge_validation.get("is_valid", False):
                 return {
@@ -289,6 +317,7 @@ class PADRouter:
                         "metrics": {},
                     },
                     "model_called": False,
+                    "runtime_profile": finish_profile(),
                     "message": f"Challenge invalide: {challenge_validation.get('reason')}",
                     "validation": validation,
                     "session_id": session_id,
@@ -301,6 +330,9 @@ class PADRouter:
             expected_challenge = challenge_data.get("challenge_type", challenge)
             session_id = challenge_data.get("session_id", session_id)
 
+        else:
+            runtime_profile["challenge_validation_sec"] = 0.0
+
         is_real_video_file = Path(str(input_value)).exists()
 
         # ======================================================
@@ -308,14 +340,26 @@ class PADRouter:
         # ======================================================
 
         if enable_liveness and is_real_video_file and expected_challenge is not None:
+            t0 = time.perf_counter()
             liveness_result = self._run_liveness(
                 video_path=input_value,
                 challenge=expected_challenge,
             )
+            runtime_profile["active_liveness_sec"] = round(
+                time.perf_counter() - t0,
+                4,
+            )
 
             if not liveness_result.get("passed", False):
+                t0 = time.perf_counter()
+
                 if require_challenge_validation and challenge_id:
                     self.challenge_manager.mark_used(challenge_id)
+
+                runtime_profile["mark_challenge_used_sec"] = round(
+                    time.perf_counter() - t0,
+                    4,
+                )
 
                 return {
                     "type": "video",
@@ -326,6 +370,7 @@ class PADRouter:
                     "next_action": "RETRY_VIDEO_CHALLENGE",
                     "liveness": liveness_result,
                     "model_called": False,
+                    "runtime_profile": finish_profile(),
                     "message": "Liveness échoué. Nouvelle capture vidéo requise.",
                     "validation": validation,
                     "session_id": session_id,
@@ -339,6 +384,7 @@ class PADRouter:
                 }
 
         elif enable_liveness and is_real_video_file and expected_challenge is None:
+            runtime_profile["active_liveness_sec"] = 0.0
             liveness_result = {
                 "status": "DISABLED",
                 "passed": True,
@@ -348,6 +394,7 @@ class PADRouter:
             }
 
         else:
+            runtime_profile["active_liveness_sec"] = 0.0
             liveness_result = {
                 "status": "DISABLED",
                 "passed": True,
@@ -360,7 +407,12 @@ class PADRouter:
         # 3. Modèle PAD vidéo V6
         # ======================================================
 
+        t0 = time.perf_counter()
         model_details = self.video_model.predict_with_details(input_value)
+        runtime_profile["video_model_predict_sec"] = round(
+            time.perf_counter() - t0,
+            4,
+        )
 
         score = float(model_details["score_final_v6"])
         video_quality_score = float(model_details.get("video_quality_score", 0.70))
@@ -370,10 +422,15 @@ class PADRouter:
         # 4. Décision bancaire quality-aware
         # ======================================================
 
+        t0 = time.perf_counter()
         decision = banking_decision(
             score,
             profile="video",
             video_quality_score=video_quality_score,
+        )
+        runtime_profile["banking_decision_sec"] = round(
+            time.perf_counter() - t0,
+            4,
         )
 
         label = label_from_decision(decision)
@@ -381,15 +438,8 @@ class PADRouter:
         # ======================================================
         # 5. Runtime robust guard
         # ======================================================
-        # Règle finale :
-        # - Score très haut >= 0.90 : REJECT même si behavior-pose instable.
-        #   Justification : un spoof peut produire des landmarks instables.
-        #
-        # - Score haut mais non extrême + behavior-pose instable :
-        #   RETRY pour éviter un faux rejet définitif.
-        #
-        # - Score zone moyenne :
-        #   décision standard de la politique bancaire.
+
+        t0 = time.perf_counter()
 
         instability_detected = (
             isinstance(behavior_pose_status, str)
@@ -434,14 +484,26 @@ class PADRouter:
             next_action = "RETRY_VIDEO_CAPTURE"
             message = "Décision vidéo incertaine."
 
+        runtime_profile["runtime_guard_sec"] = round(
+            time.perf_counter() - t0,
+            4,
+        )
+
         # ======================================================
         # 6. Marquer le challenge comme utilisé
         # ======================================================
 
         used_result = None
 
+        t0 = time.perf_counter()
+
         if require_challenge_validation and challenge_id:
             used_result = self.challenge_manager.mark_used(challenge_id)
+
+        runtime_profile["mark_challenge_used_sec"] = round(
+            time.perf_counter() - t0,
+            4,
+        )
 
         return {
             "type": "video",
@@ -465,6 +527,7 @@ class PADRouter:
                     and score >= 0.90
                 ),
             },
+            "runtime_profile": finish_profile(),
             "message": message,
             "validation": validation,
             "session_id": session_id,

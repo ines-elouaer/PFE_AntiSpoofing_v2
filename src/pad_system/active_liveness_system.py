@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 import math
+import threading
 
 import cv2
 import numpy as np
@@ -14,7 +15,7 @@ class ActiveLivenessSystem:
     - SMILE
     - EYEBROW_RAISE
 
-    TURN_RIGHT a été retiré car il génère souvent des instabilités
+    TURN_RIGHT a été retiré car il générait souvent des instabilités
     de pose en runtime webcam.
     """
 
@@ -42,8 +43,13 @@ class ActiveLivenessSystem:
             raise FileNotFoundError(f"FaceLandmarker introuvable: {model_path}")
 
         self.model_path = str(model_path)
-        self.min_face_rate = min_face_rate
+        self.min_face_rate = float(min_face_rate)
         self.sample_every = max(1, int(sample_every))
+
+        # Important pour MediaPipe en mode VIDEO :
+        # les timestamps doivent être strictement croissants entre les appels.
+        self._timestamp_lock = threading.Lock()
+        self._last_timestamp_ms = 0
 
         import mediapipe as mp
 
@@ -65,9 +71,29 @@ class ActiveLivenessSystem:
 
         print(f"[LIVENESS] FaceLandmarker chargé: {self.model_path}")
 
+    # ==========================================================
+    # UTILS
+    # ==========================================================
+
     @staticmethod
     def _dist(a, b) -> float:
         return math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+
+    def _next_timestamp_ms(self, step_ms: int = 33) -> int:
+        """
+        Génère un timestamp strictement croissant pour MediaPipe.
+
+        Pourquoi ?
+        L'API garde ActiveLivenessSystem en mémoire.
+        Donc si une vidéo commence à 0 ms après une autre vidéo,
+        MediaPipe peut lever :
+        "Input timestamp must be monotonically increasing".
+        """
+        step_ms = max(1, int(step_ms))
+
+        with self._timestamp_lock:
+            self._last_timestamp_ms += step_ms
+            return self._last_timestamp_ms
 
     def _eye_ear(self, landmarks, idxs: List[int]) -> float:
         """
@@ -114,21 +140,15 @@ class ActiveLivenessSystem:
         Principe :
         - On mesure la distance verticale entre sourcils et yeux.
         - Si l'utilisateur lève les sourcils, cette distance augmente.
-        - On normalise par la largeur du visage pour être moins sensible
-          à la distance caméra-visage.
+        - On normalise par la largeur du visage.
         """
-
         try:
-            # Points approximatifs FaceMesh :
-            # sourcil gauche / droit
             left_brow = landmarks[70]
             right_brow = landmarks[300]
 
-            # points supérieurs des yeux
             left_eye = landmarks[159]
             right_eye = landmarks[386]
 
-            # largeur approximative visage / distance inter-yeux
             left_face = landmarks[33]
             right_face = landmarks[263]
 
@@ -143,6 +163,10 @@ class ActiveLivenessSystem:
 
         except Exception:
             return 0.0
+
+    # ==========================================================
+    # MAIN ANALYZE
+    # ==========================================================
 
     def analyze(
         self,
@@ -171,8 +195,6 @@ class ActiveLivenessSystem:
                 "metrics": {"video_path": str(video_path)},
             }
 
-        fps = float(cap.get(cv2.CAP_PROP_FPS)) or 20.0
-
         total_frames = 0
         processed_frames = 0
         detected_frames = 0
@@ -182,7 +204,6 @@ class ActiveLivenessSystem:
         smile_scores = []
         eyebrow_scores = []
 
-        # Indices FaceMesh classiques
         left_eye = [33, 160, 158, 133, 153, 144]
         right_eye = [362, 385, 387, 263, 373, 380]
 
@@ -209,12 +230,27 @@ class ActiveLivenessSystem:
                 data=rgb,
             )
 
-            timestamp_ms = int((frame_idx / fps) * 1000)
+            # Correction importante :
+            # timestamp global strictement croissant, même entre plusieurs vidéos.
+            timestamp_ms = self._next_timestamp_ms(step_ms=33)
 
-            result = self.landmarker.detect_for_video(
-                mp_image,
-                timestamp_ms,
-            )
+            try:
+                result = self.landmarker.detect_for_video(
+                    mp_image,
+                    timestamp_ms,
+                )
+            except Exception as e:
+                cap.release()
+                return {
+                    "status": "ERROR",
+                    "passed": False,
+                    "challenge": challenge,
+                    "reason": f"liveness_exception: {str(e)}",
+                    "metrics": {
+                        "total_frames": total_frames,
+                        "processed_frames": processed_frames,
+                    },
+                }
 
             if result.face_landmarks:
                 detected_frames += 1
@@ -349,7 +385,6 @@ class ActiveLivenessSystem:
             nose_min = metrics.get("nose_shift_min", 0.0)
             nose_max = metrics.get("nose_shift_max", 0.0)
 
-            # Tolérant au miroir webcam : on exige surtout un mouvement latéral clair.
             passed = (
                 nose_range >= 0.06
                 or abs(nose_min) >= 0.06
@@ -401,6 +436,7 @@ class ActiveLivenessSystem:
                 ),
                 "metrics": metrics,
             }
+
         return {
             "status": "FAIL",
             "passed": False,
