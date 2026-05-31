@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend.cpu
+    container_name: securebank_backend_cpu
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/runtime_uploads:/app/data/runtime_uploads
+      - ./data/runtime_results:/app/data/runtime_results
+      - ./data/runtime_challenges:/app/data/runtime_challenges
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PAD_ENV=docker
+      - PAD_VIDEO_CHECKPOINT=/app/experiments/03_final_models/video_v6_behavior_pose/mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3/seed42/best_model.pth
+      - PAD_BEHAVIOR_POSE_MODEL=/app/experiments/03_final_models/banking_demo_models/final_models/behavior_pose_v6/behavior_pose_clf.pkl
+      - PAD_FACE_LANDMARKER=/app/models/face_landmarker.task
+      - PAD_BEHAVIOR_STATS=/app/data/mixed_casia_axon_local_msu_rppg/behav_rppg_norm_stats.json
+    restart: unless-stopped
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: securebank_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

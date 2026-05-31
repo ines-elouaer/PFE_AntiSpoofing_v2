@@ -1,0 +1,120 @@
+{
+  "type": "video",
+  "branch": "video_dynamic_decision_system",
+  "score": 0.1593,
+  "label": "REAL",
+  "decision": "ACCEPT",
+  "next_action": "NONE",
+  "liveness": {
+    "status": "PASS",
+    "passed": true,
+    "challenge": "BLINK",
+    "reason": "blink_passed",
+    "metrics": {
+      "total_frames": 183,
+      "processed_frames": 92,
+      "detected_frames": 91,
+      "face_rate": 0.9891,
+      "ear_min": 0.1186,
+      "ear_mean": 0.3515,
+      "blink_closed_frames": 7,
+      "nose_shift_min": -0.0427,
+      "nose_shift_max": 0.045,
+      "nose_shift_range": 0.0877,
+      "smile_score_max": 0.4171,
+      "smile_score_mean": 0.0204,
+      "eyebrow_score_min": 0.0926,
+      "eyebrow_score_max": 0.3306,
+      "eyebrow_score_mean": 0.2071,
+      "eyebrow_baseline": 0.167,
+      "eyebrow_peak": 0.2832,
+      "eyebrow_amplitude": 0.1162
+    }
+  },
+  "model_called": true,
+  "model_details": {
+    "score_v3_multimodal": 0.04237121716141701,
+    "score_behavior_pose": 0.8220602203468372,
+    "score_final_v6": 0.15932456763923003,
+    "video_quality_score": 0.5917584508953279,
+    "behavior_pose_status": "behavior_pose_reliable",
+    "behavior_pose_features": {
+      "ear_mean": 0.21743156965711202,
+      "ear_std": 0.07237585277091971,
+      "ear_min": 0.09511644846991761,
+      "ear_max": 0.2888933753363975,
+      "blink_count": 2.0,
+      "motion_mean": 4.458631510416667,
+      "motion_std": 1.858738605242598,
+      "motion_max": 8.513310546875,
+      "skipped_rate": 0.0,
+      "yaw_std": 1.430369041216022,
+      "pitch_std": 2.213625221461,
+      "roll_std": 1.776933593968074,
+      "yaw_range": 4.145212710526441,
+      "pitch_range": 8.90570678862781,
+      "roll_range": 5.383724960289981,
+      "yaw_delta_mean": 0.8444948792457581,
+      "pitch_delta_mean": 1.4125335216522217,
+      "roll_delta_mean": 0.45557793974876404,
+      "pose_autocorr": 0.6147024687778245,
+      "pose_valid_rate": 1.0
+    },
+    "fusion": {
+      "type": "score_level_fusion_v6",
+      "formula": "score_final_v6 = 0.85 * score_v3 + 0.15 * score_behavior_pose",
+      "w_v3_multimodal": 0.85,
+      "w_behavior_pose": 0.15,
+      "status": "behavior_pose_loaded"
+    }
+  },
+  "video_quality_score": 0.5918,
+  "behavior_pose_status": "behavior_pose_reliable",
+  "runtime_instability_guard": {
+    "enabled": true,
+    "triggered": false,
+    "reason": null,
+    "score_extreme_reject_kept": false
+  },
+  "runtime_profile": {
+    "profiling_enabled": true,
+    "input_value": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_185825_368155.webm",
+    "enable_liveness": true,
+    "require_challenge_validation": true,
+    "challenge_validation_sec": 0.0,
+    "active_liveness_sec": 2.6968,
+    "video_model_predict_sec": 1.8347,
+    "banking_decision_sec": 0.0,
+    "runtime_guard_sec": 0.0,
+    "mark_challenge_used_sec": 0.0085,
+    "router_total_sec": 4.5402
+  },
+  "message": "Analyse vidéo terminée. Vidéo acceptée.",
+  "validation": {
+    "is_valid": true,
+    "input_type": "video",
+    "reason": "valid_video",
+    "details": {
+      "path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_185825_368155.webm",
+      "frame_count": 5967,
+      "fps": 1000.0,
+      "duration_sec": 5.967,
+      "width": 640,
+      "height": 480
+    }
+  },
+  "session_id": "1c812b33-728d-40fb-a8b3-e2959b254090",
+  "challenge_id": "e561c016-a11c-447c-a437-68172bea4f1e",
+  "challenge": {
+    "session_id": "1c812b33-728d-40fb-a8b3-e2959b254090",
+    "challenge_id": "e561c016-a11c-447c-a437-68172bea4f1e",
+    "challenge_type": "BLINK",
+    "instruction": "Clignez les yeux.",
+    "created_at": "2026-05-21T17:58:19.310538+00:00",
+    "expires_at": "2026-05-21T17:59:19.310538+00:00",
+    "used": true,
+    "source": "api"
+  },
+  "original_input": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_185825_368155.webm",
+  "saved_video_path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_185825_368155.webm"
+}

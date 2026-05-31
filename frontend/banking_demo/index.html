@@ -858,6 +858,469 @@
     .policy-row { grid-template-columns: 16px 1fr; }
     .policy-row p { grid-column: 2; }
   }
+  /* ============================================================
+   MOBILE RESPONSIVE PRO — SecureBank PAD V6
+   Organisation mobile propre sans mélanger les pages
+   ============================================================ */
+
+@media (max-width: 900px) {
+  body {
+    overflow-x: hidden;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(18, 59, 102, 0.10), transparent 32%),
+      radial-gradient(circle at 88% 0%, rgba(22, 163, 74, 0.08), transparent 30%),
+      linear-gradient(135deg, #f7fafc 0%, #eef4fa 100%);
+  }
+
+  .layout,
+  .layout.client-mode,
+  .layout.admin-mode {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    min-height: 100vh;
+  }
+
+  /* Sidebar devient un header mobile propre */
+  .sidebar {
+    display: flex !important;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 14px 14px 12px !important;
+    border-radius: 0 0 22px 22px;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .brand {
+    margin-bottom: 8px !important;
+  }
+
+  .brand-icon {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 14px !important;
+  }
+
+  .brand h1 {
+    font-size: 20px !important;
+  }
+
+  .brand p {
+    font-size: 11px !important;
+  }
+
+  .nav {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 8px !important;
+  }
+
+  .nav-item {
+    padding: 11px 13px !important;
+    font-size: 13px !important;
+    border-radius: 14px !important;
+  }
+
+  .sidebar-card {
+    display: none !important;
+  }
+
+  .main,
+  #welcomeMain,
+  #verificationMain,
+  #historyMain,
+  #settingsMain {
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .main {
+    padding: 14px !important;
+  }
+
+  .topbar {
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .top-actions {
+    width: 100%;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .top-actions .btn {
+    padding: 11px 13px !important;
+    font-size: 12px !important;
+  }
+
+  .title h2,
+  .history-header-page h2 {
+    font-size: 26px !important;
+    line-height: 1.1 !important;
+  }
+
+  .title p,
+  .history-header-page p {
+    font-size: 13px !important;
+  }
+
+  .panel {
+    padding: 14px !important;
+    border-radius: 22px !important;
+  }
+
+  .steps {
+    margin-bottom: 18px !important;
+  }
+
+  .steps::before {
+    top: 23px !important;
+    left: 18% !important;
+    width: 64% !important;
+  }
+
+  .circle {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .step b {
+    font-size: 12px !important;
+  }
+
+  .step p {
+    font-size: 11px !important;
+  }
+
+  /* Organisation mobile :
+     Challenge en premier, caméra ensuite */
+  .verification-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .verification-grid > div:first-child {
+    order: 2;
+  }
+
+  .verification-grid > .instruction-card {
+    order: 1;
+  }
+
+  /* Challenge compact et lisible */
+  .instruction-card {
+    min-height: auto !important;
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .instruction-icon {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 28px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .instruction-card h3 {
+    font-size: 13px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .instruction-text {
+    font-size: 22px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .mini-progress {
+    max-width: 180px !important;
+    margin-top: 12px !important;
+  }
+
+  .timer {
+    font-size: 28px !important;
+  }
+
+  .client-instruction-box {
+    margin-top: 14px !important;
+    padding: 15px !important;
+  }
+
+  .client-instruction-box h4 {
+    font-size: 14px !important;
+  }
+
+  .client-instruction-box p {
+    font-size: 14px !important;
+  }
+
+  .admin-challenge-box {
+    display: none !important;
+  }
+
+  .layout.admin-mode .admin-challenge-box {
+    display: block !important;
+  }
+
+  .challenge-status-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Résultat mobile propre */
+  .instruction-card.result-accept,
+  .instruction-card.result-retry,
+  .instruction-card.result-reject {
+    min-height: 300px !important;
+    padding: 28px 18px !important;
+  }
+
+  .instruction-card.result-accept .instruction-icon,
+  .instruction-card.result-retry .instruction-icon,
+  .instruction-card.result-reject .instruction-icon {
+    width: 74px !important;
+    height: 74px !important;
+    font-size: 34px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .instruction-card.result-accept h3,
+  .instruction-card.result-retry h3,
+  .instruction-card.result-reject h3 {
+    font-size: 17px !important;
+  }
+
+  .instruction-card.result-accept .instruction-text,
+  .instruction-card.result-retry .instruction-text,
+  .instruction-card.result-reject .instruction-text {
+    font-size: 24px !important;
+    line-height: 1.25 !important;
+  }
+
+  .instruction-card.result-accept .timer,
+  .instruction-card.result-retry .timer,
+  .instruction-card.result-reject .timer {
+    font-size: 13px !important;
+  }
+
+  /* Caméra */
+  .camera-card {
+    min-height: auto !important;
+    height: auto !important;
+    border-radius: 18px !important;
+  }
+
+  video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 430px !important;
+    object-fit: cover !important;
+  }
+
+  .face-frame {
+    width: 230px !important;
+    height: 300px !important;
+  }
+
+  .camera-status,
+  .recording-pill {
+    top: 12px !important;
+    font-size: 11px !important;
+    padding: 7px 10px !important;
+  }
+
+  .camera-status {
+    left: 12px !important;
+  }
+
+  .recording-pill {
+    right: 12px !important;
+  }
+
+  .action-row {
+    margin-top: 12px !important;
+    gap: 8px !important;
+  }
+
+  .action-row .btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 12px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .status-line {
+    font-size: 13px !important;
+    margin-top: 12px !important;
+  }
+
+  /* Tentatives */
+  .attempt-panel {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    margin-top: 16px !important;
+  }
+
+  .attempt-box {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+    padding: 16px !important;
+  }
+
+  .attempt-box:last-child {
+    border-bottom: none !important;
+  }
+
+  .bank-policy-card {
+    display: none !important;
+  }
+
+  .layout.admin-mode .bank-policy-card {
+    display: block !important;
+  }
+
+  .policy-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Panneau admin :
+     caché par défaut,
+     affiché uniquement dans la page vérification + mode admin */
+  #verificationRightPanel,
+  .right-panel,
+  .right-panel.hidden {
+    display: none !important;
+  }
+
+  .layout.admin-mode #verificationMain:not(.hidden) ~ #verificationRightPanel {
+    display: flex !important;
+  }
+
+  #verificationRightPanel {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid var(--border) !important;
+    padding: 14px !important;
+    background: rgba(255, 255, 255, 0.75) !important;
+    flex-direction: column !important;
+  }
+
+  .right-card {
+    border-radius: 20px !important;
+    padding: 16px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr !important;
+  }
+
+  .metric {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  .metric:last-child {
+    border-bottom: none !important;
+  }
+
+  .risk-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Journal seul, sans panneau résultat */
+  #historyMain:not(.hidden) {
+    display: block !important;
+  }
+
+  #historyMain:not(.hidden) ~ #verificationRightPanel {
+    display: none !important;
+  }
+
+  .history-main {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  .history-header-page {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .history-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .history-stat-card {
+    padding: 16px !important;
+  }
+
+  .history-stat-card b {
+    font-size: 24px !important;
+  }
+
+  .history-filters {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .history-filters .input,
+  .history-filters .btn {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .history-table-card {
+    overflow-x: auto !important;
+  }
+
+  .history-table {
+    min-width: 1050px !important;
+  }
+
+  /* Paramètres seuls */
+  .settings-header-page {
+    flex-direction: column !important;
+  }
+
+  .settings-grid-4,
+  .settings-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Accueil */
+  .welcome-main {
+    padding: 16px !important;
+  }
+
+  .welcome-hero {
+    padding: 26px 20px !important;
+    border-radius: 26px !important;
+  }
+
+  .welcome-hero h1 {
+    font-size: 30px !important;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px !important;
+  }
+
+  .welcome-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .welcome-start-btn {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+}
 </style>
 </head>
 
@@ -1021,7 +1484,9 @@
             <div class="policy-item wait"><b>3 RETRY</b><span>Attente de 120 secondes</span></div>
           </div>
         </div>
-        <div class="footer"><span>🔒 Connexion locale sécurisée</span></div>
+        <div class="footer">
+  <span id="securityModeLabel">🔒 Connexion sécurisée</span>
+</div>
       </section>
     </main>
 
@@ -1069,13 +1534,19 @@
         <div class="right-card">
           <h3>● Performance runtime</h3>
           <div class="risk-row">
-            <div class="risk-card">Capture vidéo<b id="captureTime">--</b></div>
-            <div class="risk-card">Analyse complète<b id="responseTime">--</b></div>
-          </div>
-          <div class="risk-row" style="margin-top:10px">
-            <div class="risk-card">Total parcours<b id="totalTime">--</b></div>
-            <div class="risk-card">Dernier test<b id="lastTestTime">--:--</b></div>
-          </div>
+  <div class="risk-card">Capture vidéo<b id="captureTime">--</b></div>
+  <div class="risk-card">Analyse API<b id="responseTime">--</b></div>
+</div>
+
+<div class="risk-row" style="margin-top:10px">
+  <div class="risk-card">Temps modèle V6<b id="modelV6Time">--</b></div>
+  <div class="risk-card">Total parcours<b id="totalTime">--</b></div>
+</div>
+
+<div class="risk-row" style="margin-top:10px">
+  <div class="risk-card">Liveness actif<b id="livenessTime">--</b></div>
+  <div class="risk-card">Dernier test<b id="lastTestTime">--:--</b></div>
+</div>
           <div class="message-box" style="margin-top:12px"><strong>Statut :</strong> <span id="responseStatus">En attente d'analyse.</span></div>
           
         </div>
@@ -1260,280 +1731,1409 @@
         
       </div>
       <div class="model-tech-section">
-        <div class="model-tech-title"><h3>Détails techniques API — optionnel</h3><button class="btn btn-outline" onclick="loadModelTechnicalDetails()">Charger JSON technique</button></div>
+        <div class="model-tech-title"><h3>Détails techniques API </h3><button class="btn btn-outline" onclick="loadModelTechnicalDetails()">Charger JSON technique</button></div>
         <p class="small" style="margin-bottom:10px">Ces informations sont destinées à la traçabilité technique du prototype.</p>
         <pre id="modelTechnicalJson" class="model-tech-json">Cliquez sur "Charger JSON technique" pour afficher les informations retournées par /model/info.</pre>
       </div>
     </div>
   </div>
 
-  <script>
-    let currentChallenge = null, currentResult = null, modelInfo = null, stream = null;
-    let mediaRecorder = null, recordedChunks = [];
-    let retryCount = Number(localStorage.getItem("pad_retry_count") || "0");
-    let cooldownUntil = Number(localStorage.getItem("pad_cooldown_until") || "0");
-    let analysisLogs = JSON.parse(localStorage.getItem("pad_analysis_logs") || "[]");
-    let adminMode = false, countdownInterval = null, cooldownInterval = null;
-    let requestStartTime = null, lastResponseTimeMs = null, totalStartTime = null, lastTotalTimeMs = null;
-    const RECORD_SECONDS = 6;
+<script>
+  let currentChallenge = null;
+  let currentResult = null;
+  let modelInfo = null;
+  let stream = null;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      updateRetryUI(); updateLogUI(); updateCooldownUI(); getModelInfo(false);
-      updateChallengeStatus(null, "En attente"); setCameraStatus("Caméra inactive", "idle"); showWelcomePage();
-    });
+  let mediaRecorder = null;
+  let recordedChunks = [];
 
-    function apiBase() {
-  const input =
-    document.getElementById("apiBase") ||
-    document.getElementById("apiUrl") ||
-    document.getElementById("apiBaseUrl") ||
-    document.getElementById("backendUrl");
+  let retryCount = Number(localStorage.getItem("pad_retry_count") || "0");
+  let cooldownUntil = Number(localStorage.getItem("pad_cooldown_until") || "0");
+  let analysisLogs = JSON.parse(localStorage.getItem("pad_analysis_logs") || "[]");
 
-  if (input && input.value && input.value.trim()) {
-    return input.value.trim().replace(/\/$/, "");
-  }
+  let adminMode = false;
+  let countdownInterval = null;
+  let cooldownInterval = null;
 
-  return "http://127.0.0.1:8000";
-}
-    function showToast(message) { const t = document.getElementById("toast"); t.textContent = message; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 3300); }
-    function setFlowStatus(message) { document.getElementById("flowStatus").textContent = message; }
-    function setCameraStatus(text, mode = "idle") { const dot = document.getElementById("cameraDot"); document.getElementById("cameraStatus").textContent = text; document.getElementById("recordingPill").textContent = text; dot.className = "dot"; if (mode === "online") dot.classList.add("online"); if (mode === "recording") dot.classList.add("recording-dot"); }
-    function setSteps(state) { const s1 = document.getElementById("step1"), s2 = document.getElementById("step2"), s3 = document.getElementById("step3"); s1.className = "step"; s2.className = "step"; s3.className = "step"; if (state === "prepare") s1.classList.add("active"); if (state === "challenge") { s1.classList.add("done"); s2.classList.add("active"); } if (state === "result") { s1.classList.add("done"); s2.classList.add("done"); s3.classList.add("active"); } }
-    function challengeIcon(type) { return { BLINK: "👁️", SMILE: "😊", TURN_LEFT: "↩️", EYEBROW_RAISE: "🤨" }[type] || "🧑‍💼"; }
-    function formatInstruction(challenge) { if (!challenge) return "Regardez la caméra<br><span>Nous allons vérifier que vous êtes bien présent.</span>"; if (challenge.challenge_type === "BLINK") return "Clignez des yeux <span>maintenant</span>."; if (challenge.challenge_type === "SMILE") return "Souriez pendant <span>quelques secondes</span>."; if (challenge.challenge_type === "TURN_LEFT") return "Tournez lentement la tête <span>vers la gauche</span>."; if (challenge.challenge_type === "EYEBROW_RAISE") return "Levez les <span>sourcils</span>."; return challenge.instruction || "Suivez <span>l'instruction demandée</span>."; }
-    function updateChallengeStatus(challenge, status = "En attente") { document.getElementById("challengeTypeView").textContent = challenge?.challenge_type || "--"; document.getElementById("challengeStatusView").textContent = status; document.getElementById("challengeSingleUseView").textContent = "Oui"; updateClientSecurityInstruction(challenge, status); }
-    function updateClientSecurityInstruction(challenge, status = "En attente") { const el = document.getElementById("clientSecurityInstruction"); if (!el) return; if (!challenge) { el.textContent = "Regardez la caméra et attendez l'instruction de sécurité."; return; } if (challenge.challenge_type === "BLINK") el.textContent = "Clignez des yeux lorsque l'instruction s'affiche."; else if (challenge.challenge_type === "SMILE") el.textContent = "Souriez quelques secondes face à la caméra."; else if (challenge.challenge_type === "TURN_LEFT") el.textContent = "Tournez lentement la tête vers la gauche."; else if (challenge.challenge_type === "EYEBROW_RAISE") el.textContent = "Levez les sourcils lorsque l'instruction s'affiche."; else el.textContent = "Suivez l'instruction demandée pour confirmer votre présence."; }
+  let requestStartTime = null;
+  let lastResponseTimeMs = null;
+  let totalStartTime = null;
+  let lastTotalTimeMs = null;
 
+  const RECORD_SECONDS = 6;
 
-    function clearInstructionResultState() {
-      const card = document.querySelector(".instruction-card");
-      if (!card) return;
-      card.classList.remove("result-accept", "result-retry", "result-reject");
+  let currentRecordingMimeType = "video/webm";
+  let currentRecordingExtension = "webm";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateRetryUI();
+    updateLogUI();
+    updateCooldownUI();
+    getModelInfo(false);
+    updateChallengeStatus(null, "En attente");
+    setCameraStatus("Caméra inactive", "idle");
+    updateSecurityModeLabel();
+    showWelcomePage();
+  });
+
+  function apiBase() {
+    const host = window.location.hostname;
+    const port = window.location.port;
+
+    const isLocal =
+      host === "127.0.0.1" ||
+      host === "localhost";
+
+    const isDockerFrontend = port === "8080";
+
+    const isNgrok =
+      host.includes("ngrok-free.dev") ||
+      host.includes("ngrok.app") ||
+      host.includes("ngrok.io");
+
+    /*
+      Cas Docker, ngrok, téléphone ou autre PC :
+      on utilise toujours le proxy Nginx /api.
+    */
+    if (isDockerFrontend || isNgrok || !isLocal) {
+      return "/api";
     }
 
-    function setInstructionCardToResult(result) {
-      const card = document.querySelector(".instruction-card");
-      const icon = document.getElementById("instructionIcon");
-      const title = card ? card.querySelector("h3") : null;
-      const text = document.getElementById("instructionText");
-      const timer = document.getElementById("timerText");
-      const decision = String(result?.decision || "").toUpperCase();
+    /*
+      Cas développement local :
+      frontend lancé sur 5500 + backend sur 8000.
+    */
+    return "http://127.0.0.1:8000";
+  }
 
-      if (!card || !icon || !title || !text || !timer) return;
+  function ngrokHeaders(extraHeaders = {}) {
+    return {
+      ...extraHeaders,
+      "ngrok-skip-browser-warning": "true"
+    };
+  }
 
-      card.classList.remove("result-accept", "result-retry", "result-reject");
+  function showToast(message) {
+    const t = document.getElementById("toast");
+    t.textContent = message;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3300);
+  }
 
-      if (decision === "ACCEPT") {
-        card.classList.add("result-accept");
-        icon.textContent = "✓";
-        title.textContent = "Vérification réussie";
-        text.innerHTML = "Identité vérifiée<br><span>Votre identité est vérifiée. Vous pouvez continuer.</span>";
-        timer.textContent = "Vivacité validée et qualité vidéo suffisante.";
-        return;
-      }
+  function setFlowStatus(message) {
+    document.getElementById("flowStatus").textContent = message;
+  }
 
-      if (decision === "RETRY") {
-        const reason = result?.liveness?.reason || result?.message || "Nouvelle capture demandée.";
-        card.classList.add("result-retry");
-        icon.textContent = "↻";
+  function setCameraStatus(text, mode = "idle") {
+    const dot = document.getElementById("cameraDot");
+    document.getElementById("cameraStatus").textContent = text;
+    document.getElementById("recordingPill").textContent = text;
+
+    dot.className = "dot";
+    if (mode === "online") dot.classList.add("online");
+    if (mode === "recording") dot.classList.add("recording-dot");
+  }
+
+  function setSteps(state) {
+    const s1 = document.getElementById("step1");
+    const s2 = document.getElementById("step2");
+    const s3 = document.getElementById("step3");
+
+    s1.className = "step";
+    s2.className = "step";
+    s3.className = "step";
+
+    if (state === "prepare") {
+      s1.classList.add("active");
+    }
+
+    if (state === "challenge") {
+      s1.classList.add("done");
+      s2.classList.add("active");
+    }
+
+    if (state === "result") {
+      s1.classList.add("done");
+      s2.classList.add("done");
+      s3.classList.add("active");
+    }
+  }
+
+  function challengeIcon(type) {
+    return {
+      BLINK: "👁️",
+      SMILE: "😊",
+      TURN_LEFT: "↩️",
+      EYEBROW_RAISE: "🤨"
+    }[type] || "🧑‍💼";
+  }
+
+  function formatInstruction(challenge) {
+    if (!challenge) {
+      return "Regardez la caméra<br><span>Nous allons vérifier que vous êtes bien présent.</span>";
+    }
+
+    if (challenge.challenge_type === "BLINK") {
+      return "Clignez des yeux <span>maintenant</span>.";
+    }
+
+    if (challenge.challenge_type === "SMILE") {
+      return "Souriez pendant <span>quelques secondes</span>.";
+    }
+
+    if (challenge.challenge_type === "TURN_LEFT") {
+      return "Tournez lentement la tête <span>vers la gauche</span>.";
+    }
+
+    if (challenge.challenge_type === "EYEBROW_RAISE") {
+      return "Levez les <span>sourcils</span>.";
+    }
+
+    return challenge.instruction || "Suivez <span>l'instruction demandée</span>.";
+  }
+function updateSecurityModeLabel() {
+  const el = document.getElementById("securityModeLabel");
+  if (!el) return;
+
+  const isHttps = window.location.protocol === "https:";
+  const isNgrok = window.location.hostname.includes("ngrok");
+
+  if (isHttps && isNgrok) {
+    el.textContent = "🔒 Connexion HTTPS distante via ngrok";
+  } else if (isHttps) {
+    el.textContent = "🔒 Connexion HTTPS sécurisée";
+  } else {
+    el.textContent = "🔒 Connexion locale de démonstration";
+  }
+}
+  function updateChallengeStatus(challenge, status = "En attente") {
+    document.getElementById("challengeTypeView").textContent = challenge?.challenge_type || "--";
+    document.getElementById("challengeStatusView").textContent = status;
+    document.getElementById("challengeSingleUseView").textContent = "Oui";
+    updateClientSecurityInstruction(challenge, status);
+  }
+
+  function updateClientSecurityInstruction(challenge, status = "En attente") {
+    const el = document.getElementById("clientSecurityInstruction");
+    if (!el) return;
+
+    if (!challenge) {
+      el.textContent = "Regardez la caméra et attendez l'instruction de sécurité.";
+      return;
+    }
+
+    if (challenge.challenge_type === "BLINK") {
+      el.textContent = "Clignez des yeux lorsque l'instruction s'affiche.";
+    } else if (challenge.challenge_type === "SMILE") {
+      el.textContent = "Souriez quelques secondes face à la caméra.";
+    } else if (challenge.challenge_type === "TURN_LEFT") {
+      el.textContent = "Tournez lentement la tête vers la gauche.";
+    } else if (challenge.challenge_type === "EYEBROW_RAISE") {
+      el.textContent = "Levez les sourcils lorsque l'instruction s'affiche.";
+    } else {
+      el.textContent = "Suivez l'instruction demandée pour confirmer votre présence.";
+    }
+  }
+
+  function clearInstructionResultState() {
+    const card = document.querySelector(".instruction-card");
+    if (!card) return;
+
+    card.classList.remove("result-accept", "result-retry", "result-reject");
+  }
+
+  function setInstructionCardToResult(result) {
+    const card = document.querySelector(".instruction-card");
+    const icon = document.getElementById("instructionIcon");
+    const title = card ? card.querySelector("h3") : null;
+    const text = document.getElementById("instructionText");
+    const timer = document.getElementById("timerText");
+
+    let decision = String(result?.decision || "").toUpperCase();
+
+    /*
+      INVALID_INPUT n'est pas une décision finale bancaire.
+      C'est une capture vidéo non exploitable.
+      Donc côté client, on l'affiche comme RETRY.
+    */
+    if (decision === "INVALID_INPUT") {
+      decision = "RETRY";
+    }
+
+    if (!card || !icon || !title || !text || !timer) return;
+
+    card.classList.remove("result-accept", "result-retry", "result-reject");
+
+    if (decision === "ACCEPT") {
+      card.classList.add("result-accept");
+      icon.textContent = "✓";
+      title.textContent = "Vérification réussie";
+      text.innerHTML = "Identité vérifiée<br><span>Votre identité est vérifiée. Vous pouvez continuer.</span>";
+      timer.textContent = "Vivacité validée et qualité vidéo suffisante.";
+      return;
+    }
+
+    if (decision === "RETRY") {
+      const reason =
+        result?.validation?.reason ||
+        result?.liveness?.reason ||
+        result?.message ||
+        "Nouvelle capture demandée.";
+
+      card.classList.add("result-retry");
+      icon.textContent = "↻";
+
+      if (String(result?.decision || "").toUpperCase() === "INVALID_INPUT") {
+        title.textContent = "Capture non exploitable";
+        text.innerHTML = "Vérification non concluante<br><span>Veuillez refaire la capture vidéo.</span>";
+        timer.textContent = `Raison technique : ${reason}`;
+      } else {
         title.textContent = "Nouvelle tentative requise";
         text.innerHTML = "Vérification non concluante<br><span>Veuillez réessayer.</span>";
         timer.textContent = reason;
-        return;
       }
 
-      if (decision === "REJECT") {
-        card.classList.add("result-reject");
-        icon.textContent = "!";
-        title.textContent = "Vérification refusée";
-        text.innerHTML = "Vérification refusée<br><span>pour raison de sécurité.</span>";
-        timer.textContent = "Risque d’attaque ou non-respect du challenge détecté.";
-        return;
-      }
-
-      title.textContent = "Résultat de vérification";
-      icon.textContent = "ID";
-      text.innerHTML = "Résultat <span>indisponible</span>";
-      timer.textContent = "Veuillez relancer une nouvelle vérification.";
+      return;
     }
 
-    function applyAdminModeUI() {
-      const layout = document.getElementById("appLayout"), panel = document.getElementById("verificationRightPanel"), btn = document.getElementById("adminModeBtn");
-      if (!layout) return;
-      layout.classList.toggle("admin-mode", adminMode); layout.classList.toggle("client-mode", !adminMode);
-      if (btn) btn.textContent = adminMode ? "Masquer admin" : "Mode administrateur";
-      const verificationVisible = !document.getElementById("verificationMain").classList.contains("hidden");
-      if (panel) { if (adminMode && verificationVisible) panel.classList.remove("hidden"); else panel.classList.add("hidden"); }
+    if (decision === "REJECT") {
+      card.classList.add("result-reject");
+      icon.textContent = "!";
+      title.textContent = "Vérification refusée";
+      text.innerHTML = "Vérification refusée<br><span>pour raison de sécurité.</span>";
+      timer.textContent = "Risque d’attaque ou non-respect du challenge détecté.";
+      return;
     }
 
-    function toggleAdminMode() { adminMode = !adminMode; applyAdminModeUI(); showToast(adminMode ? "Mode administrateur activé." : "Mode client bancaire activé."); }
+    card.classList.add("result-retry");
+    title.textContent = "Résultat non concluant";
+    icon.textContent = "↻";
+    text.innerHTML = "Vérification non concluante<br><span>Veuillez relancer une nouvelle vérification.</span>";
+    timer.textContent = result?.message || "Réponse incomplète ou non exploitable.";
+  }
 
-    function setActiveNav(activeId) {
-      ["navVerification", "navHistory", "navSettings"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.toggle("active", id === activeId);
-      });
+  function applyAdminModeUI() {
+    const layout = document.getElementById("appLayout");
+    const panel = document.getElementById("verificationRightPanel");
+    const btn = document.getElementById("adminModeBtn");
+
+    if (!layout) return;
+
+    layout.classList.toggle("admin-mode", adminMode);
+    layout.classList.toggle("client-mode", !adminMode);
+
+    if (btn) {
+      btn.textContent = adminMode ? "Masquer admin" : "Mode administrateur";
     }
 
-    function hideAllMainPages() {
-      ["welcomeMain", "verificationMain", "historyMain", "settingsMain"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add("hidden");
-      });
-      const rightPanel = document.getElementById("verificationRightPanel");
-      if (rightPanel) rightPanel.classList.add("hidden");
-    }
+    const verificationVisible = !document.getElementById("verificationMain").classList.contains("hidden");
 
-    function showWelcomePage() {
-      hideAllMainPages();
-      document.getElementById("welcomeMain").classList.remove("hidden");
-      setActiveNav("navVerification");
-      applyAdminModeUI();
-    }
-
-    function startWelcomeVerification() {
-      hideAllMainPages();
-      adminMode = false;
-      document.getElementById("verificationMain").classList.remove("hidden");
-      setActiveNav("navVerification");
-      applyAdminModeUI();
-      showToast("Parcours de vérification prêt. Cliquez sur Démarrer la vérification.");
-    }
-
-    function showVerificationPage() { startWelcomeVerification(); }
-
-    function showHistoryPage() {
-      hideAllMainPages();
-      document.getElementById("historyMain").classList.remove("hidden");
-      setActiveNav("navHistory");
-      renderHistoryPage();
-    }
-
-    function showSettingsPage() {
-      hideAllMainPages();
-      document.getElementById("settingsMain").classList.remove("hidden");
-      setActiveNav("navSettings");
-      showToast("Paramètres de sécurité affichés.");
-    }
-
-    function prepareNewAttemptUI() {
-      clearInstructionResultState();
-      currentChallenge = null; currentResult = null; recordedChunks = []; clearInterval(countdownInterval); requestStartTime = null; lastResponseTimeMs = null; totalStartTime = null; lastTotalTimeMs = null;
-      document.getElementById("challengeId").value = ""; updateChallengeStatus(null, "En attente"); document.getElementById("instructionText").innerHTML = "Préparation de la <span>vérification</span>..."; document.getElementById("instructionIcon").textContent = "🛡️"; document.getElementById("timerText").textContent = "--"; updateMiniBars(0);
-      document.getElementById("captureTime").innerText = "--"; document.getElementById("responseTime").innerText = "--"; document.getElementById("totalTime").innerText = "--"; document.getElementById("lastTestTime").innerText = "--:--"; document.getElementById("responseStatus").innerText = "En attente d'analyse.";
-      document.getElementById("resultBox").className = "result-box"; document.getElementById("decision").innerText = "--"; document.getElementById("score").innerText = "--"; document.getElementById("quality").innerText = "--"; updateQualityLabel(null); document.getElementById("liveness").innerText = "--"; document.getElementById("message").innerText = "Analyse en attente."; document.getElementById("resultJson").textContent = "";
-      document.getElementById("clientResultCard").className = "client-result-card hidden"; document.getElementById("clientResultTitle").textContent = "Résultat en attente"; document.getElementById("clientResultMessage").textContent = "La décision finale sera affichée ici."; document.getElementById("startBtn").textContent = "Démarrer la vérification"; setSteps("prepare"); setFlowStatus("Préparation d'une nouvelle vérification...");
-    }
-
-    async function checkHealth() { try { const res = await fetch(`${apiBase()}/health`); if (!res.ok) throw new Error(await res.text()); const data = await res.json(); showToast(`API opérationnelle : ${data.service || "PAD API"} ${data.version || ""}`); } catch (e) { showToast("API non accessible. Lance FastAPI sur le port 8000."); } }
-    async function getModelInfo(show = true) { const modelText = `Modèle V6 — FOMA\n\nArchitecture   : MobileNetV3 + LSTM + Behav MLP\nFeatures       : 20 (EAR×5 + Motion×3 + Pose×11 + skipped)\nFusion         : w_visual=0.85 · w_behavior=0.15\nDataset        : CASIA-FASD + AxonLabs + MSU-MFSD + données locales\nACER interne   : 7.41%\nAUC interne    : 98.96%\n\nDécision       : ACCEPT / RETRY / REJECT\nLiveness actif : BLINK / SMILE / TURN_LEFT`; try { const res = await fetch(`${apiBase()}/model/info`); if (!res.ok) throw new Error(await res.text()); modelInfo = await res.json(); document.getElementById("modelSummary").textContent = modelInfo.model_name || "FOMA V6 — gated rPPG + behavior-pose"; document.getElementById("modelJson").textContent = `${modelText}\n\nInformations techniques API :\n${JSON.stringify(modelInfo, null, 2)}`; } catch (e) { modelInfo = { model_name: "FOMA V6" }; document.getElementById("modelJson").textContent = modelText; } if (show) { showToast("Informations modèle V6 chargées."); openModelDetails(); } }
-    function openModelDetails() { document.getElementById("modelDetailsOverlay").classList.remove("hidden"); }
-    function closeModelDetails() { document.getElementById("modelDetailsOverlay").classList.add("hidden"); }
-    async function loadModelTechnicalDetails() { const box = document.getElementById("modelTechnicalJson"); try { const res = await fetch(`${apiBase()}/model/info`); const data = await res.json(); if (!res.ok) throw new Error(data.detail || "Erreur /model/info"); modelInfo = data; box.textContent = JSON.stringify(data, null, 2); } catch (e) { box.textContent = "Impossible de charger /model/info.\n\n" + e.message; } }
-
-    async function startNewVerification() { if (cooldownUntil && Date.now() < cooldownUntil) { const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000); showToast(`Sécurité activée : patientez encore ${remaining} secondes.`); return; } prepareNewAttemptUI(); await startBankingFlow(); }
-    async function startBankingFlow() { const startBtn = document.getElementById("startBtn"); try { if (cooldownUntil && Date.now() < cooldownUntil) { const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000); showToast(`Sécurité activée : patientez encore ${remaining} secondes.`); return; } startBtn.disabled = true; prepareNewAttemptUI(); setFlowStatus("Initialisation de la caméra..."); await startCamera(); setFlowStatus("Création du challenge bancaire..."); currentChallenge = await createChallenge(); if (!currentChallenge?.challenge_id) throw new Error("Challenge non créé par l'API."); document.getElementById("challengeId").value = currentChallenge.challenge_id; updateChallengeStatus(currentChallenge, "Créé"); document.getElementById("instructionText").innerHTML = formatInstruction(currentChallenge); document.getElementById("instructionIcon").textContent = challengeIcon(currentChallenge.challenge_type); setSteps("challenge"); setFlowStatus(`Challenge créé : ${currentChallenge.challenge_type}. Réalisez l'instruction devant la caméra.`); await startRecordingWithCountdown(RECORD_SECONDS); } catch (e) { console.error(e); showToast(`Erreur : ${e.message}`); setFlowStatus("Erreur pendant la vérification. Réessayez."); startBtn.disabled = false; setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle"); } }
-    async function startCamera() { if (stream) { setCameraStatus("Caméra active", "online"); return; } stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }, audio: false }); const video = document.getElementById("cameraPreview"); video.srcObject = stream; await video.play(); document.getElementById("cameraPlaceholder").style.display = "none"; setCameraStatus("Caméra active", "online"); }
-    async function createChallenge() { const res = await fetch(`${apiBase()}/pad/challenge/start`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }); if (!res.ok) throw new Error(`Création challenge échouée : ${await res.text()}`); return await res.json(); }
-    async function startRecordingWithCountdown(seconds) { totalStartTime = performance.now(); if (!stream) throw new Error("Caméra non initialisée."); if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); recordedChunks = []; setCameraStatus("Enregistrement vidéo", "recording"); let mimeType = "video/webm"; if (MediaRecorder.isTypeSupported("video/webm;codecs=vp8")) mimeType = "video/webm;codecs=vp8"; mediaRecorder = new MediaRecorder(stream, { mimeType }); mediaRecorder.ondataavailable = e => { if (e.data?.size > 0) recordedChunks.push(e.data); }; mediaRecorder.onerror = () => { document.getElementById("startBtn").disabled = false; setCameraStatus("Erreur enregistrement", "idle"); showToast("Erreur pendant l'enregistrement vidéo."); }; mediaRecorder.onstop = async () => { try { setCameraStatus("Vidéo enregistrée", "online"); const blob = new Blob(recordedChunks, { type: "video/webm" }); if (blob.size === 0) throw new Error("Vidéo vide. Réessayez."); setFlowStatus("Envoi de la vidéo à l'API PAD..."); await sendVideoToAPI(blob); } catch (e) { document.getElementById("startBtn").disabled = false; showToast(`Erreur envoi vidéo : ${e.message}`); setFlowStatus("Erreur pendant l'envoi de la vidéo."); } }; mediaRecorder.start(); startVisualCountdown(seconds); setTimeout(() => { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); }, seconds * 1000); }
-    function startVisualCountdown(seconds) { clearInterval(countdownInterval); let remaining = seconds; document.getElementById("timerText").textContent = `${remaining}s`; updateMiniBars(0); countdownInterval = setInterval(() => { remaining -= 1; const elapsed = seconds - remaining; document.getElementById("timerText").textContent = `${Math.max(remaining, 0)}s`; updateMiniBars(elapsed); if (remaining <= 0) clearInterval(countdownInterval); }, 1000); }
-    function updateMiniBars(activeCount) { for (let i = 1; i <= 6; i++) { const bar = document.getElementById(`bar${i}`); if (!bar) continue; i <= activeCount ? bar.classList.add("active") : bar.classList.remove("active"); } }
-    async function sendVideoToAPI(blob) { if (!currentChallenge?.challenge_id) throw new Error("Aucun challenge actif."); const formData = new FormData(); const videoName = `banking_challenge_${Date.now()}.webm`; formData.append("video", blob, videoName); formData.append("challenge_id", currentChallenge.challenge_id); formData.append("enable_liveness", "true"); formData.append("require_challenge_validation", "true"); requestStartTime = performance.now(); const res = await fetch(`${apiBase()}/pad/analyze-video`, { method: "POST", body: formData }); lastResponseTimeMs = performance.now() - requestStartTime; lastTotalTimeMs = totalStartTime ? performance.now() - totalStartTime : null; const result = await res.json(); if (!res.ok) { updateResponseTimeUI(false); throw new Error(result.detail || "Erreur analyse vidéo."); } currentResult = result; updateResponseTimeUI(true); handleAnalysisResult(result, videoName); }
-
-    function handleAnalysisResult(result, videoName = "runtime_camera.webm") {
-      const oldChallenge = currentChallenge;
-      const decisionValue = result.decision || "--";
-
-      setSteps("result");
-
-      document.getElementById("decision").innerText = decisionValue;
-      document.getElementById("score").innerText = result.score ?? "--";
-      document.getElementById("quality").innerText = result.video_quality_score ?? "--";
-      updateQualityLabel(result.video_quality_score);
-      document.getElementById("liveness").innerText = result.liveness?.status || "--";
-      document.getElementById("message").innerText = result.message || "Analyse terminée.";
-      document.getElementById("resultJson").textContent = JSON.stringify(result, null, 2);
-
-      updateChallengeStatus(
-        result.challenge || oldChallenge,
-        result.challenge?.used ? "Utilisé" : oldChallenge ? "Utilisé" : "En attente"
-      );
-
-      const box = document.getElementById("resultBox");
-      box.className = "result-box";
-      if (decisionValue === "ACCEPT") box.classList.add("accept");
-      if (decisionValue === "RETRY") box.classList.add("retry");
-      if (decisionValue === "REJECT") box.classList.add("reject");
-
-      /* Résultat client : affiché dans la grande carte de challenge, pas sous la caméra */
-      setInstructionCardToResult(result);
-      const clientCard = document.getElementById("clientResultCard");
-      if (clientCard) clientCard.className = "client-result-card hidden";
-
-      const startBtn = document.getElementById("startBtn");
-
-      if (decisionValue === "ACCEPT") {
-        retryCount = 0;
-        cooldownUntil = 0;
-        setFlowStatus("Identité vérifiée avec succès. Session sécurisée terminée.");
-        setCameraStatus("Analyse terminée", "online");
-        startBtn.textContent = "Démarrer la vérification";
-        startBtn.classList.add("hidden");
-      } else if (decisionValue === "RETRY") {
-        retryCount += 1;
-        if (retryCount >= 3) {
-          cooldownUntil = Date.now() + 120000;
-          showToast("Sécurité : 3 RETRY consécutifs. Attente de 120 secondes.");
-        }
-        setFlowStatus("Nouvelle capture recommandée. Le système ne rejette pas définitivement une vidéo ambiguë.");
-        setCameraStatus("Nouvelle tentative possible", "online");
-        startBtn.classList.remove("hidden");
-        startBtn.textContent = "Réessayer la vérification";
-      } else if (decisionValue === "REJECT") {
-        setFlowStatus("Vidéo rejetée comme attaque probable. Le résultat est enregistré dans les logs.");
-        setCameraStatus("Analyse terminée", "online");
-        startBtn.classList.remove("hidden");
-        startBtn.textContent = "Démarrer la vérification";
+    if (panel) {
+      if (adminMode && verificationVisible) {
+        panel.classList.remove("hidden");
       } else {
-        setFlowStatus("Décision incertaine. Vous pouvez refaire une vérification.");
-        setCameraStatus("Analyse terminée", "online");
+        panel.classList.add("hidden");
       }
+    }
+  }
 
-      currentChallenge = null;
-      recordedChunks = [];
-      startBtn.disabled = false;
-      document.getElementById("challengeId").value = "";
+  function toggleAdminMode() {
+    adminMode = !adminMode;
+    applyAdminModeUI();
+    showToast(adminMode ? "Mode administrateur activé." : "Mode client bancaire activé.");
+  }
 
-      localStorage.setItem("pad_retry_count", String(retryCount));
-      localStorage.setItem("pad_cooldown_until", String(cooldownUntil));
+  function setActiveNav(activeId) {
+    ["navVerification", "navHistory", "navSettings"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("active", id === activeId);
+    });
+  }
 
-      addAttemptLog(result, videoName, oldChallenge);
-      updateRetryUI();
-      updateCooldownUI();
+  function hideAllMainPages() {
+    ["welcomeMain", "verificationMain", "historyMain", "settingsMain"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("hidden");
+    });
+
+    const rightPanel = document.getElementById("verificationRightPanel");
+    if (rightPanel) rightPanel.classList.add("hidden");
+  }
+
+  function showWelcomePage() {
+    hideAllMainPages();
+    document.getElementById("welcomeMain").classList.remove("hidden");
+    setActiveNav("navVerification");
+    applyAdminModeUI();
+  }
+
+  function startWelcomeVerification() {
+    hideAllMainPages();
+    adminMode = false;
+    document.getElementById("verificationMain").classList.remove("hidden");
+    setActiveNav("navVerification");
+    applyAdminModeUI();
+    showToast("Parcours de vérification prêt. Cliquez sur Démarrer la vérification.");
+  }
+
+  function showVerificationPage() {
+    startWelcomeVerification();
+  }
+
+  function showHistoryPage() {
+  hideAllMainPages();
+  adminMode = false;
+  document.getElementById("historyMain").classList.remove("hidden");
+  setActiveNav("navHistory");
+  applyAdminModeUI();
+  renderHistoryPage();
+}
+
+  function showSettingsPage() {
+  hideAllMainPages();
+  adminMode = false;
+  document.getElementById("settingsMain").classList.remove("hidden");
+  setActiveNav("navSettings");
+  applyAdminModeUI();
+  showToast("Paramètres de sécurité affichés.");
+}
+
+  function prepareNewAttemptUI() {
+    clearInstructionResultState();
+
+    currentChallenge = null;
+    currentResult = null;
+    recordedChunks = [];
+
+    clearInterval(countdownInterval);
+
+    requestStartTime = null;
+    lastResponseTimeMs = null;
+    totalStartTime = null;
+    lastTotalTimeMs = null;
+
+    document.getElementById("challengeId").value = "";
+    updateChallengeStatus(null, "En attente");
+
+    document.getElementById("instructionText").innerHTML = "Préparation de la <span>vérification</span>...";
+    document.getElementById("instructionIcon").textContent = "🛡️";
+    document.getElementById("timerText").textContent = "--";
+    updateMiniBars(0);
+document.getElementById("captureTime").innerText = "--";
+document.getElementById("responseTime").innerText = "--";
+document.getElementById("modelV6Time").innerText = "--";
+document.getElementById("livenessTime").innerText = "--";
+document.getElementById("totalTime").innerText = "--";
+document.getElementById("lastTestTime").innerText = "--:--";
+document.getElementById("responseStatus").innerText = "En attente d'analyse.";
+    document.getElementById("resultBox").className = "result-box";
+    document.getElementById("decision").innerText = "--";
+    document.getElementById("score").innerText = "--";
+    document.getElementById("quality").innerText = "--";
+    updateQualityLabel(null);
+    document.getElementById("liveness").innerText = "--";
+    document.getElementById("message").innerText = "Analyse en attente.";
+    document.getElementById("resultJson").textContent = "";
+
+    document.getElementById("clientResultCard").className = "client-result-card hidden";
+    document.getElementById("clientResultTitle").textContent = "Résultat en attente";
+    document.getElementById("clientResultMessage").textContent = "La décision finale sera affichée ici.";
+
+    const startBtn = document.getElementById("startBtn");
+    startBtn.classList.remove("hidden");
+    startBtn.textContent = "Démarrer la vérification";
+
+    setSteps("prepare");
+    setFlowStatus("Préparation d'une nouvelle vérification...");
+  }
+
+  async function checkHealth() {
+    try {
+      const res = await fetch(`${apiBase()}/health`, {
+        headers: ngrokHeaders()
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
+      const data = await res.json();
+      showToast(`API opérationnelle : ${data.service || "PAD API"} ${data.version || ""}`);
+    } catch (e) {
+      console.error(e);
+      showToast("API non accessible. Vérifiez Docker, Nginx ou ngrok.");
+    }
+  }
+
+  async function getModelInfo(show = true) {
+    const modelText = `Modèle V6 — FOMA
+
+Architecture   : MobileNetV3 + LSTM + Behav MLP
+Features       : 20 (EAR×5 + Motion×3 + Pose×11 + skipped)
+Fusion         : w_visual=0.85 · w_behavior=0.15
+Dataset        : CASIA-FASD + AxonLabs + MSU-MFSD + données locales
+ACER interne   : 7.41%
+AUC interne    : 98.96%
+
+Décision       : ACCEPT / RETRY / REJECT
+Liveness actif : BLINK / SMILE / TURN_LEFT`;
+
+    try {
+      const res = await fetch(`${apiBase()}/model/info`, {
+        headers: ngrokHeaders()
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
+      modelInfo = await res.json();
+      document.getElementById("modelSummary").textContent =
+        modelInfo.model_name || "FOMA V6 — gated rPPG + behavior-pose";
+
+      document.getElementById("modelJson").textContent =
+        `${modelText}\n\nInformations techniques API :\n${JSON.stringify(modelInfo, null, 2)}`;
+    } catch (e) {
+      modelInfo = { model_name: "FOMA V6" };
+      document.getElementById("modelJson").textContent = modelText;
     }
 
-    function addAttemptLog(result, videoName, challengeBeforeReset) { const now = new Date(); const item = { timestamp: now.toISOString(), time: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), video_name: videoName, challenge_id: result.challenge_id || challengeBeforeReset?.challenge_id || null, challenge: result.challenge || challengeBeforeReset || null, decision: result.decision || null, label: result.label || null, score: result.score ?? null, liveness: result.liveness || null, video_quality_score: result.video_quality_score ?? null, message: result.message || null, saved_video_path: result.saved_video_path || null, saved_result_path: result.saved_result_path || null, model_details: result.model_details || null, full_response: result }; analysisLogs.unshift(item); analysisLogs = analysisLogs.slice(0, 50); localStorage.setItem("pad_analysis_logs", JSON.stringify(analysisLogs, null, 2)); updateLogUI(); renderHistoryPage(); }
-    function updateRetryUI() { document.getElementById("retryCount").textContent = retryCount; document.getElementById("startBtn").disabled = Boolean(cooldownUntil && Date.now() < cooldownUntil); }
-    function updateCooldownUI() { clearInterval(cooldownInterval); const el = document.getElementById("cooldownText"); function tick() { if (!cooldownUntil || Date.now() >= cooldownUntil) { el.textContent = "--:--"; cooldownUntil = 0; if (retryCount >= 3) retryCount = 0; localStorage.setItem("pad_cooldown_until", "0"); localStorage.setItem("pad_retry_count", String(retryCount)); updateRetryUI(); clearInterval(cooldownInterval); return; } const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000); el.textContent = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`; document.getElementById("startBtn").disabled = true; } tick(); if (cooldownUntil && Date.now() < cooldownUntil) cooldownInterval = setInterval(tick, 1000); }
-    function updateLogUI() { const list = document.getElementById("attemptList"); if (!list) return; if (!analysisLogs.length) { list.innerHTML = '<div class="attempt-row"><div class="attempt-number">1</div><div>--</div><div>--:--</div></div>'; return; } list.innerHTML = analysisLogs.slice(0, 6).map((x, i) => `<div class="attempt-row"><div class="attempt-number">${i + 1}</div><div>${x.decision || "--"} · ${x.score !== null && x.score !== undefined ? Number(x.score).toFixed(3) : "--"}</div><div>${x.time || "--:--"}</div></div>`).join(""); }
-    function updateQualityLabel(value) { const el = document.getElementById("qualityLabel"); if (!el) return; if (value === null || value === undefined || Number.isNaN(Number(value))) { el.textContent = "--"; return; } const q = Number(value); if (q >= 0.80) el.textContent = "🟢 Bonne"; else if (q >= 0.30) el.textContent = "🟡 Moyenne"; else el.textContent = "🔴 Faible"; }
-    function updateResponseTimeUI(success = true) { const captureEl = document.getElementById("captureTime"), responseEl = document.getElementById("responseTime"), totalEl = document.getElementById("totalTime"), lastTestEl = document.getElementById("lastTestTime"), statusEl = document.getElementById("responseStatus"); if (!captureEl || !responseEl || !totalEl || !lastTestEl || !statusEl) return; const captureSeconds = RECORD_SECONDS; const totalSeconds = lastTotalTimeMs ? lastTotalTimeMs / 1000 : null; let apiSeconds = totalSeconds !== null ? Math.max(totalSeconds - captureSeconds, 0) : (lastResponseTimeMs ? lastResponseTimeMs / 1000 : null); captureEl.innerText = `${captureSeconds.toFixed(2)} s`; responseEl.innerText = apiSeconds !== null ? `${apiSeconds.toFixed(2)} s` : "--"; totalEl.innerText = totalSeconds !== null ? `${totalSeconds.toFixed(2)} s` : "--"; lastTestEl.innerText = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }); if (!success) { statusEl.innerText = "Erreur pendant l'appel API."; return; } if (apiSeconds !== null && apiSeconds < 1.5) statusEl.innerText = "Analyse complète rapide après capture. Démo fluide."; else if (apiSeconds !== null && apiSeconds < 3) statusEl.innerText = "Analyse complète acceptable pour un prototype IA local."; else statusEl.innerText = "Analyse complète locale : challenge actif + liveness + PAD V6 + qualité vidéo + logs."; }
-    function toggleJson(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "block" ? "none" : "block"; }
-    function downloadJson() { const payload = { exported_at: new Date().toISOString(), model_info: modelInfo, last_result: currentResult, logs: analysisLogs }; downloadFile("pad_v6_demo_export.json", JSON.stringify(payload, null, 2), "application/json"); }
-    function downloadTxt() { const lines = ["PAD V6 BANKING DEMO — EXPORT", `Exported at: ${new Date().toISOString()}`, ""]; analysisLogs.forEach((x, i) => { lines.push(`--- Attempt ${i + 1} ---`, `Time: ${x.time}`, `Decision: ${x.decision}`, `Label: ${x.label}`, `Score: ${x.score}`, `Quality: ${x.video_quality_score}`, `Liveness: ${x.liveness ? x.liveness.status : "--"}`, `Business reason: ${getBusinessReason(x)}`, `Challenge: ${x.challenge ? x.challenge.challenge_type : "--"}`, `Message: ${x.message}`, `Video: ${x.saved_video_path}`, `Result: ${x.saved_result_path}`, ""); }); downloadFile("pad_v6_demo_export.txt", lines.join("\n"), "text/plain"); }
-    function downloadFile(filename, content, type) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-    function decisionClass(decision) { if (decision === "ACCEPT") return "accept"; if (decision === "RETRY") return "retry"; if (decision === "REJECT") return "reject"; return "other"; }
-    function formatScore(value) { if (value === null || value === undefined || Number.isNaN(Number(value))) return "--"; return Number(value).toFixed(4); }
-    function formatQuality(value) { if (value === null || value === undefined || Number.isNaN(Number(value))) return "--"; const q = Number(value); let label = "🟡 Moyenne"; if (q >= 0.80) label = "🟢 Bonne"; else if (q < 0.30) label = "🔴 Faible"; return `${q.toFixed(4)}<br><span class="history-small">${label}</span>`; }
-   function fileNameOnly(path) {
-  if (!path) return "--";
-  return String(path).split(/[\\/]/).pop();
+    if (show) {
+      showToast("Informations modèle V6 chargées.");
+      openModelDetails();
+    }
+  }
+
+  function openModelDetails() {
+    document.getElementById("modelDetailsOverlay").classList.remove("hidden");
+  }
+
+  function closeModelDetails() {
+    document.getElementById("modelDetailsOverlay").classList.add("hidden");
+  }
+
+  async function loadModelTechnicalDetails() {
+    const box = document.getElementById("modelTechnicalJson");
+
+    try {
+      const res = await fetch(`${apiBase()}/model/info`, {
+        headers: ngrokHeaders()
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || "Erreur /model/info");
+
+      modelInfo = data;
+      box.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      box.textContent = "Impossible de charger /model/info.\n\n" + e.message;
+    }
+  }
+
+  async function startNewVerification() {
+    if (cooldownUntil && Date.now() < cooldownUntil) {
+      const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+      showToast(`Sécurité activée : patientez encore ${remaining} secondes.`);
+      return;
+    }
+
+    prepareNewAttemptUI();
+    await startBankingFlow();
+  }
+
+  async function startBankingFlow() {
+    const startBtn = document.getElementById("startBtn");
+
+    try {
+      if (cooldownUntil && Date.now() < cooldownUntil) {
+        const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+        showToast(`Sécurité activée : patientez encore ${remaining} secondes.`);
+        return;
+      }
+
+      startBtn.disabled = true;
+
+      prepareNewAttemptUI();
+
+      setFlowStatus("Initialisation de la caméra...");
+      await startCamera();
+
+      setFlowStatus("Création du challenge bancaire...");
+      currentChallenge = await createChallenge();
+
+      if (!currentChallenge?.challenge_id) {
+        throw new Error("Challenge non créé par l'API.");
+      }
+
+      document.getElementById("challengeId").value = currentChallenge.challenge_id;
+      updateChallengeStatus(currentChallenge, "Créé");
+
+      document.getElementById("instructionText").innerHTML = formatInstruction(currentChallenge);
+      document.getElementById("instructionIcon").textContent = challengeIcon(currentChallenge.challenge_type);
+
+      setSteps("challenge");
+      setFlowStatus(`Challenge créé : ${currentChallenge.challenge_type}. Réalisez l'instruction devant la caméra.`);
+
+      await startRecordingWithCountdown(RECORD_SECONDS);
+    } catch (e) {
+      console.error(e);
+      showToast(`Erreur : ${e.message}`);
+      setFlowStatus("Erreur pendant la vérification. Réessayez.");
+      startBtn.disabled = false;
+      setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle");
+    }
+  }
+
+  async function startCamera() {
+    if (stream) {
+      setCameraStatus("Caméra active", "online");
+      return;
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: "user"
+      },
+      audio: false
+    });
+
+    const video = document.getElementById("cameraPreview");
+    video.srcObject = stream;
+    await video.play();
+
+    document.getElementById("cameraPlaceholder").style.display = "none";
+    setCameraStatus("Caméra active", "online");
+  }
+
+  async function createChallenge() {
+    const res = await fetch(`${apiBase()}/pad/challenge/start`, {
+      method: "POST",
+      headers: ngrokHeaders({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+        session_id: `banking_demo_${Date.now()}`,
+        user_id: "banking_demo_user"
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error(`Création challenge échouée : ${await res.text()}`);
+    }
+
+    return await res.json();
+  }
+
+  async function startRecordingWithCountdown(seconds) {
+    totalStartTime = performance.now();
+
+    if (!stream) {
+      throw new Error("Caméra non initialisée.");
+    }
+
+    if (!window.MediaRecorder) {
+      throw new Error("MediaRecorder non supporté par ce navigateur.");
+    }
+
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+
+    recordedChunks = [];
+    setCameraStatus("Enregistrement vidéo", "recording");
+
+    const selectedMimeType = getSupportedVideoMimeType();
+
+    const recorderOptions = selectedMimeType
+      ? { mimeType: selectedMimeType }
+      : {};
+
+    currentRecordingMimeType = selectedMimeType || "video/webm";
+    currentRecordingExtension = extensionFromMimeType(currentRecordingMimeType);
+
+    console.log("[RECORDER] mimeType utilisé:", currentRecordingMimeType);
+    console.log("[RECORDER] extension utilisée:", currentRecordingExtension);
+
+    try {
+      mediaRecorder = new MediaRecorder(stream, recorderOptions);
+    } catch (e) {
+      console.error("[RECORDER] Erreur création MediaRecorder:", e);
+
+      mediaRecorder = new MediaRecorder(stream);
+      currentRecordingMimeType = mediaRecorder.mimeType || "video/webm";
+      currentRecordingExtension = extensionFromMimeType(currentRecordingMimeType);
+    }
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        recordedChunks.push(e.data);
+      }
+    };
+
+    mediaRecorder.onerror = (e) => {
+      console.error("[RECORDER] Erreur:", e);
+      document.getElementById("startBtn").disabled = false;
+      setCameraStatus("Erreur enregistrement", "idle");
+      showToast("Erreur pendant l'enregistrement vidéo.");
+    };
+
+    mediaRecorder.onstop = async () => {
+      try {
+        setCameraStatus("Vidéo enregistrée", "online");
+
+        const blob = new Blob(recordedChunks, {
+          type: currentRecordingMimeType
+        });
+
+        console.log("[RECORDER] chunks:", recordedChunks.length);
+        console.log("[RECORDER] blob size:", blob.size);
+        console.log("[RECORDER] blob type:", blob.type);
+
+        if (!blob || blob.size < 50000) {
+          throw new Error("Vidéo mobile invalide ou trop courte. Veuillez relancer la capture.");
+        }
+
+        setFlowStatus("Envoi de la vidéo à l'API PAD...");
+        await sendVideoToAPI(blob);
+      } catch (e) {
+        console.error("[RECORDER] Erreur envoi vidéo:", e);
+        document.getElementById("startBtn").disabled = false;
+        showToast(`Erreur envoi vidéo : ${e.message}`);
+        setFlowStatus("Erreur pendant l'envoi de la vidéo.");
+      }
+    };
+
+    mediaRecorder.start(1000);
+
+    startVisualCountdown(seconds);
+
+    setTimeout(() => {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+    }, seconds * 1000);
+  }
+
+  function getSupportedVideoMimeType() {
+    const candidates = [
+      "video/mp4;codecs=h264",
+      "video/mp4",
+      "video/webm;codecs=vp9",
+      "video/webm;codecs=vp8",
+      "video/webm"
+    ];
+
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) {
+      return "";
+    }
+
+    for (const type of candidates) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
+
+    return "";
+  }
+
+  function extensionFromMimeType(mimeType) {
+    if (mimeType && mimeType.includes("mp4")) return "mp4";
+    return "webm";
+  }
+
+  function startVisualCountdown(seconds) {
+    clearInterval(countdownInterval);
+
+    let remaining = seconds;
+
+    document.getElementById("timerText").textContent = `${remaining}s`;
+    updateMiniBars(0);
+
+    countdownInterval = setInterval(() => {
+      remaining -= 1;
+
+      const elapsed = seconds - remaining;
+
+      document.getElementById("timerText").textContent = `${Math.max(remaining, 0)}s`;
+      updateMiniBars(elapsed);
+
+      if (remaining <= 0) {
+        clearInterval(countdownInterval);
+      }
+    }, 1000);
+  }
+
+  function updateMiniBars(activeCount) {
+    for (let i = 1; i <= 6; i++) {
+      const bar = document.getElementById(`bar${i}`);
+      if (!bar) continue;
+
+      if (i <= activeCount) {
+        bar.classList.add("active");
+      } else {
+        bar.classList.remove("active");
+      }
+    }
+  }
+
+  async function sendVideoToAPI(blob) {
+    if (!currentChallenge?.challenge_id) {
+      throw new Error("Aucun challenge actif.");
+    }
+
+    const formData = new FormData();
+
+    const safeExtension = currentRecordingExtension || "webm";
+    const videoName = `banking_challenge_${Date.now()}.${safeExtension}`;
+
+    formData.append("video", blob, videoName);
+    formData.append("challenge_id", currentChallenge.challenge_id);
+    formData.append("enable_liveness", "true");
+    formData.append("require_challenge_validation", "true");
+
+    requestStartTime = performance.now();
+
+    const res = await fetch(`${apiBase()}/pad/analyze-video`, {
+      method: "POST",
+      headers: ngrokHeaders(),
+      body: formData
+    });
+
+    lastResponseTimeMs = performance.now() - requestStartTime;
+    lastTotalTimeMs = totalStartTime ? performance.now() - totalStartTime : null;
+
+    let result = null;
+
+    try {
+      result = await res.json();
+    } catch (e) {
+      result = { detail: "Réponse API non JSON." };
+    }
+
+    if (!res.ok) {
+      updateResponseTimeUI(false);
+      throw new Error(result.detail || "Erreur analyse vidéo.");
+    }
+
+    currentResult = result;
+    updateResponseTimeUI(true);
+    handleAnalysisResult(result, videoName);
+  }
+
+  function handleAnalysisResult(result, videoName = "runtime_camera.webm") {
+    const oldChallenge = currentChallenge;
+
+    const rawDecision = String(result.decision || "--").toUpperCase();
+    const decisionValue = rawDecision === "INVALID_INPUT" ? "RETRY" : rawDecision;
+
+    setSteps("result");
+
+    document.getElementById("decision").innerText = decisionValue;
+    document.getElementById("score").innerText = result.score ?? "--";
+    document.getElementById("quality").innerText = result.video_quality_score ?? "--";
+    updateQualityLabel(result.video_quality_score);
+    document.getElementById("liveness").innerText = result.liveness?.status || "--";
+
+    const adminMessage =
+      rawDecision === "INVALID_INPUT"
+        ? "Capture vidéo non exploitable. Nouvelle vérification recommandée."
+        : (result.message || "Analyse terminée.");
+
+    document.getElementById("message").innerText = adminMessage;
+    document.getElementById("resultJson").textContent = JSON.stringify(result, null, 2);
+    updateDetailedRuntimeUI(result);
+    updateChallengeStatus(
+      result.challenge || oldChallenge,
+      result.challenge?.used ? "Utilisé" : oldChallenge ? "Utilisé" : "En attente"
+    );
+
+    const box = document.getElementById("resultBox");
+    box.className = "result-box";
+
+    if (decisionValue === "ACCEPT") box.classList.add("accept");
+    if (decisionValue === "RETRY") box.classList.add("retry");
+    if (decisionValue === "REJECT") box.classList.add("reject");
+
+    /*
+      Résultat client : affiché dans la grande carte de challenge,
+      pas sous la caméra.
+    */
+    setInstructionCardToResult(result);
+
+    const clientCard = document.getElementById("clientResultCard");
+    if (clientCard) {
+      clientCard.className = "client-result-card hidden";
+    }
+
+    const startBtn = document.getElementById("startBtn");
+
+    if (decisionValue === "ACCEPT") {
+      retryCount = 0;
+      cooldownUntil = 0;
+
+      setFlowStatus("Identité vérifiée avec succès. Session sécurisée terminée.");
+      setCameraStatus("Analyse terminée", "online");
+
+      startBtn.textContent = "Démarrer la vérification";
+      startBtn.classList.add("hidden");
+    } else if (decisionValue === "RETRY") {
+      retryCount += 1;
+
+      if (retryCount >= 3) {
+        cooldownUntil = Date.now() + 120000;
+        showToast("Sécurité : 3 RETRY consécutifs. Attente de 120 secondes.");
+      }
+
+      if (rawDecision === "INVALID_INPUT") {
+        setFlowStatus("Capture vidéo non exploitable. Veuillez refaire une nouvelle vérification.");
+      } else {
+        setFlowStatus("Nouvelle capture recommandée. Le système ne rejette pas définitivement une vidéo ambiguë.");
+      }
+
+      setCameraStatus("Nouvelle tentative possible", "online");
+
+      startBtn.classList.remove("hidden");
+      startBtn.textContent = "Réessayer la vérification";
+    } else if (decisionValue === "REJECT") {
+      setFlowStatus("Vidéo rejetée comme attaque probable. Le résultat est enregistré dans les logs.");
+      setCameraStatus("Analyse terminée", "online");
+
+      startBtn.classList.remove("hidden");
+      startBtn.textContent = "Démarrer la vérification";
+    } else {
+      setFlowStatus("Décision incertaine. Vous pouvez refaire une vérification.");
+      setCameraStatus("Analyse terminée", "online");
+
+      startBtn.classList.remove("hidden");
+      startBtn.textContent = "Démarrer la vérification";
+    }
+
+    currentChallenge = null;
+    recordedChunks = [];
+
+    startBtn.disabled = false;
+    document.getElementById("challengeId").value = "";
+
+    localStorage.setItem("pad_retry_count", String(retryCount));
+    localStorage.setItem("pad_cooldown_until", String(cooldownUntil));
+
+    addAttemptLog(result, videoName, oldChallenge);
+    updateRetryUI();
+    updateCooldownUI();
+  }
+  function updateDetailedRuntimeUI(result) {
+  const runtime = result?.runtime_profile || {};
+
+  const modelV6Sec = runtime.video_model_predict_sec;
+  const livenessSec = runtime.active_liveness_sec;
+  const routerTotalSec = runtime.router_total_sec;
+
+  const modelEl = document.getElementById("modelV6Time");
+  const livenessEl = document.getElementById("livenessTime");
+  const responseEl = document.getElementById("responseTime");
+
+  if (modelEl) {
+    modelEl.innerText =
+      modelV6Sec !== null && modelV6Sec !== undefined
+        ? `${Number(modelV6Sec).toFixed(2)} s`
+        : "--";
+  }
+
+  if (livenessEl) {
+    livenessEl.innerText =
+      livenessSec !== null && livenessSec !== undefined
+        ? `${Number(livenessSec).toFixed(2)} s`
+        : "--";
+  }
+
+  if (responseEl && routerTotalSec !== null && routerTotalSec !== undefined) {
+    responseEl.innerText = `${Number(routerTotalSec).toFixed(2)} s`;
+  }
 }
-    function getBusinessReason(x) { const decision = x.decision, score = x.score, livenessStatus = x.liveness ? x.liveness.status : "--", livenessReason = x.liveness ? x.liveness.reason : ""; if (decision === "ACCEPT") return "Identité vérifiée : liveness validé et score PAD faible."; if (decision === "RETRY") { if (livenessStatus === "FAIL" || livenessStatus === "ERROR") return `Nouvelle capture demandée : liveness non validé (${livenessReason || "challenge échoué"}).`; if (score !== null && score !== undefined) return "Nouvelle capture recommandée : score PAD ambigu ou qualité moyenne."; return "Nouvelle capture recommandée : données insuffisantes pour accepter."; } if (decision === "REJECT") return "Risque d'attaque détecté : score PAD élevé ou comportement suspect."; return "Décision non standard : vérification manuelle recommandée."; }
-    function renderHistoryPage() { const logs = Array.isArray(analysisLogs) ? analysisLogs : []; const filterEl = document.getElementById("historyFilter"), searchEl = document.getElementById("historySearch"), body = document.getElementById("historyTableBody"); if (!body) return; const filter = filterEl ? filterEl.value : "ALL", search = searchEl ? searchEl.value.toLowerCase().trim() : ""; document.getElementById("histTotal").textContent = logs.length; document.getElementById("histAccept").textContent = logs.filter(x => x.decision === "ACCEPT").length; document.getElementById("histRetry").textContent = logs.filter(x => x.decision === "RETRY").length; document.getElementById("histReject").textContent = logs.filter(x => x.decision === "REJECT").length; let rows = logs; if (filter !== "ALL") rows = filter === "OTHER" ? rows.filter(x => !["ACCEPT", "RETRY", "REJECT"].includes(x.decision)) : rows.filter(x => x.decision === filter); if (search) rows = rows.filter(x => [x.decision, x.label, x.message, x.challenge?.challenge_type, x.challenge_id].join(" ").toLowerCase().includes(search)); if (!rows.length) { body.innerHTML = `<tr><td colspan="10" class="history-empty">Aucun résultat pour ce filtre.</td></tr>`; return; } body.innerHTML = rows.map((x, index) => { const decision = x.decision || "--", challengeType = x.challenge ? x.challenge.challenge_type : "--", challengeId = x.challenge_id || "--", livenessStatus = x.liveness ? x.liveness.status : "--", livenessReason = x.liveness ? x.liveness.reason : "--", videoPath = fileNameOnly(x.saved_video_path), resultPath = fileNameOnly(x.saved_result_path), detailId = `historyJson_${index}`; return `<tr><td>${index + 1}</td><td><span class="history-decision ${decisionClass(decision)}">${decision}</span><div class="history-small">${x.label || "--"}</div></td><td><strong>${formatScore(x.score)}</strong></td><td><strong>${livenessStatus}</strong><div class="history-small">${livenessReason}</div></td><td>${formatQuality(x.video_quality_score)}</td><td><strong>${challengeType}</strong><div class="history-small">${challengeId}</div></td><td><strong>${x.time || "--:--"}</strong><div class="history-small">${x.timestamp || ""}</div></td><td><div class="history-small">Vidéo : ${videoPath}<br>Résultat : ${resultPath}</div></td><td><div class="history-small">${getBusinessReason(x)}</div></td><td><button class="history-detail-btn" onclick="toggleHistoryJson('${detailId}')">Voir JSON</button><pre id="${detailId}" class="history-json">${JSON.stringify(x.full_response || x, null, 2)}</pre></td></tr>`; }).join(""); }
-    function toggleHistoryJson(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "block" ? "none" : "block"; }
-    function clearHistoryPage() { if (!confirm("Voulez-vous vraiment supprimer l'historique local de la démo ?")) return; analysisLogs = []; localStorage.setItem("pad_analysis_logs", "[]"); updateLogUI(); renderHistoryPage(); showToast("Historique supprimé."); }
-    function resetSession() { try { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); } catch(e) {} clearInstructionResultState(); clearInterval(countdownInterval); currentChallenge = null; currentResult = null; recordedChunks = []; requestStartTime = null; lastResponseTimeMs = null; totalStartTime = null; lastTotalTimeMs = null; retryCount = 0; cooldownUntil = 0; localStorage.setItem("pad_retry_count", "0"); localStorage.setItem("pad_cooldown_until", "0"); document.getElementById("challengeId").value = ""; updateChallengeStatus(null, "En attente"); document.getElementById("startBtn").disabled = false; document.getElementById("startBtn").classList.remove("hidden"); document.getElementById("startBtn").textContent = "Démarrer la vérification"; document.getElementById("clientResultCard").className = "client-result-card hidden"; document.getElementById("instructionText").innerHTML = "Regardez la caméra<br><span>Nous allons vérifier que vous êtes bien présent.</span>"; document.getElementById("instructionIcon").textContent = "🧑‍💼"; document.getElementById("resultBox").className = "result-box"; document.getElementById("decision").innerText = "--"; document.getElementById("score").innerText = "--"; document.getElementById("quality").innerText = "--"; updateQualityLabel(null); document.getElementById("liveness").innerText = "--"; document.getElementById("message").innerText = "Analyse en attente."; document.getElementById("resultJson").textContent = ""; document.getElementById("timerText").textContent = "--"; document.getElementById("captureTime").innerText = "--"; document.getElementById("responseTime").innerText = "--"; document.getElementById("totalTime").innerText = "--"; document.getElementById("lastTestTime").innerText = "--:--"; document.getElementById("responseStatus").innerText = "En attente d'analyse."; updateMiniBars(0); updateRetryUI(); updateCooldownUI(); setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle"); setSteps("challenge"); setFlowStatus("Session réinitialisée. Vous pouvez démarrer une nouvelle vérification."); showToast("Session réinitialisée."); }
-  </script>
+
+  function addAttemptLog(result, videoName, challengeBeforeReset) {
+    const now = new Date();
+
+    const normalizedDecision =
+      String(result.decision || "").toUpperCase() === "INVALID_INPUT"
+        ? "RETRY"
+        : (result.decision || null);
+
+    const item = {
+      timestamp: now.toISOString(),
+      time: now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      }),
+
+      video_name: videoName,
+
+      challenge_id: result.challenge_id || challengeBeforeReset?.challenge_id || null,
+      challenge: result.challenge || challengeBeforeReset || null,
+
+      decision: normalizedDecision,
+      raw_decision: result.decision || null,
+
+      label: result.label || null,
+      score: result.score ?? null,
+      liveness: result.liveness || null,
+      video_quality_score: result.video_quality_score ?? null,
+      message: result.message || null,
+      saved_video_path: result.saved_video_path || null,
+      saved_result_path: result.saved_result_path || null,
+      model_details: result.model_details || null,
+      full_response: result
+    };
+
+    analysisLogs.unshift(item);
+    analysisLogs = analysisLogs.slice(0, 50);
+
+    localStorage.setItem("pad_analysis_logs", JSON.stringify(analysisLogs, null, 2));
+
+    updateLogUI();
+    renderHistoryPage();
+  }
+
+  function updateRetryUI() {
+    document.getElementById("retryCount").textContent = retryCount;
+    document.getElementById("startBtn").disabled = Boolean(cooldownUntil && Date.now() < cooldownUntil);
+  }
+
+  function updateCooldownUI() {
+    clearInterval(cooldownInterval);
+
+    const el = document.getElementById("cooldownText");
+
+    function tick() {
+      if (!cooldownUntil || Date.now() >= cooldownUntil) {
+        el.textContent = "--:--";
+        cooldownUntil = 0;
+
+        if (retryCount >= 3) retryCount = 0;
+
+        localStorage.setItem("pad_cooldown_until", "0");
+        localStorage.setItem("pad_retry_count", String(retryCount));
+
+        updateRetryUI();
+        clearInterval(cooldownInterval);
+        return;
+      }
+
+      const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+
+      el.textContent =
+        `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
+
+      document.getElementById("startBtn").disabled = true;
+    }
+
+    tick();
+
+    if (cooldownUntil && Date.now() < cooldownUntil) {
+      cooldownInterval = setInterval(tick, 1000);
+    }
+  }
+
+  function updateLogUI() {
+    const list = document.getElementById("attemptList");
+    if (!list) return;
+
+    if (!analysisLogs.length) {
+      list.innerHTML =
+        '<div class="attempt-row"><div class="attempt-number">1</div><div>--</div><div>--:--</div></div>';
+      return;
+    }
+
+    list.innerHTML = analysisLogs.slice(0, 6).map((x, i) => `
+      <div class="attempt-row">
+        <div class="attempt-number">${i + 1}</div>
+        <div>${x.decision || "--"} · ${
+          x.score !== null && x.score !== undefined ? Number(x.score).toFixed(3) : "--"
+        }</div>
+        <div>${x.time || "--:--"}</div>
+      </div>
+    `).join("");
+  }
+
+  function updateQualityLabel(value) {
+    const el = document.getElementById("qualityLabel");
+    if (!el) return;
+
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      el.textContent = "--";
+      return;
+    }
+
+    const q = Number(value);
+
+    if (q >= 0.80) {
+      el.textContent = "🟢 Bonne";
+    } else if (q >= 0.30) {
+      el.textContent = "🟡 Moyenne";
+    } else {
+      el.textContent = "🔴 Faible";
+    }
+  }
+
+  function updateResponseTimeUI(success = true) {
+    const captureEl = document.getElementById("captureTime");
+    const responseEl = document.getElementById("responseTime");
+    const totalEl = document.getElementById("totalTime");
+    const lastTestEl = document.getElementById("lastTestTime");
+    const statusEl = document.getElementById("responseStatus");
+
+    if (!captureEl || !responseEl || !totalEl || !lastTestEl || !statusEl) return;
+
+    const captureSeconds = RECORD_SECONDS;
+    const totalSeconds = lastTotalTimeMs ? lastTotalTimeMs / 1000 : null;
+
+    let apiSeconds =
+      totalSeconds !== null
+        ? Math.max(totalSeconds - captureSeconds, 0)
+        : (lastResponseTimeMs ? lastResponseTimeMs / 1000 : null);
+
+    captureEl.innerText = `${captureSeconds.toFixed(2)} s`;
+    responseEl.innerText = apiSeconds !== null ? `${apiSeconds.toFixed(2)} s` : "--";
+    totalEl.innerText = totalSeconds !== null ? `${totalSeconds.toFixed(2)} s` : "--";
+
+    lastTestEl.innerText = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+
+    if (!success) {
+      statusEl.innerText = "Erreur pendant l'appel API.";
+      return;
+    }
+
+    if (apiSeconds !== null && apiSeconds < 1.5) {
+      statusEl.innerText = "Analyse complète rapide après capture. Démo fluide.";
+    } else if (apiSeconds !== null && apiSeconds < 3) {
+      statusEl.innerText = "Analyse complète acceptable pour un prototype IA local.";
+    } else {
+      statusEl.innerText = "Analyse complète locale : challenge actif + liveness + PAD V6 + qualité vidéo + logs.";
+    }
+  }
+
+  function toggleJson(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = el.style.display === "block" ? "none" : "block";
+  }
+
+  function downloadJson() {
+    const payload = {
+      exported_at: new Date().toISOString(),
+      model_info: modelInfo,
+      last_result: currentResult,
+      logs: analysisLogs
+    };
+
+    downloadFile("pad_v6_demo_export.json", JSON.stringify(payload, null, 2), "application/json");
+  }
+
+  function downloadTxt() {
+    const lines = [
+      "PAD V6 BANKING DEMO — EXPORT",
+      `Exported at: ${new Date().toISOString()}`,
+      ""
+    ];
+
+    analysisLogs.forEach((x, i) => {
+      lines.push(
+        `--- Attempt ${i + 1} ---`,
+        `Time: ${x.time}`,
+        `Decision: ${x.decision}`,
+        `Raw decision: ${x.raw_decision || x.decision}`,
+        `Label: ${x.label}`,
+        `Score: ${x.score}`,
+        `Quality: ${x.video_quality_score}`,
+        `Liveness: ${x.liveness ? x.liveness.status : "--"}`,
+        `Business reason: ${getBusinessReason(x)}`,
+        `Challenge: ${x.challenge ? x.challenge.challenge_type : "--"}`,
+        `Message: ${x.message}`,
+        `Video: ${x.saved_video_path}`,
+        `Result: ${x.saved_result_path}`,
+        ""
+      );
+    });
+
+    downloadFile("pad_v6_demo_export.txt", lines.join("\n"), "text/plain");
+  }
+
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function decisionClass(decision) {
+    if (decision === "ACCEPT") return "accept";
+    if (decision === "RETRY") return "retry";
+    if (decision === "REJECT") return "reject";
+    return "other";
+  }
+
+  function formatScore(value) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      return "--";
+    }
+
+    return Number(value).toFixed(4);
+  }
+
+  function formatQuality(value) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      return "--";
+    }
+
+    const q = Number(value);
+
+    let label = "🟡 Moyenne";
+
+    if (q >= 0.80) label = "🟢 Bonne";
+    else if (q < 0.30) label = "🔴 Faible";
+
+    return `${q.toFixed(4)}<br><span class="history-small">${label}</span>`;
+  }
+
+  function fileNameOnly(path) {
+    if (!path) return "--";
+    return String(path).split(/[\\/]/).pop();
+  }
+
+  function getBusinessReason(x) {
+    let decision = String(x.raw_decision || x.decision || "").toUpperCase();
+
+    if (decision === "INVALID_INPUT") {
+      return "Capture vidéo non exploitable : le fichier vidéo est vide, incomplet ou illisible. Nouvelle capture recommandée.";
+    }
+
+    if (decision === "ACCEPT") {
+      return "Identité vérifiée : liveness validé et score PAD faible.";
+    }
+
+    if (decision === "RETRY") {
+      const score = x.score;
+      const livenessStatus = x.liveness ? x.liveness.status : "--";
+      const livenessReason = x.liveness ? x.liveness.reason : "";
+
+      if (livenessStatus === "FAIL" || livenessStatus === "ERROR") {
+        return `Nouvelle capture demandée : liveness non validé (${livenessReason || "challenge échoué"}).`;
+      }
+
+      if (score !== null && score !== undefined) {
+        return "Nouvelle capture recommandée : score PAD ambigu ou qualité moyenne.";
+      }
+
+      return "Nouvelle capture recommandée : données insuffisantes pour accepter.";
+    }
+
+    if (decision === "REJECT") {
+      return "Risque d'attaque détecté : score PAD élevé ou comportement suspect.";
+    }
+
+    return "Décision non standard : vérification manuelle recommandée.";
+  }
+
+  function renderHistoryPage() {
+    const logs = Array.isArray(analysisLogs) ? analysisLogs : [];
+
+    const filterEl = document.getElementById("historyFilter");
+    const searchEl = document.getElementById("historySearch");
+    const body = document.getElementById("historyTableBody");
+
+    if (!body) return;
+
+    const filter = filterEl ? filterEl.value : "ALL";
+    const search = searchEl ? searchEl.value.toLowerCase().trim() : "";
+
+    document.getElementById("histTotal").textContent = logs.length;
+    document.getElementById("histAccept").textContent = logs.filter(x => x.decision === "ACCEPT").length;
+    document.getElementById("histRetry").textContent = logs.filter(x => x.decision === "RETRY").length;
+    document.getElementById("histReject").textContent = logs.filter(x => x.decision === "REJECT").length;
+
+    let rows = logs;
+
+    if (filter !== "ALL") {
+      rows = filter === "OTHER"
+        ? rows.filter(x => !["ACCEPT", "RETRY", "REJECT"].includes(x.decision))
+        : rows.filter(x => x.decision === filter);
+    }
+
+    if (search) {
+      rows = rows.filter(x =>
+        [
+          x.decision,
+          x.raw_decision,
+          x.label,
+          x.message,
+          x.challenge?.challenge_type,
+          x.challenge_id
+        ].join(" ").toLowerCase().includes(search)
+      );
+    }
+
+    if (!rows.length) {
+      body.innerHTML =
+        `<tr><td colspan="10" class="history-empty">Aucun résultat pour ce filtre.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map((x, index) => {
+      const decision = x.decision || "--";
+      const rawDecision = x.raw_decision || decision;
+
+      const challengeType = x.challenge ? x.challenge.challenge_type : "--";
+      const challengeId = x.challenge_id || "--";
+
+      const livenessStatus = x.liveness ? x.liveness.status : "--";
+      const livenessReason = x.liveness ? x.liveness.reason : "--";
+
+      const videoPath = fileNameOnly(x.saved_video_path);
+      const resultPath = fileNameOnly(x.saved_result_path);
+
+      const detailId = `historyJson_${index}`;
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>
+            <span class="history-decision ${decisionClass(decision)}">${decision}</span>
+            <div class="history-small">
+              ${x.label || "--"}${rawDecision !== decision ? `<br>Raw: ${rawDecision}` : ""}
+            </div>
+          </td>
+          <td><strong>${formatScore(x.score)}</strong></td>
+          <td>
+            <strong>${livenessStatus}</strong>
+            <div class="history-small">${livenessReason}</div>
+          </td>
+          <td>${formatQuality(x.video_quality_score)}</td>
+          <td>
+            <strong>${challengeType}</strong>
+            <div class="history-small">${challengeId}</div>
+          </td>
+          <td>
+            <strong>${x.time || "--:--"}</strong>
+            <div class="history-small">${x.timestamp || ""}</div>
+          </td>
+          <td>
+            <div class="history-small">
+              Vidéo : ${videoPath}<br>
+              Résultat : ${resultPath}
+            </div>
+          </td>
+          <td>
+            <div class="history-small">${getBusinessReason(x)}</div>
+          </td>
+          <td>
+            <button class="history-detail-btn" onclick="toggleHistoryJson('${detailId}')">Voir JSON</button>
+            <pre id="${detailId}" class="history-json">${JSON.stringify(x.full_response || x, null, 2)}</pre>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function toggleHistoryJson(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = el.style.display === "block" ? "none" : "block";
+  }
+
+  function clearHistoryPage() {
+    if (!confirm("Voulez-vous vraiment supprimer l'historique local de la démo ?")) return;
+
+    analysisLogs = [];
+    localStorage.setItem("pad_analysis_logs", "[]");
+
+    updateLogUI();
+    renderHistoryPage();
+
+    showToast("Historique supprimé.");
+  }
+
+  function resetSession() {
+    try {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+    } catch (e) {}
+
+    clearInstructionResultState();
+    clearInterval(countdownInterval);
+
+    currentChallenge = null;
+    currentResult = null;
+    recordedChunks = [];
+
+    requestStartTime = null;
+    lastResponseTimeMs = null;
+    totalStartTime = null;
+    lastTotalTimeMs = null;
+
+    retryCount = 0;
+    cooldownUntil = 0;
+
+    localStorage.setItem("pad_retry_count", "0");
+    localStorage.setItem("pad_cooldown_until", "0");
+
+    document.getElementById("challengeId").value = "";
+    updateChallengeStatus(null, "En attente");
+
+    const startBtn = document.getElementById("startBtn");
+    startBtn.disabled = false;
+    startBtn.classList.remove("hidden");
+    startBtn.textContent = "Démarrer la vérification";
+
+    document.getElementById("clientResultCard").className = "client-result-card hidden";
+
+    document.getElementById("instructionText").innerHTML =
+      "Regardez la caméra<br><span>Nous allons vérifier que vous êtes bien présent.</span>";
+
+    document.getElementById("instructionIcon").textContent = "🧑‍💼";
+
+    document.getElementById("resultBox").className = "result-box";
+    document.getElementById("decision").innerText = "--";
+    document.getElementById("score").innerText = "--";
+    document.getElementById("quality").innerText = "--";
+    updateQualityLabel(null);
+    document.getElementById("liveness").innerText = "--";
+    document.getElementById("message").innerText = "Analyse en attente.";
+    document.getElementById("resultJson").textContent = "";
+
+    document.getElementById("timerText").textContent = "--";
+
+document.getElementById("captureTime").innerText = "--";
+document.getElementById("responseTime").innerText = "--";
+document.getElementById("modelV6Time").innerText = "--";
+document.getElementById("livenessTime").innerText = "--";
+document.getElementById("totalTime").innerText = "--";
+document.getElementById("lastTestTime").innerText = "--:--";
+document.getElementById("responseStatus").innerText = "En attente d'analyse.";
+    updateMiniBars(0);
+    updateRetryUI();
+    updateCooldownUI();
+
+    setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle");
+    setSteps("challenge");
+    setFlowStatus("Session réinitialisée. Vous pouvez démarrer une nouvelle vérification.");
+
+    showToast("Session réinitialisée.");
+  }
+</script>
 </body>
 </html>

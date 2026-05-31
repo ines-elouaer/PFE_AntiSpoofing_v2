@@ -1,0 +1,120 @@
+{
+  "type": "video",
+  "branch": "video_dynamic_decision_system",
+  "score": 0.1566,
+  "label": "REAL",
+  "decision": "ACCEPT",
+  "next_action": "NONE",
+  "liveness": {
+    "status": "PASS",
+    "passed": true,
+    "challenge": "SMILE",
+    "reason": "smile_passed",
+    "metrics": {
+      "total_frames": 100,
+      "processed_frames": 50,
+      "detected_frames": 50,
+      "face_rate": 1.0,
+      "ear_min": 0.1465,
+      "ear_mean": 0.2401,
+      "blink_closed_frames": 4,
+      "nose_shift_min": -0.0283,
+      "nose_shift_max": 0.0566,
+      "nose_shift_range": 0.0849,
+      "smile_score_max": 0.8911,
+      "smile_score_mean": 0.6682,
+      "eyebrow_score_min": 0.1536,
+      "eyebrow_score_max": 0.2579,
+      "eyebrow_score_mean": 0.1999,
+      "eyebrow_baseline": 0.1854,
+      "eyebrow_peak": 0.2299,
+      "eyebrow_amplitude": 0.0444
+    }
+  },
+  "model_called": true,
+  "model_details": {
+    "score_v3_multimodal": 0.011361650191247463,
+    "score_behavior_pose": 0.979532528340986,
+    "score_final_v6": 0.15658728191370824,
+    "video_quality_score": 0.5851563733128353,
+    "behavior_pose_status": "behavior_pose_reliable",
+    "behavior_pose_features": {
+      "ear_mean": 0.18264353645114323,
+      "ear_std": 0.014439862436847565,
+      "ear_min": 0.16070595703314225,
+      "ear_max": 0.20829867717778836,
+      "blink_count": 0.0,
+      "motion_mean": 3.136587890625,
+      "motion_std": 0.3595556186644011,
+      "motion_max": 3.7087532552083333,
+      "skipped_rate": 0.0,
+      "yaw_std": 1.1558935242836201,
+      "pitch_std": 1.2007864597721631,
+      "roll_std": 0.6669129644454719,
+      "yaw_range": 3.772708103942263,
+      "pitch_range": 4.826526017690526,
+      "roll_range": 1.9241593414663185,
+      "yaw_delta_mean": 0.3638826012611389,
+      "pitch_delta_mean": 0.8333140015602112,
+      "roll_delta_mean": 0.27200910449028015,
+      "pose_autocorr": 0.9498010881271456,
+      "pose_valid_rate": 1.0
+    },
+    "fusion": {
+      "type": "score_level_fusion_v6",
+      "formula": "score_final_v6 = 0.85 * score_v3 + 0.15 * score_behavior_pose",
+      "w_v3_multimodal": 0.85,
+      "w_behavior_pose": 0.15,
+      "status": "behavior_pose_loaded"
+    }
+  },
+  "video_quality_score": 0.5852,
+  "behavior_pose_status": "behavior_pose_reliable",
+  "runtime_instability_guard": {
+    "enabled": true,
+    "triggered": false,
+    "reason": null,
+    "score_extreme_reject_kept": false
+  },
+  "runtime_profile": {
+    "profiling_enabled": true,
+    "input_value": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205448_846156.webm",
+    "enable_liveness": true,
+    "require_challenge_validation": true,
+    "challenge_validation_sec": 0.0001,
+    "active_liveness_sec": 1.6209,
+    "video_model_predict_sec": 5.2074,
+    "banking_decision_sec": 0.0,
+    "runtime_guard_sec": 0.0,
+    "mark_challenge_used_sec": 0.009,
+    "router_total_sec": 6.8376
+  },
+  "message": "Analyse vidéo terminée. Vidéo acceptée.",
+  "validation": {
+    "is_valid": true,
+    "input_type": "video",
+    "reason": "valid_video",
+    "details": {
+      "path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205448_846156.webm",
+      "frame_count": 99,
+      "fps": 16.666666666666668,
+      "duration_sec": 5.9399999999999995,
+      "width": 640,
+      "height": 480
+    }
+  },
+  "session_id": "20090c91-8b90-4bb5-a9d6-d0b5a61ae6f1",
+  "challenge_id": "2788a507-257f-43f5-9b2d-5ab4eff1e2be",
+  "challenge": {
+    "session_id": "20090c91-8b90-4bb5-a9d6-d0b5a61ae6f1",
+    "challenge_id": "2788a507-257f-43f5-9b2d-5ab4eff1e2be",
+    "challenge_type": "SMILE",
+    "instruction": "Souriez pendant quelques secondes.",
+    "created_at": "2026-05-21T19:54:42.768385+00:00",
+    "expires_at": "2026-05-21T19:55:42.768385+00:00",
+    "used": true,
+    "source": "api"
+  },
+  "original_input": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205448_846156.webm",
+  "saved_video_path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205448_846156.webm"
+}

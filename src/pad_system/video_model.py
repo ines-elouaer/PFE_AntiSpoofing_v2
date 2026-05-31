@@ -6,7 +6,7 @@ Corrections appliquées :
 2. Suppression double lecture vidéo — predict_with_details lit la vidéo UNE SEULE FOIS
 3. Fix blink_count — seuil adaptatif relatif (baseline * 0.75) au lieu de 0.18 fixe
 """
-
+import os 
 from pathlib import Path
 import math
 import warnings
@@ -66,24 +66,31 @@ class VideoPADModel:
     RIGHT_EYE = [362, 385, 387, 263, 373, 380]
 
     def __init__(
-        self,
-        checkpoint_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\03_final_models\video_v6_behavior_pose\mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3\seed42\best_model.pth",
-        test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu\mixed_val_frames.csv",
-        behav_test_csv: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\mixed_val_behav_rppg_norm.csv",
-        behavior_stats_json: str = r"E:\PFE_AntiSpoofing_v2\data\mixed_casia_axon_local_msu_rppg\behav_rppg_norm_stats.json",
-        scaler_path: str = "",
-        behavior_pose_model_path: str = r"E:\PFE_AntiSpoofing_v2\experiments\03_final_models\banking_demo_models\final_models\behavior_pose_v6\behavior_pose_clf.pkl",
-        img_size: int = 224,
-        seq_len: int = 16,
-        sample_mode: str = "center_consecutive",
-    ):
-        self.checkpoint_path         = Path(checkpoint_path)
-        self.test_csv                = Path(test_csv)
-        self.behav_test_csv          = Path(behav_test_csv)
-        self.behavior_stats_json     = Path(behavior_stats_json) if behavior_stats_json else None
-        self.scaler_path             = Path(scaler_path) if scaler_path else None
-        self.behavior_pose_model_path = Path(behavior_pose_model_path) if behavior_pose_model_path else None
+    self,
+    checkpoint_path: str = "experiments/03_final_models/video_v6_behavior_pose/mixed_casia_axon_local_msu_gated_hard_balanced_rppg_v3/seed42/best_model.pth",
+    test_csv: str = "data/mixed_casia_axon_local_msu/mixed_val_frames.csv",
+    behav_test_csv: str = "data/mixed_casia_axon_local_msu_rppg/mixed_val_behav_rppg_norm.csv",
+    behavior_stats_json: str = "data/mixed_casia_axon_local_msu_rppg/behav_rppg_norm_stats.json",
+    scaler_path: str = "",
+    behavior_pose_model_path: str = "experiments/03_final_models/banking_demo_models/final_models/behavior_pose_v6/behavior_pose_clf.pkl",
+    img_size: int = 224,
+    seq_len: int = 16,
+    sample_mode: str = "center_consecutive",
+):
+        import os
 
+        checkpoint_path = os.getenv("PAD_VIDEO_CHECKPOINT", checkpoint_path)
+        test_csv = os.getenv("PAD_TEST_CSV", test_csv)
+        behav_test_csv = os.getenv("PAD_BEHAV_TEST_CSV", behav_test_csv)
+        behavior_stats_json = os.getenv("PAD_BEHAVIOR_STATS", behavior_stats_json)
+        behavior_pose_model_path = os.getenv("PAD_BEHAVIOR_POSE_MODEL", behavior_pose_model_path)
+
+        self.checkpoint_path = Path(checkpoint_path)
+        self.test_csv = Path(test_csv)
+        self.behav_test_csv = Path(behav_test_csv)
+        self.behavior_stats_json = Path(behavior_stats_json) if behavior_stats_json else None
+        self.scaler_path = Path(scaler_path) if scaler_path else None
+        self.behavior_pose_model_path = Path(behavior_pose_model_path) if behavior_pose_model_path else None
         self.img_size    = int(img_size)
         self.seq_len     = int(seq_len)
         self.sample_mode = str(sample_mode)
