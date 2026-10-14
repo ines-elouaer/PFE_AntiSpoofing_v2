@@ -199,3 +199,4 @@ Ce prototype vise à démontrer la faisabilité d’un système PAD vidéo inté
 
 Ce projet est un prototype académique et expérimental.  
 Une validation supplémentaire serait nécessaire avant une utilisation dans un environnement bancaire réel.
+git status
