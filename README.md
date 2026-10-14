@@ -190,28 +190,8 @@ Ce prototype vise à démontrer la faisabilité d’un système PAD vidéo inté
 - une interface démonstrative claire ;
 - une traçabilité des résultats ;
 - une architecture organisée et extensible.
-
 ---
-## Accès HTTPS distant via ngrok
 
- 1. Lancer Docker normalement
-     docker compose up -d
-
-  2. Lancer ngrok
-     ngrok http 8080
-
-  3. Ouvrir l'URL HTTPS générée par ngrok
-     https://livable-squishy-radiance.ngrok-free.dev/
-
-  Cette URL permet :
-  → Accès distant au prototype
-  → Utilisation de la caméra depuis un téléphone
-  → Test réaliste du parcours utilisateur
-
-  Note : ngrok est utilisé pour la démonstration uniquement.
- 
-
----
 
 
 
