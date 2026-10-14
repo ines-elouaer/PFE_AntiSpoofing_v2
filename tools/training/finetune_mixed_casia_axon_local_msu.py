@@ -15,9 +15,6 @@ if not BASE_SCRIPT.exists():
     raise FileNotFoundError(f"Script base introuvable: {BASE_SCRIPT}")
 
 
-# ==========================================================
-# Charger le script original sans le modifier
-# ==========================================================
 
 spec = importlib.util.spec_from_file_location(
     "finetune_mixed_casia_axon_base",
@@ -27,9 +24,6 @@ base = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(base)
 
 
-# ==========================================================
-# Nouvelle configuration : CASIA + AXON + LOCAL_REAL + MSU
-# ==========================================================
 
 MIXED_DIR = PROJECT_ROOT / "data" / "mixed_casia_axon_local_msu"
 
@@ -51,9 +45,6 @@ OUT_DIR = (
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# ==========================================================
-# Overriding des chemins du script original
-# ==========================================================
 
 base.CHECKPOINT_CASIA = CHECKPOINT_BASE
 
@@ -72,9 +63,6 @@ base.HISTORY_PATH = OUT_DIR / "training_history.json"
 base.CONFIG_PATH = OUT_DIR / "config.json"
 
 
-# ==========================================================
-# Fine-tuning léger
-# ==========================================================
 
 base.PHASE1_EPOCHS = 3
 base.PHASE2_EPOCHS = 0
@@ -96,27 +84,9 @@ base.TEMPORAL_POOL = "median"
 base.WEIGHT_DECAY = 1e-4
 
 
-# ==========================================================
-# Sampler équilibré REAL/SPOOF + équilibrage par domaine
-# ==========================================================
 
 def build_label_domain_balanced_sampler(dataset, frames_csv: Path, min_count: int = 1):
-    """
-    Sampler adapté à notre problème webcam.
-
-    Objectif :
-    - 50 % REAL / 50 % SPOOF pendant l'entraînement
-    - équilibrer les sous-domaines REAL :
-      CASIA_REAL, AXON_REAL, LOCAL_REAL, MSU_MFSD
-    - équilibrer les types SPOOF par dataset / attack_type
-
-    Pourquoi :
-    Le train brut reste déséquilibré :
-    REAL  = 146
-    SPOOF = 578
-
-    Donc on ne veut pas entraîner naïvement sur la distribution brute.
-    """
+    
 
     video_df = base.load_video_meta(frames_csv)
     meta_by_vid = video_df.set_index("video_id").to_dict(orient="index")
@@ -153,7 +123,6 @@ def build_label_domain_balanced_sampler(dataset, frames_csv: Path, min_count: in
         for label, group_set in groups_by_label.items()
     }
 
-    # masse cible : 50 % REAL, 50 % SPOOF
     target_label_mass = {
         0: 0.5,
         1: 0.5,
@@ -191,21 +160,12 @@ def build_label_domain_balanced_sampler(dataset, frames_csv: Path, min_count: in
     return sampler, group_counts
 
 
-# Remplacer le sampler original par notre sampler équilibré
 base.build_stratified_sampler = build_label_domain_balanced_sampler
 
 
-# ==========================================================
-# Class weights neutres
-# ==========================================================
 
 def compute_neutral_class_weights(dataset, device):
-    """
-    Comme le sampler force déjà un apprentissage équilibré REAL/SPOOF,
-    on évite de surpondérer encore la classe REAL avec les class weights bruts.
-
-    CrossEntropyLoss utilisera donc weight=[1.0, 1.0].
-    """
+    
 
     labels = [dataset.labels_by_vid[vid] for vid in dataset.video_ids]
     counts = Counter(labels)
@@ -221,9 +181,6 @@ def compute_neutral_class_weights(dataset, device):
 base.compute_class_weights = compute_neutral_class_weights
 
 
-# ==========================================================
-# Print config claire
-# ==========================================================
 
 def print_adaptation_config():
     print("\n" + "=" * 70)

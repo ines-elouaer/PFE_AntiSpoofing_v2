@@ -36,15 +36,7 @@ def load_paths(project_root: Path):
 
 
 def parse_local_real_filename(path: Path):
-    """
-    Format attendu :
-    pXX_device_condition_tXX.mp4
-
-    Exemples :
-    p01_iphone_normal_t01.mp4
-    p02_pc_lowlight_t02.mp4
-    p12_redmi_near_t03.mp4
-    """
+    
     stem = path.stem.lower()
     parts = stem.split("_")
 
@@ -85,12 +77,7 @@ def extract_consecutive_middle_frames(
     frames_per_video: int = 16,
     jpeg_quality: int = 95,
 ):
-    """
-    Même principe que Axon :
-    - extraction de T frames consécutives
-    - depuis le milieu de la vidéo
-    - si vidéo trop courte, répétition de la dernière frame disponible
-    """
+   
     cap = cv2.VideoCapture(str(video_path))
 
     if not cap.isOpened():
@@ -172,16 +159,7 @@ def extract_consecutive_middle_frames(
 
 
 def assign_splits_by_subject(subject_ids):
-    """
-    Split propre par personne :
-    - aucune personne dans deux splits
-    - train ≈ 70 %
-    - val ≈ 15 %
-    - test ≈ 15 %
-
-    Pour peu de personnes :
-    - garantit au moins 1 sujet val et 1 sujet test si possible.
-    """
+    
     subjects = sorted(set(subject_ids))
     n = len(subjects)
 
@@ -356,7 +334,6 @@ def main():
             encoding="utf-8",
         )
 
-    # Résumés par split, sujet, appareil
     summary = {
         "raw_dir": str(raw_dir),
         "prepared_dir": str(prepared_dir),
@@ -389,7 +366,6 @@ def main():
         if len(videos_df) else {},
     }
 
-    # JSON ne supporte pas les clés tuple
     summary["video_counts_by_split_device"] = {
         f"{k[0]}::{k[1]}": int(v)
         for k, v in summary["video_counts_by_split_device"].items()

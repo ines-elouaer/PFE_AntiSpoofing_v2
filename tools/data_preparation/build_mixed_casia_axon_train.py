@@ -36,9 +36,6 @@ BEHAV_COLS = [
 ]
 
 
-# ==========================================================
-# PATH HELPERS
-# ==========================================================
 
 def load_paths(project_root: Path):
     config_path = project_root / "configs" / "paths.json"
@@ -77,11 +74,7 @@ def resolve_optional_path(value: str, project_root: Path) -> Optional[Path]:
 
 
 def find_casia_frames_csv(project_root: Path, split: str) -> Optional[Path]:
-    """
-    Essaie plusieurs emplacements probables pour les CSV CASIA frame-level.
-    CSV attendu : path,label,subject_id,video_id,frame_idx
-    """
-
+   
     candidates = [
         project_root / "data" / "processed" / "casia" / "splits_subject" / f"{split}.csv",
         project_root / "data" / "processed" / "casia" / "splits_subject" / f"casia_{split}.csv",
@@ -95,10 +88,7 @@ def find_casia_frames_csv(project_root: Path, split: str) -> Optional[Path]:
 
 
 def find_casia_behav_csv(project_root: Path, split: str) -> Optional[Path]:
-    """
-    Essaie plusieurs emplacements probables pour les CSV behavior CASIA.
-    CSV attendu : video_id,label + features comportementales.
-    """
+    
 
     candidates = [
         project_root / "data" / "processed" / "casia" / "behav" / f"behav_{split}.csv",
@@ -110,10 +100,6 @@ def find_casia_behav_csv(project_root: Path, split: str) -> Optional[Path]:
 
     return first_existing(candidates)
 
-
-# ==========================================================
-# DATA HELPERS
-# ==========================================================
 
 def normalize_label_name(label: int) -> str:
     return "REAL" if int(label) == 0 else "SPOOF"
@@ -145,7 +131,6 @@ def ensure_frame_columns(df: pd.DataFrame, domain: str) -> pd.DataFrame:
     df["domain"] = domain
     df["source_dataset"] = domain
 
-    # Colonnes standard au début, puis les autres colonnes.
     front_cols = [
         "path",
         "label",
@@ -275,9 +260,6 @@ def check_unique_video_ids(frames_df: pd.DataFrame, name: str):
         )
 
 
-# ==========================================================
-# MAIN
-# ==========================================================
 
 def main():
     parser = argparse.ArgumentParser()
@@ -326,7 +308,6 @@ def main():
             f"Axon val behavior introuvable: {axon_val_behav_path}"
         )
 
-    # CASIA paths
     casia_train_frames_path = resolve_optional_path(args.casia_train_frames, project_root)
     casia_val_frames_path = resolve_optional_path(args.casia_val_frames, project_root)
     casia_train_behav_path = resolve_optional_path(args.casia_train_behav, project_root)
@@ -388,7 +369,6 @@ def main():
     print(f"Axon train behav     : {axon_train_behav_path}")
     print(f"Axon val behav       : {axon_val_behav_path}")
 
-    # Load
     casia_train_frames = pd.read_csv(casia_train_frames_path)
     casia_val_frames = pd.read_csv(casia_val_frames_path)
     casia_train_behav = pd.read_csv(casia_train_behav_path)
@@ -399,7 +379,6 @@ def main():
     axon_train_behav = pd.read_csv(axon_train_behav_path)
     axon_val_behav = pd.read_csv(axon_val_behav_path)
 
-    # Normalize columns
     casia_train_frames = ensure_frame_columns(casia_train_frames, "CASIA")
     casia_val_frames = ensure_frame_columns(casia_val_frames, "CASIA")
     axon_train_frames = ensure_frame_columns(axon_train_frames, "AXON")
@@ -410,13 +389,11 @@ def main():
     axon_train_behav = ensure_behav_columns(axon_train_behav, "AXON")
     axon_val_behav = ensure_behav_columns(axon_val_behav, "AXON")
 
-    # Align behavior to frame video_ids
     casia_train_behav = filter_behav_by_frames(casia_train_behav, casia_train_frames)
     casia_val_behav = filter_behav_by_frames(casia_val_behav, casia_val_frames)
     axon_train_behav = filter_behav_by_frames(axon_train_behav, axon_train_frames)
     axon_val_behav = filter_behav_by_frames(axon_val_behav, axon_val_frames)
 
-    # Combine
     mixed_train_frames = align_and_concat([casia_train_frames, axon_train_frames])
     mixed_val_frames = align_and_concat([casia_val_frames, axon_val_frames])
 
@@ -426,7 +403,7 @@ def main():
     check_unique_video_ids(mixed_train_frames, "mixed_train_frames")
     check_unique_video_ids(mixed_val_frames, "mixed_val_frames")
 
-    # Save
+    
     mixed_train_frames.to_csv(mixed_train_frames_path, index=False, encoding="utf-8")
     mixed_val_frames.to_csv(mixed_val_frames_path, index=False, encoding="utf-8")
     mixed_train_behav.to_csv(mixed_train_behav_path, index=False, encoding="utf-8")

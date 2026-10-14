@@ -8,9 +8,7 @@ router = APIRouter(tags=["Health"])
 
 @router.get("/health", response_model=HealthResponse)
 def health_check():
-    """
-    Vérifie que l'API est disponible.
-    """
+    
     return HealthResponse(
         status="ok",
         service=settings.API_NAME,
@@ -20,9 +18,7 @@ def health_check():
 
 @router.get("/model/info", response_model=ModelInfoResponse)
 def model_info():
-    """
-    Retourne les informations du modèle final utilisé par l'API.
-    """
+    
     return ModelInfoResponse(
         model_name=settings.MODEL_NAME,
         api_version=settings.API_VERSION,

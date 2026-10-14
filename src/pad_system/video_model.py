@@ -1,11 +1,4 @@
-﻿"""
-video_model.py — VideoPADModel V6
-==================================
-Corrections appliquées :
-1. FaceLandmarker singleton — créé une seule fois dans __init__, pas à chaque requête
-2. Suppression double lecture vidéo — predict_with_details lit la vidéo UNE SEULE FOIS
-3. Fix blink_count — seuil adaptatif relatif (baseline * 0.75) au lieu de 0.18 fixe
-"""
+﻿
 import os 
 from pathlib import Path
 import math
@@ -123,15 +116,9 @@ class VideoPADModel:
         self._rppg_landmarker_helper = None
         self._init_mediapipe_singleton()
 
-    # ==========================================================
-    # CORRECTION 1 — MEDIAPIPE SINGLETON
-    # ==========================================================
-
+    
     def _init_mediapipe_singleton(self):
-        """
-        Initialise MediaPipe une seule fois au démarrage.
-        Évite la réinitialisation à chaque requête (source principale de latence).
-        """
+        
         face_model_path = self.project_root / "models" / "face_landmarker.task"
 
         if not face_model_path.exists():
@@ -173,24 +160,18 @@ class VideoPADModel:
             print(f"[VIDEO][WARN] Impossible d'initialiser FaceLandmarkerHelper rPPG: {e}")
             self._rppg_landmarker_helper = None
 
-    # Méthodes d'accès aux singletons — rétrocompatibilité
     def _get_cached_face_landmarker_image(self, face_model_path: Path):
-        """Retourne le singleton FaceLandmarker IMAGE — pas de réinitialisation."""
+
         if self._face_landmarker_image is None or self._mediapipe_module is None:
-            # Fallback : réinitialiser si pas encore fait
             self._init_mediapipe_singleton()
         return self._mediapipe_module, self._face_landmarker_image
 
     def _get_cached_rppg_landmarker_helper(self, face_model_path: Path):
-        """Retourne le singleton FaceLandmarkerHelper rPPG — pas de réinitialisation."""
         if self._rppg_landmarker_helper is None:
             self._init_mediapipe_singleton()
         return self._rppg_landmarker_helper
 
-    # ==========================================================
-    # MODEL LOADING
-    # ==========================================================
-
+  
     def _extract_state_dict_and_config(self, ckpt):
         if isinstance(ckpt, dict):
             for key in ["model_state_dict", "model_state", "state_dict", "model", "net"]:
@@ -260,10 +241,7 @@ class VideoPADModel:
         model.to(self.device)
         return model, use_behav, behav_dim
 
-    # ==========================================================
-    # CSV / SCALER / STATS LOADING
-    # ==========================================================
-
+    
     def _load_frames_csv(self):
         if not self.test_csv.exists():
             print(f"[VIDEO][WARN] CSV test introuvable: {self.test_csv}")
@@ -339,10 +317,7 @@ class VideoPADModel:
                 return float(mm[col]), float(ss[col])
         return None, None
 
-    # ==========================================================
-    # SAFE STATS
-    # ==========================================================
-
+    
     @staticmethod
     def _safe_mean(v):   return float(np.mean(v))    if len(v) > 0 else 0.0
     @staticmethod
@@ -381,21 +356,10 @@ class VideoPADModel:
         except Exception:
             return 0.0
 
-    # ==========================================================
-    # CORRECTION 3 — BLINK COUNT ADAPTATIF
-    # ==========================================================
-
+    
     @staticmethod
     def _count_blinks_from_ear_sequence(ear_values: list) -> int:
-        """
-        Détection des clignements par seuil adaptatif relatif.
         
-        CORRECTION : l'ancien seuil fixe 0.18 était trop bas pour la webcam
-        (ear_mean webcam ≈ 0.22–0.33). Le nouveau seuil est calculé comme
-        75% de la baseline (percentile 75 de la séquence EAR).
-        
-        Un clignement = chute de l'EAR sous baseline * 0.75.
-        """
         if len(ear_values) < 3:
             return 0
 
@@ -416,12 +380,9 @@ class VideoPADModel:
 
         return blinks
 
-    # ==========================================================
-    # VIDEO READ / SAMPLING
-    # ==========================================================
-
+   
     def _read_video_rgb_gray_arrays(self, video_path: Path):
-        """Lit la vidéo une seule fois et retourne frames RGB et grises."""
+        
         cap = cv2.VideoCapture(str(video_path))
         if not cap.isOpened():
             raise RuntimeError(f"Impossible d'ouvrir la vidéo: {video_path}")
@@ -479,16 +440,9 @@ class VideoPADModel:
             frames.append(frames[-1])
         return frames
 
-    # ==========================================================
-    # BEHAVIOR EXTRACTION FROM PRE-LOADED FRAMES
-    # ==========================================================
-
+    
     def _extract_ear_and_pose_from_frames(self, frames_rgb_sampled: list):
-        """
-        CORRECTION 2 : extrait EAR + pose depuis les frames déjà chargées
-        en mémoire — pas de relecture vidéo.
-        Utilise le singleton FaceLandmarker.
-        """
+        
         ear_values   = []
         yaw_values   = []
         pitch_values = []
@@ -539,7 +493,6 @@ class VideoPADModel:
         return ear_values, yaw_values, pitch_values, roll_values, detected, total
 
     def _compute_motion_from_gray_frames(self, frames_gray_sampled: list):
-        """Calcule le mouvement inter-frames depuis les frames grises déjà en mémoire."""
         motion_values = []
         for i in range(1, len(frames_gray_sampled)):
             diff = cv2.absdiff(frames_gray_sampled[i], frames_gray_sampled[i-1])
@@ -551,7 +504,6 @@ class VideoPADModel:
         ear_values, motion_values,
         detected, total
     ) -> dict:
-        """Construit le dict de features comportementales depuis les séquences calculées."""
         skipped_rate = 1.0 - (detected / total) if total > 0 else 1.0
         blink_count  = float(self._count_blinks_from_ear_sequence(ear_values))
 
@@ -573,7 +525,6 @@ class VideoPADModel:
         yaw_values, pitch_values, roll_values,
         detected, total
     ) -> dict:
-        """Construit le dict de 20 features behavior-pose V6."""
         base = self._build_behavior_features(ear_values, motion_values, detected, total)
         pose_valid_rate = detected / total if total > 0 else 0.0
 
@@ -592,10 +543,7 @@ class VideoPADModel:
         })
         return base
 
-    # ==========================================================
-    # BEHAVIOR V3 / rPPG (legacy — garde pour CSV mode)
-    # ==========================================================
-
+ 
     def _zero_behavior(self):
         return torch.zeros((1, self.behav_dim), dtype=torch.float32).to(self.device)
 
@@ -704,10 +652,7 @@ class VideoPADModel:
         print(f"[VIDEO] rPPG fps utilisé: {fps:.2f}")
         return feats
 
-    # ==========================================================
-    # POSE ESTIMATION
-    # ==========================================================
-
+    
     def _estimate_head_pose_from_landmarks(self, landmarks, w: int, h: int):
         try:
             image_points = []
@@ -740,10 +685,7 @@ class VideoPADModel:
         except Exception:
             return 0.0, 0.0, 0.0
 
-    # ==========================================================
-    # BEHAVIOR POSE RELIABILITY
-    # ==========================================================
-
+  
     def _is_behavior_pose_reliable(self, features: dict) -> tuple:
         pose_valid_rate = float(features.get("pose_valid_rate", 0.0))
         skipped_rate    = float(features.get("skipped_rate", 1.0))
@@ -764,10 +706,7 @@ class VideoPADModel:
             return False, f"unstable_pose_delta=yaw:{yaw_delta:.1f},pitch:{pitch_delta:.1f},roll:{roll_delta:.1f}"
         return True, "behavior_pose_reliable"
 
-    # ==========================================================
-    # VIDEO QUALITY
-    # ==========================================================
-
+  
     def compute_video_quality_score(self, video_path: str) -> float:
         cap = cv2.VideoCapture(str(video_path))
         if not cap.isOpened(): return 0.0
@@ -802,10 +741,7 @@ class VideoPADModel:
             0.35 * blur_mean + 0.30 * fvr + 0.20 * b_balance + 0.15 * b_stability,
             0.0), 1.0))
 
-    # ==========================================================
-    # CSV VIDEO_ID INFERENCE
-    # ==========================================================
-
+   
     def _resolve_frame_path(self, row):
         for col in ["path", "frame_path", "image_path", "img_path"]:
             if col in row and isinstance(row[col], str):
@@ -851,51 +787,32 @@ class VideoPADModel:
         print(f"[VIDEO] CSV video_id={video_id} | frames utilisées={len(images)}")
         return float(proba[0, 1].item())
 
-    # ==========================================================
-    # CORRECTION 2 — predict_with_details : lecture vidéo UNIQUE
-    # ==========================================================
-
     @torch.no_grad()
     def predict_with_details(self, video_path_or_id: str) -> dict:
-        """
-        Prédiction V6 complète.
-
-        CORRECTION : la vidéo est lue UNE SEULE FOIS en mémoire.
-        Les frames sont partagées entre :
-        - la branche visuelle CNN+LSTM
-        - l'extraction des features comportementales
-        - l'extraction behavior-pose V6
-        Plus de double lecture, plus de double initialisation MediaPipe.
-        """
+        
         p = Path(str(video_path_or_id))
 
         if p.exists() and p.suffix.lower() in self.VIDEO_EXTS:
 
-            # ── Étape 1 : Lire la vidéo UNE SEULE FOIS ────────────────────
             frames_rgb_all, frames_gray_all = self._read_video_rgb_gray_arrays(p)
             frames_rgb  = self._sample_raw_rgb_arrays(frames_rgb_all)
             frames_gray = self._sample_raw_gray_arrays(frames_gray_all)
 
             video_quality_score = self.compute_video_quality_score(str(p))
 
-            # ── Étape 2 : Extraire EAR + pose depuis frames en mémoire ────
             (ear_values, yaw_values, pitch_values, roll_values,
              detected, total) = self._extract_ear_and_pose_from_frames(frames_rgb)
 
-            # ── Étape 3 : Calculer motion depuis frames grises en mémoire ─
             motion_values = self._compute_motion_from_gray_frames(frames_gray)
 
-            # ── Étape 4 : Construire features comportementales ────────────
             raw_behav = self._build_behavior_features(
                 ear_values, motion_values, detected, total
             )
             print("[VIDEO] Raw features:", {k: round(float(v), 4) for k, v in raw_behav.items()})
 
-            # ── Étape 5 : rPPG quality flag (lecture séparée nécessaire) ──
             rppg_features = self._extract_rppg_from_raw_video(p)
             raw_behav.update(rppg_features)
 
-            # ── Étape 6 : Normaliser + tensoriser ─────────────────────────
             norm_values = self._normalize_raw_behavior(raw_behav)
             while len(norm_values) < self.behav_dim: norm_values.append(0.0)
             behav_tensor = torch.tensor(
@@ -903,7 +820,6 @@ class VideoPADModel:
             ).to(self.device)
             print("[VIDEO] Norm behavior+rPPG:", [round(float(v), 4) for v in norm_values[:self.behav_dim]])
 
-            # ── Étape 7 : Inférence branche visuelle ──────────────────────
             pil_frames = [Image.fromarray(f) for f in frames_rgb]
             images     = [self.transform(img) for img in pil_frames]
             seq        = torch.stack(images).unsqueeze(0).to(self.device)
@@ -913,7 +829,6 @@ class VideoPADModel:
             proba  = torch.softmax(logits, dim=1)
             score_v3 = float(proba[0, 1].item())
 
-            # ── Étape 8 : Behavior-pose V6 depuis frames déjà en mémoire ──
             bp_features = self._build_behavior_pose_features(
                 ear_values, motion_values,
                 yaw_values, pitch_values, roll_values,
@@ -944,14 +859,13 @@ class VideoPADModel:
                 score_behavior_pose = None
 
         else:
-            # Mode CSV video_id
+           
             score_v3            = float(self._predict_from_csv_video_id(str(video_path_or_id)))
             video_quality_score = 0.70
             score_behavior_pose = None
             bp_features         = None
             bp_status           = "csv_or_video_id_mode"
 
-        # ── Fusion score-level ─────────────────────────────────────────────
         if score_behavior_pose is not None:
             score_final   = 0.85 * score_v3 + 0.15 * score_behavior_pose
             fusion_status = "behavior_pose_loaded"
@@ -977,25 +891,17 @@ class VideoPADModel:
             },
         }
 
-    # ==========================================================
-    # PUBLIC PREDICT (rétrocompatibilité)
-    # ==========================================================
-
+   
     @torch.no_grad()
     def predict(self, video_path_or_id: str) -> float:
-        """
-        Prédiction simple — retourne seulement le score V3.
-        Pour la prédiction complète V6, utiliser predict_with_details().
-        """
+        
         print(f"[INFO] Analyse vidéo: {video_path_or_id}")
         p = Path(str(video_path_or_id))
 
         if p.exists() and p.suffix.lower() in self.VIDEO_EXTS:
-            # Lecture vidéo et inférence directe
             frames_rgb_all, frames_gray_all = self._read_video_rgb_gray_arrays(p)
             frames_rgb = self._sample_raw_rgb_arrays(frames_rgb_all)
 
-            # Features comportementales
             frames_gray = self._sample_raw_gray_arrays(frames_gray_all)
             motion_vals = self._compute_motion_from_gray_frames(frames_gray)
             (ear_vals, _, _, _, detected, total) = self._extract_ear_and_pose_from_frames(frames_rgb)
@@ -1019,6 +925,6 @@ class VideoPADModel:
             proba  = torch.softmax(logits, dim=1)
             return float(proba[0, 1].item())
 
-        # Mode CSV
+    
         video_id = p.stem if p.suffix.lower() in self.VIDEO_EXTS else str(video_path_or_id)
         return self._predict_from_csv_video_id(video_id.strip())

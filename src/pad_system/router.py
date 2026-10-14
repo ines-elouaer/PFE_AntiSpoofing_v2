@@ -15,13 +15,7 @@ except Exception:
         profile: str = "video",
         video_quality_score: float = 0.70,
     ) -> str:
-        """
-        Fallback local si banking_adapter.py n'est pas disponible.
-
-        Convention :
-        - score proche de 0 => REAL
-        - score proche de 1 => SPOOF
-        """
+        
 
         score = float(score)
 
@@ -47,25 +41,7 @@ VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
 
 
 class PADRouter:
-    """
-    Routeur principal du système PAD bancaire.
-
-    Flux final :
-        challenge/start
-        -> capture vidéo
-        -> validation vidéo
-        -> validation challenge_id
-        -> liveness actif
-        -> modèle PAD vidéo V6
-        -> quality-aware policy
-        -> règle runtime robuste
-        -> décision ACCEPT / RETRY / REJECT
-
-    La branche image est volontairement désactivée.
-
-    Cette version ajoute un runtime_profile pour diagnostiquer
-    le temps de chaque étape avant Docker.
-    """
+    
 
     def __init__(
         self,
@@ -97,10 +73,7 @@ class PADRouter:
 
         self.liveness_system = self._try_init_liveness_system()
 
-    # ==========================================================
-    # PUBLIC API
-    # ==========================================================
-
+   
     def analyze(
         self,
         file_path: str,
@@ -111,22 +84,7 @@ class PADRouter:
         challenge_id: Optional[str] = None,
         require_challenge_validation: bool = False,
     ) -> Dict[str, Any]:
-        """
-        Analyse une vidéo.
-
-        Cas 1 — vidéo fichier :
-            router.analyze(
-                "data/demo/webcam_challenge.mp4",
-                challenge_id="...",
-                require_challenge_validation=True,
-                enable_liveness=True
-            )
-
-        Cas 2 — video_id dataset CASIA/Axon pour debug :
-            router.analyze("13_1", enable_liveness=False)
-
-        Le flux image est volontairement désactivé.
-        """
+        
 
         if enable_liveness is None:
             enable_liveness = self.default_enable_liveness
@@ -200,10 +158,7 @@ class PADRouter:
             require_challenge_validation=require_challenge_validation,
         )
 
-    # ==========================================================
-    # VIDEO BRANCH
-    # ==========================================================
-
+   
     def _analyze_video(
         self,
         input_value: str,
@@ -261,10 +216,7 @@ class PADRouter:
         challenge_validation = None
         expected_challenge = challenge
 
-        # ======================================================
-        # 1. Validation challenge_id
-        # ======================================================
-
+     
         if require_challenge_validation:
             if not challenge_id:
                 return {
@@ -403,10 +355,7 @@ class PADRouter:
                 "metrics": {},
             }
 
-        # ======================================================
-        # 3. Modèle PAD vidéo V6
-        # ======================================================
-
+     
         t0 = time.perf_counter()
         model_details = self.video_model.predict_with_details(input_value)
         runtime_profile["video_model_predict_sec"] = round(
@@ -418,10 +367,7 @@ class PADRouter:
         video_quality_score = float(model_details.get("video_quality_score", 0.70))
         behavior_pose_status = model_details.get("behavior_pose_status", "")
 
-        # ======================================================
-        # 4. Décision bancaire quality-aware
-        # ======================================================
-
+      
         t0 = time.perf_counter()
         decision = banking_decision(
             score,
@@ -435,10 +381,7 @@ class PADRouter:
 
         label = label_from_decision(decision)
 
-        # ======================================================
-        # 5. Runtime robust guard
-        # ======================================================
-
+     
         t0 = time.perf_counter()
 
         instability_detected = (
@@ -489,10 +432,7 @@ class PADRouter:
             4,
         )
 
-        # ======================================================
-        # 6. Marquer le challenge comme utilisé
-        # ======================================================
-
+        
         used_result = None
 
         t0 = time.perf_counter()
@@ -542,23 +482,13 @@ class PADRouter:
             "original_input": original_input,
         }
 
-    # ==========================================================
-    # CHALLENGE PUBLIC HELPERS
-    # ==========================================================
-
+    
     def create_video_challenge(
         self,
         source: str = "direct_video_challenge",
         challenge_type: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """
-        Crée un challenge vidéo direct.
-
-        Utilisé par :
-        - API /pad/challenge/start
-        - démo webcam
-        - tests.
-        """
+        
 
         return self.challenge_manager.create_challenge(
             source=source,
@@ -568,14 +498,9 @@ class PADRouter:
     def validate_video_challenge(self, challenge_id: str) -> Dict[str, Any]:
         return self.challenge_manager.validate_challenge(challenge_id)
 
-    # ==========================================================
-    # LIVENESS
-    # ==========================================================
-
+    
     def _try_init_liveness_system(self):
-        """
-        Charge le système de liveness actif basé sur MediaPipe FaceLandmarker.
-        """
+        
 
         model_path = self.project_root / "models" / "face_landmarker.task"
 
@@ -670,10 +595,7 @@ class PADRouter:
             },
         }
 
-    # ==========================================================
-    # VALIDATION / UTILS
-    # ==========================================================
-
+   
     def _invalid_input_response(
         self,
         validation,
@@ -709,14 +631,7 @@ class PADRouter:
         }
 
     def _looks_like_dataset_video_id(self, value: str) -> bool:
-        """
-        Reconnaît un identifiant vidéo dataset, par exemple :
-        - 13_1
-        - 13_1.avi
-
-        Cette option est utile pour les tests sur CASIA/Axon préparés.
-        Elle n'est pas destinée à l'API publique.
-        """
+        
 
         p = Path(str(value))
 

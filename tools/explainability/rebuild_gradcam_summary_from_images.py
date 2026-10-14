@@ -6,8 +6,6 @@ import re
 def parse_file(path: Path):
     name = path.name
 
-    # Exemple:
-    # CASIA__10_2_score_0.0039_final_gradcam.jpg
     m = re.match(r"(.+)_score_([0-9.]+)_final_gradcam\.jpg", name)
 
     if not m:

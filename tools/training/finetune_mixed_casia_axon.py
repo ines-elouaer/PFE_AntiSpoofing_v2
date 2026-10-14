@@ -27,9 +27,6 @@ from src.deep_learning.models_cnn_lstm import CNN_LSTM_PAD
 from src.deep_learning.datasets_sequence import CASIASequenceDataset
 
 
-# ==========================================================
-# CONFIG
-# ==========================================================
 
 SEED = 42
 
@@ -79,10 +76,6 @@ HISTORY_PATH = OUT_DIR / "training_history.json"
 CONFIG_PATH = OUT_DIR / "config.json"
 
 
-# ==========================================================
-# UTILS
-# ==========================================================
-
 def set_seed(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
@@ -119,9 +112,7 @@ def load_checkpoint_state(path: Path):
     raise RuntimeError(f"Format checkpoint non reconnu: {type(ckpt)}")
 
 def clean_state_dict_keys(state_dict):
-    """
-    Corrige les clés si le modèle a été sauvegardé avec DataParallel.
-    """
+   
     new_state = {}
 
     for k, v in state_dict.items():
@@ -133,9 +124,7 @@ def clean_state_dict_keys(state_dict):
 
 
 def create_model(device):
-    """
-    Crée le modèle CNN+LSTM+Behavior et charge le checkpoint CASIA.
-    """
+    
 
     model = CNN_LSTM_PAD(
     hidden=256,
@@ -203,15 +192,7 @@ def load_video_meta(frames_csv: Path):
 
 
 def build_stratified_sampler(dataset, frames_csv: Path, min_count: int = 10):
-    """
-    Sampler stratifié :
-    - distingue domain
-    - distingue REAL
-    - distingue chaque attack_type SPOOF
-
-    Objectif :
-    éviter que le modèle voie seulement les attaques fréquentes.
-    """
+    
 
     video_df = load_video_meta(frames_csv)
     meta_by_vid = video_df.set_index("video_id").to_dict(orient="index")
@@ -283,11 +264,7 @@ def compute_class_weights(dataset, device):
 
 
 def set_trainable_phase1(model):
-    """
-    Phase 1 :
-    - backbone gelé
-    - LSTM + behavior MLP + head entraînés
-    """
+    
     for p in model.parameters():
         p.requires_grad = True
 
@@ -298,11 +275,7 @@ def set_trainable_phase1(model):
 
 
 def set_trainable_phase2(model, last_k: int = 3):
-    """
-    Phase 2 :
-    - derniers blocs du backbone dégelés
-    - LSTM + behavior MLP + head entraînés
-    """
+    
     for p in model.parameters():
         p.requires_grad = True
 
@@ -384,11 +357,7 @@ def compute_pad_metrics(y_true, y_pred, scores):
 
 
 def unpack_batch(batch, device):
-    """
-    Ton dataset retourne :
-    - sans behavior : x, y, vid
-    - avec behavior : x, y, vid, behav
-    """
+   
 
     if len(batch) == 4:
         x, y, vid, behav = batch
@@ -499,9 +468,6 @@ def print_metrics(prefix, metrics):
     )
 
 
-# ==========================================================
-# MAIN
-# ==========================================================
 
 def main():
     set_seed(SEED)
@@ -600,10 +566,7 @@ def main():
 
     history = []
 
-    # ======================================================
-    # PHASE 1
-    # ======================================================
-
+    
     print("\n" + "=" * 70)
     print("PHASE 1 — BACKBONE GELÉ")
     print("=" * 70)
@@ -649,10 +612,7 @@ def main():
 
             print(f"[OK] Nouveau meilleur modèle sauvegardé | ACER={best_acer:.4f}")
 
-    # ======================================================
-    # PHASE 2
-    # ======================================================
-
+   
     print("\n" + "=" * 70)
     print("PHASE 2 — UNFREEZE DERNIERS BLOCS CNN")
     print("=" * 70)

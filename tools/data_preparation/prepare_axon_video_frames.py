@@ -66,9 +66,7 @@ def label_name_from_int(label: int) -> str:
 
 
 def find_video_path(row, project_root: Path, axon_raw_dir: Path, axon_prepared_dir: Path) -> Path:
-    """
-    Fonction robuste : elle essaie plusieurs colonnes possibles.
-    """
+    
 
     candidate_columns = [
         "absolute_path",
@@ -177,7 +175,6 @@ def extract_consecutive_frames(
 
         indices = list(range(start, end))
 
-    # Cas rare : vidéo très courte, on répète la dernière frame disponible.
     else:
         indices = list(range(frame_count))
         while len(indices) < frames_per_video:

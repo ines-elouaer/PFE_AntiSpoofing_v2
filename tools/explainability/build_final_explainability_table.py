@@ -32,7 +32,6 @@ def main():
 
     abl_small = abl[[c for c in cols_ablation if c in abl.columns]].copy()
 
-    # On garde quelques features importantes
     important_features = [
         "video_id",
         "case",

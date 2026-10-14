@@ -97,9 +97,7 @@ def compute_ear(pts, idxs) -> float:
 
 
 def compute_mar(pts) -> float:
-    """
-    Mouth Aspect Ratio approximatif.
-    """
+    
     try:
         left = pts[61]
         right = pts[291]
@@ -119,13 +117,7 @@ def compute_mar(pts) -> float:
 
 
 def estimate_head_pose(pts, image_w: int, image_h: int):
-    """
-    Estimation approximative yaw / pitch / roll avec solvePnP.
-
-    Ce n'est pas parfait, mais suffisant pour extraire des stats compatibles
-    avec la structure CASIA.
-    """
-
+    
     try:
         image_points = np.array(
             [
@@ -251,12 +243,10 @@ class AxonBehaviorExtractor:
             h, w = img.shape[:2]
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            # Motion simple : différence absolue frame t / t-1
             if prev_gray is not None:
                 diff = cv2.absdiff(gray, prev_gray)
                 motion_values.append(float(np.mean(diff)))
 
-                # Optical flow Lucas-Kanade
                 try:
                     p0 = cv2.goodFeaturesToTrack(
                         prev_gray,
@@ -286,7 +276,6 @@ class AxonBehaviorExtractor:
 
             prev_gray = gray
 
-            # MediaPipe landmarks
             try:
                 rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 

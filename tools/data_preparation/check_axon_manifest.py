@@ -225,7 +225,6 @@ def main():
     static_result = check_static_manifest(project_root, static_csv)
     video_result = check_video_manifest(axon_raw_dir, video_csv)
 
-    # Sauvegarder échantillons pour vérification manuelle
     save_random_samples(
         static_result["rows"],
         reports_dir / "static_random_samples.csv",

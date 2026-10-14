@@ -16,19 +16,7 @@ router = APIRouter(prefix="/pad", tags=["PAD Analysis"])
 
 
 def _safe_video_filename(original_name: str) -> str:
-    """
-    Génère un nom de fichier sécurisé pour la vidéo uploadée.
-
-    Le navigateur peut envoyer :
-    - .mp4
-    - .webm
-    - .mov
-    - .avi
-    - .mkv
-
-    Si le format n'est pas accepté, on refuse la requête.
-    """
-
+    
     if not original_name:
         original_name = "video.webm"
 
@@ -48,9 +36,7 @@ def _safe_video_filename(original_name: str) -> str:
 
 
 def _save_upload_file(upload_file: UploadFile) -> Path:
-    """
-    Sauvegarde la vidéo reçue dans data/runtime_uploads.
-    """
+    
 
     ensure_runtime_dirs()
 
@@ -71,9 +57,7 @@ def _save_upload_file(upload_file: UploadFile) -> Path:
 
 
 def _save_result_json(result: dict, video_path: Path) -> Path:
-    """
-    Sauvegarde le résultat d'analyse dans data/runtime_results.
-    """
+   
 
     ensure_runtime_dirs()
 
@@ -94,27 +78,13 @@ def analyze_video(
     require_challenge_validation: bool = Form(True),
     pad_router: PADRouter = Depends(get_pad_router),
 ):
-    """
-    Analyse une vidéo utilisateur avec le pipeline PAD final.
-
-    Pipeline :
-    1. sauvegarde de la vidéo uploadée ;
-    2. validation du challenge si demandée ;
-    3. liveness actif si activé ;
-    4. modèle PAD V6 ;
-    5. décision bancaire ACCEPT / RETRY / REJECT.
-
-    Cette version ajoute un runtime_profile pour diagnostiquer
-    le temps réel de chaque étape avant Docker.
-    """
+    
 
     api_t0 = time.perf_counter()
     runtime_profile_api = {}
 
     try:
-        # =====================================================
-        # 1. Sauvegarde vidéo uploadée
-        # =====================================================
+       
         t0 = time.perf_counter()
         saved_video_path = _save_upload_file(video)
         runtime_profile_api["save_upload_sec"] = round(time.perf_counter() - t0, 4)
@@ -129,9 +99,6 @@ def analyze_video(
             require_challenge_validation,
         )
 
-        # =====================================================
-        # 2. Analyse PAD complète : challenge + liveness + modèle
-        # =====================================================
         t0 = time.perf_counter()
         result = pad_router.analyze(
             file_path=str(saved_video_path),
@@ -141,9 +108,6 @@ def analyze_video(
         )
         runtime_profile_api["pad_router_analyze_sec"] = round(time.perf_counter() - t0, 4)
 
-        # =====================================================
-        # 3. Sauvegarde résultat JSON
-        # =====================================================
         result["saved_video_path"] = str(saved_video_path)
 
         t0 = time.perf_counter()
@@ -154,7 +118,6 @@ def analyze_video(
 
         runtime_profile_api["api_total_sec"] = round(time.perf_counter() - api_t0, 4)
 
-        # On garde aussi le profiling déjà éventuel du router
         result["runtime_profile_api"] = runtime_profile_api
 
         logger.info(

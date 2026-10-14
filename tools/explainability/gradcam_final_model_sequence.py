@@ -11,8 +11,6 @@ import cv2
 import numpy as np
 import pandas as pd
 import torch
-# Disable cuDNN for Grad-CAM through LSTM/RNN backward.
-# This keeps model.eval() but avoids: cudnn RNN backward can only be called in training mode.
 torch.backends.cudnn.enabled = False
 from PIL import Image
 
@@ -53,10 +51,7 @@ def load_checkpoint_state(path):
 
 
 def build_model(args):
-    """
-    Build CNN_LSTM_PAD with flexible arguments.
-    This avoids errors if your current CNN_LSTM_PAD class does or does not support gated fusion.
-    """
+    
     sig = inspect.signature(CNN_LSTM_PAD.__init__)
     allowed = set(sig.parameters.keys())
 

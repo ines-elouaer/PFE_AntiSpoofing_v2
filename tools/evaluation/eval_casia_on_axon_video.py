@@ -73,15 +73,7 @@ def label_from_score(score: float, threshold: float = 0.5) -> int:
 
 
 def compute_pad_metrics(y_true, y_pred, scores):
-    """
-    Convention :
-    label 0 = REAL / bona fide
-    label 1 = SPOOF / attack
-
-    APCER = attaques acceptées à tort = spoof prédit real
-    BPCER = réels rejetés à tort = real prédit spoof
-    ACER = moyenne(APCER, BPCER)
-    """
+    
 
     y_true = np.array(y_true).astype(int)
     y_pred = np.array(y_pred).astype(int)
@@ -138,17 +130,9 @@ def patch_video_model_with_axon_data(
     frames_csv_path: Path,
     behav_csv_path: Path,
 ):
-    """
-    Ton VideoPADModel a été créé pour CASIA.
-    Selon son implémentation exacte, les noms d'attributs peuvent varier.
-    Cette fonction injecte les données Axon dans les noms d'attributs probables.
+    
 
-    L'objectif est que :
-    model.predict(video_id)
-    puisse retrouver les frames Axon par video_id.
-    """
-
-    # CSV paths possibles
+    
     possible_test_csv_attrs = [
         "test_csv",
         "test_csv_path",
@@ -178,7 +162,7 @@ def patch_video_model_with_axon_data(
         except Exception:
             pass
 
-    # DataFrames possibles
+    
     possible_test_df_attrs = [
         "test_df",
         "df_test",
@@ -207,7 +191,6 @@ def patch_video_model_with_axon_data(
         except Exception:
             pass
 
-    # Cas fréquent : certains modèles gardent un dict video_id -> rows
     try:
         setattr(model, "video_ids", sorted(frames_df["video_id"].unique().tolist()))
     except Exception:
@@ -221,11 +204,7 @@ def instantiate_video_model(
     frames_csv_path: Path = None,
     behav_csv_path: Path = None,
 ):
-    """
-    Instanciation robuste de VideoPADModel.
-    On essaie d'abord avec arguments si la classe les accepte,
-    sinon on tombe sur VideoPADModel() puis patch manuel.
-    """
+    
 
     sig = inspect.signature(VideoPADModel)
     params = sig.parameters
@@ -257,11 +236,7 @@ def instantiate_video_model(
 
 
 def predict_one_video(model, video_id: str):
-    """
-    Appel robuste.
-    Ton modèle a déjà predict(...).
-    Si besoin, on utilise la méthode privée connue.
-    """
+    
 
     if hasattr(model, "predict"):
         return float(model.predict(video_id))
@@ -450,7 +425,6 @@ def main():
     metrics["sampling_mode"] = "consecutive_middle"
     metrics["behavior_scaler"] = "CASIA_train_behav_scaler"
 
-    # Erreurs par attack_type
     attack_rows = []
 
     for attack_type, g in valid_df.groupby("attack_type"):

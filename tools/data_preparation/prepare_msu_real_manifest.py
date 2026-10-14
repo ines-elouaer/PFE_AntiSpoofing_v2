@@ -42,16 +42,7 @@ def relative_to_project(path: Path, project_root: Path) -> str:
 
 
 def parse_msu_video_dir(video_dir: Path):
-    """
-    Exemples attendus :
-    real_client024_android_SD_scene01
-    real_client002_laptop_SD_scene01
-
-    On récupère :
-    subject_id = client024
-    device_id  = android / laptop / unknown
-    video_id   = nom du dossier
-    """
+    
     name = video_dir.name.lower()
     video_id = video_dir.name
 
@@ -77,9 +68,7 @@ def parse_msu_video_dir(video_dir: Path):
 
 
 def frame_index_from_name(path: Path):
-    """
-    frame_0000.png -> 0
-    """
+    
     m = re.search(r"(\d+)", path.stem)
     if not m:
         return None
@@ -100,13 +89,7 @@ def infer_source_split(path: Path):
 
 
 def assign_split_from_msu_source(source_split: str):
-    """
-    On garde la logique Kaggle/MSU si présente.
-    Mais comme MSU_REAL est complémentaire, on peut mapper :
-    train -> train
-    test  -> test
-    unknown -> train
-    """
+    
     if source_split == "train":
         return "train"
     if source_split == "test":
@@ -137,7 +120,6 @@ def main():
     print(f"Raw dir      : {raw_dir}")
     print(f"Prepared dir : {prepared_dir}")
 
-    # On cherche uniquement les dossiers sous real/réel
     candidate_dirs = []
 
     for d in raw_dir.rglob("*"):

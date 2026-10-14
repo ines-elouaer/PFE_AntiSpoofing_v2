@@ -7,9 +7,6 @@ import sys
 import pandas as pd
 
 
-# ==========================================================
-# Project imports
-# ==========================================================
 
 def get_project_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -24,9 +21,6 @@ from src.behavior.landmarks import FaceLandmarkerHelper, video_features_from_sig
 from src.behavior.frame_behavior_extractor import extract_ear_and_motion_from_frames
 
 
-# ==========================================================
-# Constants
-# ==========================================================
 
 FEAT_COLS = [
     "ear_mean",
@@ -45,16 +39,9 @@ DEFAULT_FACE_MODEL = PROJECT_ROOT / "models" / "face_landmarker.task"
 DEFAULT_SCALER = PROJECT_ROOT / "data" / "processed" / "casia" / "behav" / "behav_scaler.pkl"
 
 
-# ==========================================================
-# Helpers
-# ==========================================================
 
 def resolve_path(path_value: str, project_root: Path) -> str:
-    """
-    Résout un chemin frame.
-    - Si le chemin est absolu : on le garde.
-    - Si le chemin est relatif : on le transforme en chemin absolu depuis project_root.
-    """
+   
     p = Path(str(path_value))
 
     if p.is_absolute():
@@ -64,10 +51,7 @@ def resolve_path(path_value: str, project_root: Path) -> str:
 
 
 def load_scaler(scaler_path: Path):
-    """
-    Charge le StandardScaler CASIA.
-    On essaie d'abord pickle, puis joblib si nécessaire.
-    """
+    
     if not scaler_path.exists():
         raise FileNotFoundError(f"Scaler introuvable: {scaler_path}")
 
@@ -109,9 +93,7 @@ def safe_get(row, col, default="unknown"):
 
 
 def build_metadata(meta: pd.Series):
-    """
-    Conserve les colonnes utiles si elles existent.
-    """
+    
     label = int(safe_get(meta, "label", 0))
     label_name = str(safe_get(meta, "label_name", "REAL" if label == 0 else "SPOOF"))
 
@@ -128,7 +110,7 @@ def build_metadata(meta: pd.Series):
         "split": str(safe_get(meta, "split", "unknown")),
     }
 
-    # Colonnes optionnelles utiles
+   
     for extra_col in ["level", "source_split", "source_video_path", "source_video_dir"]:
         if extra_col in meta.index:
             out[extra_col] = str(safe_get(meta, extra_col, "unknown"))
@@ -226,7 +208,7 @@ def extract_behavior_from_manifest(
         .astype(float)
     )
 
-    # Ordre propre des colonnes
+    
     base_cols = [
         "video_id",
         "label",
@@ -283,7 +265,6 @@ def extract_behavior_from_manifest(
         norm_df.to_csv(norm_out_csv, index=False, encoding="utf-8")
         normalized = True
 
-        # Sauvegarde des splits normalisés si la colonne split existe
         if "split" in norm_df.columns:
             split_dir = norm_out_csv.parent / "splits"
             split_dir.mkdir(parents=True, exist_ok=True)
@@ -298,7 +279,6 @@ def extract_behavior_from_manifest(
                     encoding="utf-8",
                 )
 
-    # Sauvegarde des splits bruts
     if "split" in raw_df.columns:
         split_dir = raw_out_csv.parent / "splits"
         split_dir.mkdir(parents=True, exist_ok=True)

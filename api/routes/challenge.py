@@ -13,14 +13,7 @@ def start_challenge(
     request: ChallengeStartRequest,
     pad_router: PADRouter = Depends(get_pad_router),
 ):
-    """
-    Crée un nouveau challenge vidéo.
-
-    Exemple de challenge :
-    - BLINK
-    - SMILE
-    - TURN_LEFT
-    """
+    
     try:
         result = pad_router.create_video_challenge(
             source="api",
@@ -46,13 +39,7 @@ def get_challenge_status(
     challenge_id: str,
     pad_router: PADRouter = Depends(get_pad_router),
 ):
-    """
-    Vérifie l'état d'un challenge :
-    - valide ;
-    - expiré ;
-    - déjà utilisé ;
-    - inexistant.
-    """
+   
     try:
         result = pad_router.validate_video_challenge(challenge_id)
         return result

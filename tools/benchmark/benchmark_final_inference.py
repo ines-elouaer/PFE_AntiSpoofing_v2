@@ -16,10 +16,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.deep_learning.models_cnn_lstm import CNN_LSTM_PAD
 
 
-# ─── Mesure précise GPU/CPU ──────────────────────────────────────────
 
 def measure_time_cpu(fn, n_warmup=5, n_runs=50):
-    """Mesure temps CPU avec warmup."""
+    
     for _ in range(n_warmup):
         fn()
     times = []
@@ -32,16 +31,10 @@ def measure_time_cpu(fn, n_warmup=5, n_runs=50):
 
 
 def measure_time_gpu(fn, device, n_warmup=10, n_runs=100):
-    """
-    Mesure temps GPU avec torch.cuda.Event.
     
-    CORRECTION : synchronize() AVANT l'enregistrement du start event
-    pour s'assurer que toutes les opérations précédentes sont terminées.
-    """
-    # Warmup
+  
     for _ in range(n_warmup):
         fn()
-    # Synchronisation complète après warmup
     torch.cuda.synchronize()
 
     times = []
@@ -49,12 +42,10 @@ def measure_time_gpu(fn, device, n_warmup=10, n_runs=100):
         start_evt = torch.cuda.Event(enable_timing=True)
         end_evt   = torch.cuda.Event(enable_timing=True)
 
-        # CORRECTION : synchronize avant start pour mesure propre
         torch.cuda.synchronize()
         start_evt.record()
         fn()
         end_evt.record()
-        # CORRECTION : synchronize après end pour attendre la fin réelle
         torch.cuda.synchronize()
         times.append(start_evt.elapsed_time(end_evt))  # ms
 
@@ -62,7 +53,6 @@ def measure_time_gpu(fn, device, n_warmup=10, n_runs=100):
 
 
 def get_gpu_memory_info():
-    """Retourne (utilisée_GB, totale_GB) de la mémoire GPU."""
     if not torch.cuda.is_available():
         return 0.0, 0.0
     used  = torch.cuda.memory_allocated() / 1e9
@@ -70,7 +60,6 @@ def get_gpu_memory_info():
     return round(used, 2), round(total, 2)
 
 
-# ─── Benchmark ───────────────────────────────────────────────────────
 
 def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
                   T: int = 16, img_size: int = 224, n_runs: int = 50):
@@ -89,14 +78,14 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
         _, mem_total = get_gpu_memory_info()
         print(f"GPU     : {gpu_name} ({mem_total:.1f} GB VRAM)")
 
-    # Charger config
+    
     config = {}
     if config_path and Path(config_path).exists():
         with open(config_path) as f:
             config = json.load(f)
         print(f"Config  : {config_path}")
 
-    # Charger modèle
+    
     model = CNN_LSTM_PAD(
         hidden              = config.get("hidden", 256),
         num_layers          = config.get("num_layers", 1),
@@ -135,7 +124,7 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
 
     with torch.no_grad():
         if use_gpu:
-            # CNN backbone seul
+            
             def run_cnn():
                 B, T_, C_ch, H, W = x_single.shape
                 x_flat = x_single.view(B * T_, C_ch, H, W)
@@ -147,7 +136,7 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
             }
             print(f"  CNN backbone (GPU)     : {mean_ms:.2f} ± {std_ms:.2f} ms")
 
-            # LSTM seul
+            
             feat_dim   = model.backbone.out_dim
             fake_feats = torch.randn(1, T, feat_dim).to(device)
 
@@ -161,7 +150,7 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
             }
             print(f"  LSTM + pooling (GPU)   : {mean_ms:.2f} ± {std_ms:.2f} ms")
 
-            # Inférence complète batch=1
+            
             def run_full():
                 _ = model(x_single, b_single)
 
@@ -172,7 +161,7 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
             print(f"  Full inference (GPU)   : {mean_ms:.2f} ± {std_ms:.2f} ms")
             print(f"  Throughput (GPU 1 vid) : {1000/mean_ms:.1f} vidéos/sec")
 
-        # CPU
+        
         x_cpu     = x_single.cpu()
         b_cpu     = b_single.cpu()
         model_cpu = model.cpu()
@@ -191,7 +180,6 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
         if use_gpu:
             model.to(device)
 
-    # ── Batch sizes ───────────────────────────────────────────────────
     if use_gpu:
         print(f"\n{'='*55}")
         print("BENCHMARK — Différents batch sizes (GPU)")
@@ -199,7 +187,6 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
         results["batch_throughput"] = {}
 
         for bs in [1, 2, 4, 8]:
-            # CORRECTION : vide le cache avant chaque test
             torch.cuda.empty_cache()
 
             try:
@@ -210,15 +197,11 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
                     bs, config.get("behav_dim", 9)
                 ).to(device)
 
-                # CORRECTION v3 : synchronize APRÈS l'allocation pour que
-                # memory_allocated() reflète la vraie mémoire utilisée
                 torch.cuda.synchronize()
                 mem_avant, mem_total = get_gpu_memory_info()
                 print(f"\n  [MEM avant inférence] batch={bs} | "
                       f"VRAM: {mem_avant:.2f}/{mem_total:.2f} GB")
 
-                # CORRECTION : closure explicite pour capturer x_batch et b_batch
-                # correctement (évite le bug de capture par référence en Python)
                 def make_run_batch(xb, bb):
                     def run():
                         _ = model(xb, bb)
@@ -231,14 +214,12 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
                 )
                 throughput = bs * 1000 / mean_ms
 
-                # CORRECTION v3 : synchronize avant lecture mémoire post-inférence
                 torch.cuda.synchronize()
                 mem_apres, _ = get_gpu_memory_info()
                 print(f"  Batch={bs:2d} : {mean_ms:7.2f} ± {std_ms:.2f} ms | "
                       f"{throughput:6.1f} vid/s | "
                       f"VRAM après: {mem_apres:.3f} GB")
 
-                # Diagnostic si chute de performance
                 if bs > 1:
                     prev_key = f"batch_{bs // 2}"
                     if prev_key in results["batch_throughput"]:
@@ -258,7 +239,6 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
                 }
 
             except torch.cuda.OutOfMemoryError:
-                # CORRECTION : gestion propre OOM au lieu d'un crash
                 mem_apres, _ = get_gpu_memory_info()
                 print(f"  Batch={bs:2d} : ❌ OUT OF MEMORY "
                       f"(VRAM {mem_apres:.2f}/{mem_total:.2f} GB insuffisant)")
@@ -269,7 +249,6 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
                     "error":                  "OutOfMemoryError",
                 }
 
-    # ── Résumé ────────────────────────────────────────────────────────
     print(f"\n{'='*55}")
     print("RÉSUMÉ")
     print(f"{'='*55}")
@@ -303,7 +282,6 @@ def run_benchmark(checkpoint_path: str, config_path: str, out_dir: str,
     _plot_benchmark(results, out_path / "benchmark_plot.png", use_gpu)
 
 
-# ─── Figure ──────────────────────────────────────────────────────────
 
 def _plot_benchmark(results, out_path, use_gpu):
     import matplotlib
@@ -325,7 +303,6 @@ def _plot_benchmark(results, out_path, use_gpu):
         color=title_c, fontsize=13, fontweight="bold"
     )
 
-    # ── Étapes ───────────────────────────────────────────────────────
     ax = axes[0]
     ax.set_facecolor(ax_bg)
 
@@ -377,7 +354,6 @@ def _plot_benchmark(results, out_path, use_gpu):
     ax.legend(framealpha=0.9, facecolor=bg, edgecolor=grid_c,
               labelcolor=text_c, fontsize=10)
 
-    # ── Throughput ───────────────────────────────────────────────────
     ax2 = axes[1]
     ax2.set_facecolor(ax_bg)
 
@@ -386,7 +362,6 @@ def _plot_benchmark(results, out_path, use_gpu):
     bar_colors    = ["#2980B9"]
     annotations   = [""]  # pas d'annotation pour CPU
 
-    # Récupère la VRAM de base (batch=1) pour calculer les ratios
     batch_1_vram = 0.0
     if use_gpu and "batch_throughput" in results:
         b1 = results["batch_throughput"].get("batch_1", {})
@@ -401,8 +376,6 @@ def _plot_benchmark(results, out_path, use_gpu):
             configs_names.append(f"GPU\nbatch={bs}")
             throughputs.append(tp)
 
-            # CORRECTION v4 : ratio VRAM vs batch=1 plutôt que valeur absolue
-            # MobileNetV3 est léger — la diff absolue est trop petite à lire
             if tp == 0:
                 annotations.append("OOM")
             elif bs_int == 1 or batch_1_vram == 0:
@@ -443,7 +416,6 @@ def _plot_benchmark(results, out_path, use_gpu):
             label, ha="center",
             color=val_c, fontsize=11, fontweight="bold"
         )
-        # Annotation VRAM sous la valeur — afficher seulement si > 0
         if ann and ann != "OOM":
             ax2.text(
                 bar.get_x() + bar.get_width() / 2,
@@ -468,7 +440,6 @@ def _plot_benchmark(results, out_path, use_gpu):
     print(f"[OK] Figure benchmark : {out_path}")
 
 
-# ─── Main ────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(description="Benchmark inférence PAD")

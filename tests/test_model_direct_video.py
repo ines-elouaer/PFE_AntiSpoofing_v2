@@ -107,20 +107,18 @@ def main():
     if not CHECKPOINT_PATH.exists():
         raise FileNotFoundError(f"Checkpoint introuvable: {CHECKPOINT_PATH}")
 
-    # 1. Capture webcam directe
     record_webcam_video(
         output_path=OUTPUT_VIDEO,
         duration_sec=5,
         camera_id=0,
     )
 
-    # 2. Chargement du modèle
     model = VideoPADModel(
         checkpoint_path=str(CHECKPOINT_PATH),
         sample_mode="center_consecutive",
     )
 
-    # 3. Prédiction directe
+    
     details = model.predict_with_details(str(OUTPUT_VIDEO))
 
     score = float(details["score_final_v6"])

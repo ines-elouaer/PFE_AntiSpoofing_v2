@@ -14,13 +14,7 @@ def quality_level(q):
         return "LOW"
 
 def decide(score, q):
-    """
-    Politique quality-aware finale.
-
-    Convention :
-    - score proche de 0 => REAL probable
-    - score proche de 1 => SPOOF probable
-    """
+   
 
     score = float(score)
     q = float(q)
@@ -43,7 +37,7 @@ def decide(score, q):
         else:
             return "REJECT", "medium_quality_high_spoof_score"
 
-    # LOW quality
+    
     if score < 0.25:
         return "ACCEPT", "low_quality_low_spoof_score"
     elif score < 0.85:

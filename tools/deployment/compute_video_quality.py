@@ -38,13 +38,7 @@ def frame_quality(img):
 
 
 def normalize_quality_score(df):
-    """
-    Score simple entre 0 et 1 :
-    - blur_mean élevé = mieux
-    - brightness proche de 0.5 = mieux
-    - valid_rate élevé = mieux
-    - brightness_std trop élevé = moins bien
-    """
+    
 
     out = df.copy()
 

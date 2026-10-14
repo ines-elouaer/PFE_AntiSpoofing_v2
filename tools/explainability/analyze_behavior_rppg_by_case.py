@@ -24,10 +24,7 @@ FEATURES = [
 
 
 def normalize_prediction_columns(pred: pd.DataFrame) -> pd.DataFrame:
-    """
-    Garantit que predictions.csv contient bien :
-    video_id, label, pred_label, score_spoof
-    """
+    
     pred = pred.copy()
 
     if "video_id" not in pred.columns:
@@ -50,11 +47,7 @@ def normalize_prediction_columns(pred: pd.DataFrame) -> pd.DataFrame:
 
 
 def normalize_behav_columns(behav: pd.DataFrame) -> pd.DataFrame:
-    """
-    Nettoie behav/rPPG pour éviter les conflits après merge.
-    Si behav contient label, pred_label, score_spoof, on les supprime,
-    car la référence doit être predictions.csv.
-    """
+    
     behav = behav.copy()
 
     if "video_id" not in behav.columns:
@@ -158,7 +151,7 @@ def main():
     print("\n========== MEAN BY CASE ==========")
     print(mean_by_case.to_string())
 
-    # 5) Figures simples pour features importantes
+    
     important_features = [
         "blink_count",
         "ear_std",

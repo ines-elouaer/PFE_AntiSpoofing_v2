@@ -20,12 +20,10 @@ def build(base_behav_csv, pose_csv, out_csv):
     base["video_id"] = base["video_id"].astype(str)
     pose["video_id"] = pose["video_id"].astype(str)
 
-    # Supprimer rPPG du cœur comportemental
     for col in DROP_RPPG_COLS:
         if col in base.columns:
             base = base.drop(columns=[col])
 
-    # Garder label depuis base
     if "label" in pose.columns:
         pose = pose.drop(columns=["label"])
 

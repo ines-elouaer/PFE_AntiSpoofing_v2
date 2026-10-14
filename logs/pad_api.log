@@ -867,3 +867,444 @@
 2026-05-23 14:40:34 | INFO | pad_api | PADRouter chargé avec succès.
 2026-05-23 14:40:34 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
 2026-05-23 14:48:34 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-02 19:17:26 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-02 19:17:26 | INFO | pad_api | Version: v6.0
+2026-06-02 19:17:26 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-02 19:17:26 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-02 19:17:26 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-02 19:17:33 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-02 19:17:33 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-02 19:19:25 | INFO | pad_api | Challenge créé | challenge_id=aaf17554-efdf-4cf6-a84a-e7f16d0de7fa | type=SMILE
+2026-06-02 19:19:31 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780427971081.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_191931_186824.mp4 | challenge_id=aaf17554-efdf-4cf6-a84a-e7f16d0de7fa | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:19:39 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1424 | label=REAL | api_total=8.7928s | router=8.6294s | result=/app/data/runtime_results/result_20260602_191931_186824.json
+2026-06-02 19:21:04 | INFO | pad_api | Challenge créé | challenge_id=b26a2fcc-86e7-4e90-a577-92061527e28d | type=SMILE
+2026-06-02 19:21:35 | INFO | pad_api | Challenge créé | challenge_id=c3cc3754-0bb4-4da6-a0b0-e2af689dde08 | type=TURN_LEFT
+2026-06-02 19:21:41 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428101645.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_192141_745582.mp4 | challenge_id=c3cc3754-0bb4-4da6-a0b0-e2af689dde08 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:21:50 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.2241 | label=REAL | api_total=8.2612s | router=8.109s | result=/app/data/runtime_results/result_20260602_192141_745582.json
+2026-06-02 19:26:54 | INFO | pad_api | Challenge créé | challenge_id=ffd56231-68c5-42e5-af5e-1c4a061cb0f3 | type=BLINK
+2026-06-02 19:27:00 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428420531.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_192700_633670.mp4 | challenge_id=ffd56231-68c5-42e5-af5e-1c4a061cb0f3 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:27:09 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1513 | label=REAL | api_total=8.681s | router=8.6079s | result=/app/data/runtime_results/result_20260602_192700_633670.json
+2026-06-02 19:28:48 | INFO | pad_api | Challenge créé | challenge_id=150c230c-80b2-4f69-b8a8-cef46a5cf096 | type=TURN_LEFT
+2026-06-02 19:28:54 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428534255.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_192854_347172.mp4 | challenge_id=150c230c-80b2-4f69-b8a8-cef46a5cf096 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:29:02 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1721 | label=REAL | api_total=8.2368s | router=8.0936s | result=/app/data/runtime_results/result_20260602_192854_347172.json
+2026-06-02 19:30:27 | INFO | pad_api | Challenge créé | challenge_id=bbfdd686-0b19-41d0-9444-5b477556c74f | type=TURN_LEFT
+2026-06-02 19:30:33 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428633153.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193033_240444.mp4 | challenge_id=bbfdd686-0b19-41d0-9444-5b477556c74f | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:30:41 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1792 | label=REAL | api_total=8.2973s | router=8.1438s | result=/app/data/runtime_results/result_20260602_193033_240444.json
+2026-06-02 19:32:24 | INFO | pad_api | Challenge créé | challenge_id=3edae0ec-2b1d-4ecc-9664-e2634943ca55 | type=SMILE
+2026-06-02 19:32:30 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428750262.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193230_344732.mp4 | challenge_id=3edae0ec-2b1d-4ecc-9664-e2634943ca55 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:32:38 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.3518 | label=UNCERTAIN | api_total=8.4251s | router=8.3078s | result=/app/data/runtime_results/result_20260602_193230_344732.json
+2026-06-02 19:33:19 | INFO | pad_api | Challenge créé | challenge_id=853ac264-620c-45ce-aaed-4283e4902e03 | type=SMILE
+2026-06-02 19:33:25 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428805425.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193325_489178.mp4 | challenge_id=853ac264-620c-45ce-aaed-4283e4902e03 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:33:32 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.3156 | label=UNCERTAIN | api_total=7.4178s | router=7.2967s | result=/app/data/runtime_results/result_20260602_193325_489178.json
+2026-06-02 19:34:12 | INFO | pad_api | Challenge créé | challenge_id=e9269ed8-2c36-4d15-b6fb-817b63297552 | type=SMILE
+2026-06-02 19:34:18 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428858144.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193418_244798.mp4 | challenge_id=e9269ed8-2c36-4d15-b6fb-817b63297552 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:34:26 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.3372 | label=UNCERTAIN | api_total=8.3474s | router=8.2687s | result=/app/data/runtime_results/result_20260602_193418_244798.json
+2026-06-02 19:34:32 | INFO | pad_api | Challenge créé | challenge_id=6cbf7641-e774-426a-b988-969d03c7c9a1 | type=BLINK
+2026-06-02 19:35:02 | INFO | pad_api | Challenge créé | challenge_id=37d0e1fa-2560-470b-8aac-5b9b53ce97b1 | type=SMILE
+2026-06-02 19:35:09 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428908829.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193508_910011.mp4 | challenge_id=37d0e1fa-2560-470b-8aac-5b9b53ce97b1 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:35:16 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.321 | label=UNCERTAIN | api_total=7.6216s | router=7.4687s | result=/app/data/runtime_results/result_20260602_193508_910011.json
+2026-06-02 19:35:19 | INFO | pad_api | Challenge créé | challenge_id=ab60805c-31f4-4e34-a268-77e21a12d56a | type=BLINK
+2026-06-02 19:35:26 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428926010.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193526_135584.mp4 | challenge_id=ab60805c-31f4-4e34-a268-77e21a12d56a | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:35:33 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.2384 | label=REAL | api_total=7.6725s | router=7.5901s | result=/app/data/runtime_results/result_20260602_193526_135584.json
+2026-06-02 19:35:43 | INFO | pad_api | Challenge créé | challenge_id=033d2ccc-b6f4-483e-a4a5-4f3d83d150f8 | type=BLINK
+2026-06-02 19:35:46 | INFO | pad_api | Challenge créé | challenge_id=274ad328-a197-4820-a625-9d89a7f57354 | type=TURN_LEFT
+2026-06-02 19:35:47 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428946993.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193547_044707.mp4 | challenge_id=274ad328-a197-4820-a625-9d89a7f57354 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:35:47 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.6879s | router=0.6238s | result=/app/data/runtime_results/result_20260602_193547_044707.json
+2026-06-02 19:35:48 | INFO | pad_api | Challenge créé | challenge_id=af615171-a899-44cc-b3e0-641ba86d6d50 | type=SMILE
+2026-06-02 19:35:48 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428948860.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193548_901565.mp4 | challenge_id=af615171-a899-44cc-b3e0-641ba86d6d50 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:35:49 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.7754s | router=0.6986s | result=/app/data/runtime_results/result_20260602_193548_901565.json
+2026-06-02 19:35:55 | INFO | pad_api | Challenge créé | challenge_id=f3febea5-f27b-4bd0-8333-8e1341e535c9 | type=TURN_LEFT
+2026-06-02 19:35:56 | INFO | pad_api | Challenge créé | challenge_id=a7d502c7-8845-4875-b4ec-bbb7be985c05 | type=SMILE
+2026-06-02 19:35:57 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780428956995.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_193557_042874.mp4 | challenge_id=a7d502c7-8845-4875-b4ec-bbb7be985c05 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:36:01 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1589 | label=REAL | api_total=4.1711s | router=4.1344s | result=/app/data/runtime_results/result_20260602_193557_042874.json
+2026-06-02 19:41:24 | INFO | pad_api | Challenge créé | challenge_id=1567b48a-e9da-431d-9d33-981e2db59e28 | type=SMILE
+2026-06-02 19:41:30 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429290633.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194130_742597.mp4 | challenge_id=1567b48a-e9da-431d-9d33-981e2db59e28 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:41:39 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.3061 | label=UNCERTAIN | api_total=8.5075s | router=8.391s | result=/app/data/runtime_results/result_20260602_194130_742597.json
+2026-06-02 19:42:10 | INFO | pad_api | Challenge créé | challenge_id=ac6a9e9d-a4db-4ea3-89ea-bc9213bb1eeb | type=SMILE
+2026-06-02 19:42:17 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429336840.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194216_932047.mp4 | challenge_id=ac6a9e9d-a4db-4ea3-89ea-bc9213bb1eeb | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:42:24 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.2986 | label=UNCERTAIN | api_total=7.9538s | router=7.7944s | result=/app/data/runtime_results/result_20260602_194216_932047.json
+2026-06-02 19:42:52 | INFO | pad_api | Challenge créé | challenge_id=1bcf479e-ab99-474b-b18b-38c4e14e8ec1 | type=TURN_LEFT
+2026-06-02 19:42:58 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429378495.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194258_578206.mp4 | challenge_id=1bcf479e-ab99-474b-b18b-38c4e14e8ec1 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:43:06 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.0746 | label=REAL | api_total=8.1713s | router=8.1079s | result=/app/data/runtime_results/result_20260602_194258_578206.json
+2026-06-02 19:43:56 | INFO | pad_api | Challenge créé | challenge_id=7bd9eaa8-55b4-4aad-820f-36f761117ecc | type=SMILE
+2026-06-02 19:44:03 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429442965.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194403_077154.mp4 | challenge_id=7bd9eaa8-55b4-4aad-820f-36f761117ecc | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:44:12 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.3076 | label=UNCERTAIN | api_total=9.904s | router=9.7869s | result=/app/data/runtime_results/result_20260602_194403_077154.json
+2026-06-02 19:44:19 | INFO | pad_api | Challenge créé | challenge_id=ffc2dbfc-a19e-47d9-940a-9ec9dde998a2 | type=BLINK
+2026-06-02 19:44:39 | INFO | pad_api | Challenge créé | challenge_id=70d4c6d3-aca9-4c2a-97de-8e6e8e1d19b8 | type=TURN_LEFT
+2026-06-02 19:44:45 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429485283.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194445_352927.mp4 | challenge_id=70d4c6d3-aca9-4c2a-97de-8e6e8e1d19b8 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:44:54 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.2483 | label=REAL | api_total=8.7301s | router=8.6444s | result=/app/data/runtime_results/result_20260602_194445_352927.json
+2026-06-02 19:45:36 | INFO | pad_api | Challenge créé | challenge_id=38d4b034-c974-4933-a262-d49c94b6798d | type=SMILE
+2026-06-02 19:45:42 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429542228.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194542_302034.mp4 | challenge_id=38d4b034-c974-4933-a262-d49c94b6798d | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:45:50 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.3055 | label=UNCERTAIN | api_total=7.9297s | router=7.8313s | result=/app/data/runtime_results/result_20260602_194542_302034.json
+2026-06-02 19:46:09 | INFO | pad_api | Challenge créé | challenge_id=efa50fe0-6e6b-461d-8162-f0b316c0914a | type=BLINK
+2026-06-02 19:46:15 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429575349.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194615_439772.mp4 | challenge_id=efa50fe0-6e6b-461d-8162-f0b316c0914a | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:46:23 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.217 | label=REAL | api_total=8.2842s | router=8.0662s | result=/app/data/runtime_results/result_20260602_194615_439772.json
+2026-06-02 19:46:48 | INFO | pad_api | Challenge créé | challenge_id=549c23a7-7f4c-43a7-876f-9343279ec6c7 | type=BLINK
+2026-06-02 19:46:58 | INFO | pad_api | Challenge créé | challenge_id=be84d58b-19b3-482e-8cd2-733dcc5d9553 | type=TURN_LEFT
+2026-06-02 19:47:04 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429624195.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194704_270025.mp4 | challenge_id=be84d58b-19b3-482e-8cd2-733dcc5d9553 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:47:06 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=2.6077s | router=2.4945s | result=/app/data/runtime_results/result_20260602_194704_270025.json
+2026-06-02 19:47:20 | INFO | pad_api | Challenge créé | challenge_id=63c24dd7-219e-4132-abc4-ae9dd6d036c1 | type=BLINK
+2026-06-02 19:47:23 | INFO | pad_api | Challenge créé | challenge_id=bdf66572-3b65-4131-a7da-aa706ef03767 | type=SMILE
+2026-06-02 19:47:23 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429643865.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194723_940600.mp4 | challenge_id=bdf66572-3b65-4131-a7da-aa706ef03767 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:47:25 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.3474s | router=1.3186s | result=/app/data/runtime_results/result_20260602_194723_940600.json
+2026-06-02 19:48:42 | INFO | pad_api | Challenge créé | challenge_id=90fe57d9-1557-40cc-b9b7-b41edfe99781 | type=TURN_LEFT
+2026-06-02 19:48:48 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429728655.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194848_738610.mp4 | challenge_id=90fe57d9-1557-40cc-b9b7-b41edfe99781 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:48:51 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=2.4893s | router=2.4054s | result=/app/data/runtime_results/result_20260602_194848_738610.json
+2026-06-02 19:49:40 | INFO | pad_api | Challenge créé | challenge_id=ca19cc53-254d-4dc0-b191-eee9e467c250 | type=SMILE
+2026-06-02 19:49:47 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429786938.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194946_980150.mp4 | challenge_id=ca19cc53-254d-4dc0-b191-eee9e467c250 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:49:49 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=2.3066s | router=2.2476s | result=/app/data/runtime_results/result_20260602_194946_980150.json
+2026-06-02 19:49:52 | INFO | pad_api | Challenge créé | challenge_id=a43b6b16-0467-48c7-ac3f-7ecc090551e8 | type=BLINK
+2026-06-02 19:49:54 | INFO | pad_api | Challenge créé | challenge_id=4ea436c8-45db-4dde-b1f3-6fbcdade18de | type=TURN_LEFT
+2026-06-02 19:49:54 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429794631.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194954_703320.mp4 | challenge_id=4ea436c8-45db-4dde-b1f3-6fbcdade18de | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:49:55 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.3516s | router=0.3184s | result=/app/data/runtime_results/result_20260602_194954_703320.json
+2026-06-02 19:49:58 | INFO | pad_api | Challenge créé | challenge_id=1b1b527d-a75a-46c2-b710-41106574b3cb | type=BLINK
+2026-06-02 19:49:58 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429798367.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_194958_420501.mp4 | challenge_id=1b1b527d-a75a-46c2-b710-41106574b3cb | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:49:58 | INFO | pad_api | Analyse terminée | decision=INVALID_INPUT | score=None | label=UNCERTAIN | api_total=0.1523s | router=0.0731s | result=/app/data/runtime_results/result_20260602_194958_420501.json
+2026-06-02 19:50:02 | INFO | pad_api | Challenge créé | challenge_id=23f6e9b6-8355-409e-a0af-41f3ad88a52b | type=SMILE
+2026-06-02 19:50:04 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429804378.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195004_426634.mp4 | challenge_id=23f6e9b6-8355-409e-a0af-41f3ad88a52b | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:05 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.7006s | router=0.6562s | result=/app/data/runtime_results/result_20260602_195004_426634.json
+2026-06-02 19:50:10 | INFO | pad_api | Challenge créé | challenge_id=f756522d-8bd6-4647-bcd5-8a4678c71b27 | type=TURN_LEFT
+2026-06-02 19:50:16 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429816191.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195016_282701.mp4 | challenge_id=f756522d-8bd6-4647-bcd5-8a4678c71b27 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:22 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9816 | label=SPOOF | api_total=6.1228s | router=6.074s | result=/app/data/runtime_results/result_20260602_195016_282701.json
+2026-06-02 19:50:38 | INFO | pad_api | Challenge créé | challenge_id=a63a30cb-8386-402c-bca3-9b14819304d3 | type=SMILE
+2026-06-02 19:50:41 | INFO | pad_api | Challenge créé | challenge_id=1d2e5f68-9325-4205-8071-5cd4559e6231 | type=BLINK
+2026-06-02 19:50:41 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429841281.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195041_327071.mp4 | challenge_id=1d2e5f68-9325-4205-8071-5cd4559e6231 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:42 | INFO | pad_api | Challenge créé | challenge_id=668b4a50-bfbe-444c-9052-51e271607200 | type=TURN_LEFT
+2026-06-02 19:50:43 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429842943.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195042_988462.mp4 | challenge_id=668b4a50-bfbe-444c-9052-51e271607200 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:43 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.7457s | router=1.6809s | result=/app/data/runtime_results/result_20260602_195041_327071.json
+2026-06-02 19:50:44 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.2081s | router=1.1407s | result=/app/data/runtime_results/result_20260602_195042_988462.json
+2026-06-02 19:50:44 | INFO | pad_api | Challenge créé | challenge_id=f15bb78b-e7b7-4b7d-be4e-f173df98ce80 | type=BLINK
+2026-06-02 19:50:44 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429844266.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195044_285808.mp4 | challenge_id=f15bb78b-e7b7-4b7d-be4e-f173df98ce80 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:45 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429844966.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195045_036281.mp4 | challenge_id=f15bb78b-e7b7-4b7d-be4e-f173df98ce80 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:45 | INFO | pad_api | Analyse terminée | decision=INVALID_CHALLENGE | score=None | label=UNCERTAIN | api_total=0.1621s | router=0.08s | result=/app/data/runtime_results/result_20260602_195045_036281.json
+2026-06-02 19:50:45 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.9791s | router=0.9145s | result=/app/data/runtime_results/result_20260602_195044_285808.json
+2026-06-02 19:50:52 | INFO | pad_api | Challenge créé | challenge_id=ffc9b5e7-9339-4a4c-8bb2-98fc18b83bcc | type=BLINK
+2026-06-02 19:50:55 | INFO | pad_api | Challenge créé | challenge_id=d434b06a-23fc-47cf-adbf-230fa2f161f9 | type=SMILE
+2026-06-02 19:50:55 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429855403.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195055_488445.mp4 | challenge_id=d434b06a-23fc-47cf-adbf-230fa2f161f9 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:56 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.1386s | router=1.0913s | result=/app/data/runtime_results/result_20260602_195055_488445.json
+2026-06-02 19:50:56 | INFO | pad_api | Challenge créé | challenge_id=793b6403-2471-4f20-86f6-56f284848866 | type=TURN_LEFT
+2026-06-02 19:50:56 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429856920.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195056_944914.mp4 | challenge_id=793b6403-2471-4f20-86f6-56f284848866 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:50:57 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.8568s | router=0.8138s | result=/app/data/runtime_results/result_20260602_195056_944914.json
+2026-06-02 19:51:14 | INFO | pad_api | Challenge créé | challenge_id=c96ef193-c17f-45a3-a711-2899a21b35d4 | type=SMILE
+2026-06-02 19:51:15 | INFO | pad_api | Challenge créé | challenge_id=21eb822d-57f6-48a9-b5c4-4c857ed1d15b | type=SMILE
+2026-06-02 19:51:16 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429875919.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195115_967645.mp4 | challenge_id=21eb822d-57f6-48a9-b5c4-4c857ed1d15b | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:51:16 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.838s | router=0.7882s | result=/app/data/runtime_results/result_20260602_195115_967645.json
+2026-06-02 19:51:17 | INFO | pad_api | Challenge créé | challenge_id=a5f21cc8-7d93-4602-a5e8-096f90006281 | type=TURN_LEFT
+2026-06-02 19:51:17 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429877290.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195117_322148.mp4 | challenge_id=a5f21cc8-7d93-4602-a5e8-096f90006281 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:51:18 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.9616s | router=0.8983s | result=/app/data/runtime_results/result_20260602_195117_322148.json
+2026-06-02 19:51:22 | INFO | pad_api | Challenge créé | challenge_id=757838d0-a2a7-4007-97e1-991562426146 | type=TURN_LEFT
+2026-06-02 19:51:23 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429883293.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195123_321643.mp4 | challenge_id=757838d0-a2a7-4007-97e1-991562426146 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:51:23 | INFO | pad_api | Analyse terminée | decision=INVALID_INPUT | score=None | label=UNCERTAIN | api_total=0.1082s | router=0.0718s | result=/app/data/runtime_results/result_20260602_195123_321643.json
+2026-06-02 19:51:34 | INFO | pad_api | Challenge créé | challenge_id=7893dfc2-60b8-45e8-bdce-2d2a7fcdc84e | type=BLINK
+2026-06-02 19:51:40 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429900263.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195140_363145.mp4 | challenge_id=7893dfc2-60b8-45e8-bdce-2d2a7fcdc84e | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:51:43 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=2.97s | router=2.7635s | result=/app/data/runtime_results/result_20260602_195140_363145.json
+2026-06-02 19:51:44 | INFO | pad_api | Challenge créé | challenge_id=3af6efdd-225d-400c-8027-f37dfd6e5596 | type=BLINK
+2026-06-02 19:51:50 | INFO | pad_api | Challenge créé | challenge_id=2168c485-8c56-440f-9037-34ba6ebdedbd | type=SMILE
+2026-06-02 19:51:55 | INFO | pad_api | Challenge créé | challenge_id=196beb76-655d-4cee-b03f-c85eef351d58 | type=TURN_LEFT
+2026-06-02 19:51:56 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429916537.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195156_606145.mp4 | challenge_id=196beb76-655d-4cee-b03f-c85eef351d58 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:52:00 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.7225 | label=UNCERTAIN | api_total=3.8877s | router=3.8275s | result=/app/data/runtime_results/result_20260602_195156_606145.json
+2026-06-02 19:52:03 | INFO | pad_api | Challenge créé | challenge_id=1e0493bc-3b12-44ad-8915-2bb0622e1f3f | type=BLINK
+2026-06-02 19:52:09 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429929285.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195209_389794.mp4 | challenge_id=1e0493bc-3b12-44ad-8915-2bb0622e1f3f | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:52:11 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.6876s | router=1.5983s | result=/app/data/runtime_results/result_20260602_195209_389794.json
+2026-06-02 19:52:13 | INFO | pad_api | Challenge créé | challenge_id=8b9abeaf-ef9c-4c8c-88ac-a62b71119193 | type=SMILE
+2026-06-02 19:52:19 | INFO | pad_api | Challenge créé | challenge_id=8d00b9d3-34d8-4537-8897-c631af97843f | type=SMILE
+2026-06-02 19:52:19 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429939832.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195219_864729.mp4 | challenge_id=8d00b9d3-34d8-4537-8897-c631af97843f | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:52:19 | INFO | pad_api | Analyse terminée | decision=INVALID_INPUT | score=None | label=UNCERTAIN | api_total=0.0614s | router=0.0416s | result=/app/data/runtime_results/result_20260602_195219_864729.json
+2026-06-02 19:52:23 | INFO | pad_api | Challenge créé | challenge_id=51b0655d-8f52-41ab-9045-8e5ce12af58b | type=SMILE
+2026-06-02 19:52:25 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429945525.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195225_582947.mp4 | challenge_id=51b0655d-8f52-41ab-9045-8e5ce12af58b | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:52:26 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.0501s | router=1.0058s | result=/app/data/runtime_results/result_20260602_195225_582947.json
+2026-06-02 19:52:28 | INFO | pad_api | Challenge créé | challenge_id=8f8d130d-0343-4f5b-8013-9c3d5705c8fd | type=BLINK
+2026-06-02 19:52:29 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429949458.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195229_516779.mp4 | challenge_id=8f8d130d-0343-4f5b-8013-9c3d5705c8fd | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:52:29 | INFO | pad_api | Analyse terminée | decision=INVALID_INPUT | score=None | label=UNCERTAIN | api_total=0.1422s | router=0.0952s | result=/app/data/runtime_results/result_20260602_195229_516779.json
+2026-06-02 19:52:38 | INFO | pad_api | Challenge créé | challenge_id=339e7ee0-2a08-44d4-9be3-59e5b864b74a | type=TURN_LEFT
+2026-06-02 19:52:44 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780429964320.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195244_410622.mp4 | challenge_id=339e7ee0-2a08-44d4-9be3-59e5b864b74a | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:52:50 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9609 | label=SPOOF | api_total=6.5536s | router=6.4238s | result=/app/data/runtime_results/result_20260602_195244_410622.json
+2026-06-02 19:53:38 | INFO | pad_api | Challenge créé | challenge_id=c9690ae4-6b5d-48a8-bdb4-71b0762473ad | type=SMILE
+2026-06-02 19:53:44 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430024312.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195344_408995.mp4 | challenge_id=c9690ae4-6b5d-48a8-bdb4-71b0762473ad | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:53:48 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=3.6679s | router=3.4886s | result=/app/data/runtime_results/result_20260602_195344_408995.json
+2026-06-02 19:54:23 | INFO | pad_api | Challenge créé | challenge_id=1cb138dc-b600-47f1-ae9e-682fe8df5cd0 | type=BLINK
+2026-06-02 19:54:29 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430069726.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195429_803189.mp4 | challenge_id=1cb138dc-b600-47f1-ae9e-682fe8df5cd0 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:54:33 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=3.484s | router=3.3752s | result=/app/data/runtime_results/result_20260602_195429_803189.json
+2026-06-02 19:54:35 | INFO | pad_api | Challenge créé | challenge_id=7700025e-1ae4-4e86-9e0d-63a31ef1ed10 | type=TURN_LEFT
+2026-06-02 19:54:42 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430081781.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195441_887453.mp4 | challenge_id=7700025e-1ae4-4e86-9e0d-63a31ef1ed10 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:54:48 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.8422 | label=UNCERTAIN | api_total=6.8246s | router=6.6699s | result=/app/data/runtime_results/result_20260602_195441_887453.json
+2026-06-02 19:54:57 | INFO | pad_api | Challenge créé | challenge_id=437c0975-b257-40d5-9f1e-5d5133e960a9 | type=TURN_LEFT
+2026-06-02 19:55:03 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430103374.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195503_452068.mp4 | challenge_id=437c0975-b257-40d5-9f1e-5d5133e960a9 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:55:10 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.7585 | label=UNCERTAIN | api_total=7.1176s | router=6.9734s | result=/app/data/runtime_results/result_20260602_195503_452068.json
+2026-06-02 19:55:26 | INFO | pad_api | Challenge créé | challenge_id=34b50b9a-7766-4f78-b292-c6e1df70b7ab | type=BLINK
+2026-06-02 19:55:33 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430132905.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195532_976397.mp4 | challenge_id=34b50b9a-7766-4f78-b292-c6e1df70b7ab | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:55:36 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=3.3481s | router=3.1901s | result=/app/data/runtime_results/result_20260602_195532_976397.json
+2026-06-02 19:55:39 | INFO | pad_api | Challenge créé | challenge_id=39935416-cd5d-43be-b688-153db0c6f5b0 | type=BLINK
+2026-06-02 19:55:42 | INFO | pad_api | Challenge créé | challenge_id=5eedc887-9580-49a1-bd17-7aca9f26997a | type=SMILE
+2026-06-02 19:55:42 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430142097.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195542_136369.mp4 | challenge_id=5eedc887-9580-49a1-bd17-7aca9f26997a | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:55:43 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.6021s | router=1.535s | result=/app/data/runtime_results/result_20260602_195542_136369.json
+2026-06-02 19:55:49 | INFO | pad_api | Challenge créé | challenge_id=72e65783-8b29-4ce6-b7e4-ca8d5969c587 | type=TURN_LEFT
+2026-06-02 19:55:55 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430155100.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195555_185501.mp4 | challenge_id=72e65783-8b29-4ce6-b7e4-ca8d5969c587 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:56:02 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.8945 | label=SPOOF | api_total=7.3775s | router=7.2196s | result=/app/data/runtime_results/result_20260602_195555_185501.json
+2026-06-02 19:57:04 | INFO | pad_api | Challenge créé | challenge_id=07fe24fd-f026-420c-8cc4-912f65fe9a6c | type=SMILE
+2026-06-02 19:57:10 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430230754.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195710_809008.mp4 | challenge_id=07fe24fd-f026-420c-8cc4-912f65fe9a6c | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:57:18 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9883 | label=SPOOF | api_total=7.4781s | router=7.3707s | result=/app/data/runtime_results/result_20260602_195710_809008.json
+2026-06-02 19:57:32 | INFO | pad_api | Challenge créé | challenge_id=b8fffd48-101a-460d-8506-d2cf028c6327 | type=TURN_LEFT
+2026-06-02 19:57:38 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430258167.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195738_268254.mp4 | challenge_id=b8fffd48-101a-460d-8506-d2cf028c6327 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:57:44 | INFO | pad_api | Challenge créé | challenge_id=905ec72e-097b-4741-bcb1-c732353c99f2 | type=SMILE
+2026-06-02 19:57:46 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9895 | label=SPOOF | api_total=7.9611s | router=7.778s | result=/app/data/runtime_results/result_20260602_195738_268254.json
+2026-06-02 19:57:59 | INFO | pad_api | Challenge créé | challenge_id=f81e0892-d1ca-4c07-8015-b2afed7afcf8 | type=SMILE
+2026-06-02 19:58:05 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430285218.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_195805_281410.mp4 | challenge_id=f81e0892-d1ca-4c07-8015-b2afed7afcf8 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 19:58:13 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.8819 | label=SPOOF | api_total=8.2496s | router=8.1126s | result=/app/data/runtime_results/result_20260602_195805_281410.json
+2026-06-02 20:02:46 | INFO | pad_api | Challenge créé | challenge_id=957ed2a3-30b8-4c7b-9300-749a55dbbc43 | type=SMILE
+2026-06-02 20:03:03 | INFO | pad_api | Challenge créé | challenge_id=6cd8b378-5372-45e8-9b1b-5aec7c927675 | type=SMILE
+2026-06-02 20:03:09 | INFO | pad_api | Challenge créé | challenge_id=37f495c2-4e6d-45ff-89a2-5185eaabfbd0 | type=BLINK
+2026-06-02 20:03:09 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430589663.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_200309_709784.mp4 | challenge_id=37f495c2-4e6d-45ff-89a2-5185eaabfbd0 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 20:03:09 | INFO | pad_api | Analyse terminée | decision=INVALID_INPUT | score=None | label=UNCERTAIN | api_total=0.1794s | router=0.11s | result=/app/data/runtime_results/result_20260602_200309_709784.json
+2026-06-02 20:03:18 | INFO | pad_api | Challenge créé | challenge_id=11dc58ad-f5c6-463f-9051-95759f8c3c25 | type=SMILE
+2026-06-02 20:03:24 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430604368.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_200324_458003.mp4 | challenge_id=11dc58ad-f5c6-463f-9051-95759f8c3c25 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 20:03:27 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=3.3401s | router=3.1967s | result=/app/data/runtime_results/result_20260602_200324_458003.json
+2026-06-02 20:03:32 | INFO | pad_api | Challenge créé | challenge_id=a8e0ecec-cf9f-4242-836d-7441c3ef8b24 | type=BLINK
+2026-06-02 20:03:39 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430618909.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_200338_989334.mp4 | challenge_id=a8e0ecec-cf9f-4242-836d-7441c3ef8b24 | enable_liveness=True | require_challenge_validation=True
+2026-06-02 20:03:47 | INFO | pad_api | Analyse terminée | decision=RETRY | score=0.715 | label=UNCERTAIN | api_total=8.5908s | router=8.4726s | result=/app/data/runtime_results/result_20260602_200338_989334.json
+2026-06-02 20:04:10 | INFO | pad_api | Challenge créé | challenge_id=1d4bc0d1-9ce8-4fdc-bca1-01b159c222fe | type=BLINK
+2026-06-02 20:04:16 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780430656094.mp4 | saved_path=/app/data/runtime_uploads/upload_20260602_200416_182049.mp4 | challenge_id=1d4bc0d1-9ce8-4fdc-bca1-01b159c222fe | enable_liveness=True | require_challenge_validation=True
+2026-06-02 20:04:24 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.94 | label=SPOOF | api_total=8.1919s | router=7.9874s | result=/app/data/runtime_results/result_20260602_200416_182049.json
+2026-06-02 23:00:01 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-04 12:57:52 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-04 12:57:52 | INFO | pad_api | Version: v6.0
+2026-06-04 12:57:52 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-04 12:57:52 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-04 12:57:52 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-04 12:57:55 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-04 12:57:55 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-04 12:57:55 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-04 12:58:08 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-04 12:58:08 | INFO | pad_api | Version: v6.0
+2026-06-04 12:58:08 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-04 12:58:08 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-04 12:58:08 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-04 12:58:10 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-04 12:58:10 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-04 12:58:20 | INFO | pad_api | Challenge créé | challenge_id=882b5cf7-e576-4bfd-a990-19b94807ce77 | type=BLINK
+2026-06-04 12:58:26 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780577906442.mp4 | saved_path=/app/data/runtime_uploads/upload_20260604_125826_519134.mp4 | challenge_id=882b5cf7-e576-4bfd-a990-19b94807ce77 | enable_liveness=True | require_challenge_validation=True
+2026-06-04 12:58:30 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1238 | label=REAL | api_total=4.1941s | router=4.1422s | result=/app/data/runtime_results/result_20260604_125826_519134.json
+2026-06-04 14:13:19 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-06 11:19:31 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-06 11:19:31 | INFO | pad_api | Version: v6.0
+2026-06-06 11:19:31 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-06 11:19:31 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-06 11:19:31 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-06 11:19:33 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-06 11:19:33 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-06 11:25:16 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-06 11:36:57 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-06 11:36:57 | INFO | pad_api | Version: v6.0
+2026-06-06 11:36:57 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-06 11:36:57 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-06 11:36:57 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-06 11:36:59 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-06 11:36:59 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-06 11:46:36 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-06 12:03:14 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-06 12:03:14 | INFO | pad_api | Version: v6.0
+2026-06-06 12:03:14 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-06 12:03:14 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-06 12:03:14 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-06 12:03:16 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-06 12:03:16 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-06 12:04:31 | INFO | pad_api | Challenge créé | challenge_id=ba0e7c0f-6b83-45b8-b9be-dbcaa78d7379 | type=SMILE
+2026-06-06 12:04:37 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780747477822.mp4 | saved_path=/app/data/runtime_uploads/upload_20260606_120437_908752.mp4 | challenge_id=ba0e7c0f-6b83-45b8-b9be-dbcaa78d7379 | enable_liveness=True | require_challenge_validation=True
+2026-06-06 12:04:42 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1504 | label=REAL | api_total=4.2221s | router=4.157s | result=/app/data/runtime_results/result_20260606_120437_908752.json
+2026-06-06 12:19:41 | INFO | pad_api | Challenge créé | challenge_id=2f8aad61-09dd-4572-b3ae-4dcaa4fbf23b | type=TURN_LEFT
+2026-06-06 12:19:48 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780748387879.mp4 | saved_path=/app/data/runtime_uploads/upload_20260606_121947_959373.mp4 | challenge_id=2f8aad61-09dd-4572-b3ae-4dcaa4fbf23b | enable_liveness=True | require_challenge_validation=True
+2026-06-06 12:19:49 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.085s | router=1.0204s | result=/app/data/runtime_results/result_20260606_121947_959373.json
+2026-06-06 12:20:13 | INFO | pad_api | Challenge créé | challenge_id=143f23e3-d7ec-476c-8a8f-223c457d8f56 | type=TURN_LEFT
+2026-06-06 12:20:19 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780748419613.mp4 | saved_path=/app/data/runtime_uploads/upload_20260606_122019_675325.mp4 | challenge_id=143f23e3-d7ec-476c-8a8f-223c457d8f56 | enable_liveness=True | require_challenge_validation=True
+2026-06-06 12:20:21 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.5353s | router=1.486s | result=/app/data/runtime_results/result_20260606_122019_675325.json
+2026-06-06 12:20:22 | INFO | pad_api | Challenge créé | challenge_id=41cb00b7-a20d-4790-b5aa-0e5bc915c5f9 | type=BLINK
+2026-06-06 12:20:27 | INFO | pad_api | Challenge créé | challenge_id=c277bb1c-ca16-4789-baa1-6c3f9c235b48 | type=TURN_LEFT
+2026-06-06 12:20:28 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780748428901.mp4 | saved_path=/app/data/runtime_uploads/upload_20260606_122028_931741.mp4 | challenge_id=c277bb1c-ca16-4789-baa1-6c3f9c235b48 | enable_liveness=True | require_challenge_validation=True
+2026-06-06 12:20:29 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.5437s | router=0.493s | result=/app/data/runtime_results/result_20260606_122028_931741.json
+2026-06-06 12:20:37 | INFO | pad_api | Challenge créé | challenge_id=093322ec-bcaf-4057-ad45-2163cdac5930 | type=SMILE
+2026-06-06 12:20:43 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780748443226.mp4 | saved_path=/app/data/runtime_uploads/upload_20260606_122043_292830.mp4 | challenge_id=093322ec-bcaf-4057-ad45-2163cdac5930 | enable_liveness=True | require_challenge_validation=True
+2026-06-06 12:20:46 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9455 | label=SPOOF | api_total=3.384s | router=3.3408s | result=/app/data/runtime_results/result_20260606_122043_292830.json
+2026-06-06 12:21:54 | INFO | pad_api | Challenge créé | challenge_id=a6c134c6-7286-4ceb-9b21-ccde41e96d11 | type=TURN_LEFT
+2026-06-06 12:21:56 | INFO | pad_api | Challenge créé | challenge_id=6b99f23e-7020-40a5-b6b0-94c36b2588d8 | type=BLINK
+2026-06-06 12:21:56 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780748516113.mp4 | saved_path=/app/data/runtime_uploads/upload_20260606_122156_145982.mp4 | challenge_id=6b99f23e-7020-40a5-b6b0-94c36b2588d8 | enable_liveness=True | require_challenge_validation=True
+2026-06-06 12:21:56 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.5637s | router=0.5126s | result=/app/data/runtime_results/result_20260606_122156_145982.json
+2026-06-06 12:22:04 | INFO | pad_api | Challenge créé | challenge_id=f872e65f-8afc-4b95-870b-805eb0a53ade | type=SMILE
+2026-06-06 12:22:10 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780748530323.mp4 | saved_path=/app/data/runtime_uploads/upload_20260606_122210_390977.mp4 | challenge_id=f872e65f-8afc-4b95-870b-805eb0a53ade | enable_liveness=True | require_challenge_validation=True
+2026-06-06 12:22:14 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.925 | label=SPOOF | api_total=3.7967s | router=3.759s | result=/app/data/runtime_results/result_20260606_122210_390977.json
+2026-06-06 20:22:35 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-07 17:45:03 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-07 17:45:03 | INFO | pad_api | Version: v6.0
+2026-06-07 17:45:03 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-07 17:45:03 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-07 17:45:03 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-07 17:45:05 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-07 17:45:05 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-07 17:49:26 | INFO | pad_api | Challenge créé | challenge_id=edc31eca-4079-4046-8475-996393f6c212 | type=TURN_LEFT
+2026-06-07 17:49:32 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780854572077.mp4 | saved_path=/app/data/runtime_uploads/upload_20260607_174932_177945.mp4 | challenge_id=edc31eca-4079-4046-8475-996393f6c212 | enable_liveness=True | require_challenge_validation=True
+2026-06-07 17:49:37 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1201 | label=REAL | api_total=4.9481s | router=4.8703s | result=/app/data/runtime_results/result_20260607_174932_177945.json
+2026-06-08 00:52:58 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-08 09:31:44 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-08 09:31:44 | INFO | pad_api | Version: v6.0
+2026-06-08 09:31:44 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-08 09:31:44 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-08 09:31:44 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-08 09:31:46 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-08 09:31:46 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-08 09:33:07 | INFO | pad_api | Challenge créé | challenge_id=a78e44d5-94a1-4f4d-b3a1-669e719e633a | type=BLINK
+2026-06-08 09:33:13 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1780911193055.mp4 | saved_path=/app/data/runtime_uploads/upload_20260608_093313_152800.mp4 | challenge_id=a78e44d5-94a1-4f4d-b3a1-669e719e633a | enable_liveness=True | require_challenge_validation=True
+2026-06-08 09:33:16 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1426 | label=REAL | api_total=3.7936s | router=3.7316s | result=/app/data/runtime_results/result_20260608_093313_152800.json
+2026-06-08 09:43:21 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-08 09:50:32 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-08 09:50:32 | INFO | pad_api | Version: v6.0
+2026-06-08 09:50:32 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-08 09:50:32 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-08 09:50:32 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-08 09:50:33 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-08 09:50:33 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-08 09:56:51 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-08 09:57:43 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-08 09:57:43 | INFO | pad_api | Version: v6.0
+2026-06-08 09:57:43 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-08 09:57:43 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-08 09:57:43 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-08 09:57:45 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-08 09:57:45 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-08 14:48:38 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-17 20:51:20 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-17 20:51:20 | INFO | pad_api | Version: v6.0
+2026-06-17 20:51:20 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-17 20:51:20 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-17 20:51:20 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-17 20:51:22 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-17 20:51:22 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-17 20:52:41 | INFO | pad_api | Challenge créé | challenge_id=bfc7a9d2-7889-4975-80be-828bbdaec087 | type=BLINK
+2026-06-17 20:52:48 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1781729567859.mp4 | saved_path=/app/data/runtime_uploads/upload_20260617_205247_945401.mp4 | challenge_id=bfc7a9d2-7889-4975-80be-828bbdaec087 | enable_liveness=True | require_challenge_validation=True
+2026-06-17 20:52:48 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.8534s | router=0.7788s | result=/app/data/runtime_results/result_20260617_205247_945401.json
+2026-06-17 20:52:52 | INFO | pad_api | Challenge créé | challenge_id=409e0d40-c2ba-4634-a326-64191b30a6d4 | type=BLINK
+2026-06-17 20:52:58 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1781729578556.mp4 | saved_path=/app/data/runtime_uploads/upload_20260617_205258_589026.mp4 | challenge_id=409e0d40-c2ba-4634-a326-64191b30a6d4 | enable_liveness=True | require_challenge_validation=True
+2026-06-17 20:52:59 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.5737s | router=0.5205s | result=/app/data/runtime_results/result_20260617_205258_589026.json
+2026-06-17 20:53:05 | INFO | pad_api | Challenge créé | challenge_id=3213aa10-c9c5-4c3a-aa25-8f418a8a713a | type=SMILE
+2026-06-17 20:53:11 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1781729591085.mp4 | saved_path=/app/data/runtime_uploads/upload_20260617_205311_149548.mp4 | challenge_id=3213aa10-c9c5-4c3a-aa25-8f418a8a713a | enable_liveness=True | require_challenge_validation=True
+2026-06-17 20:53:13 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.141 | label=REAL | api_total=2.6627s | router=2.6s | result=/app/data/runtime_results/result_20260617_205311_149548.json
+2026-06-17 20:54:14 | INFO | pad_api | Challenge créé | challenge_id=cc139639-c3f9-47c7-88b9-28f7b8dc44f6 | type=BLINK
+2026-06-17 20:54:20 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1781729660215.mp4 | saved_path=/app/data/runtime_uploads/upload_20260617_205420_257212.mp4 | challenge_id=cc139639-c3f9-47c7-88b9-28f7b8dc44f6 | enable_liveness=True | require_challenge_validation=True
+2026-06-17 20:54:20 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=0.6259s | router=0.5319s | result=/app/data/runtime_results/result_20260617_205420_257212.json
+2026-06-17 21:20:14 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-17 21:22:30 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-17 21:22:30 | INFO | pad_api | Version: v6.0
+2026-06-17 21:22:30 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-17 21:22:30 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-17 21:22:30 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-17 21:22:32 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-17 21:22:32 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-17 21:26:55 | INFO | pad_api | Challenge créé | challenge_id=14784d08-211e-44bd-9911-30ada9005765 | type=SMILE
+2026-06-17 21:27:01 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1781731621031.mp4 | saved_path=/app/data/runtime_uploads/upload_20260617_212701_064586.mp4 | challenge_id=14784d08-211e-44bd-9911-30ada9005765 | enable_liveness=True | require_challenge_validation=True
+2026-06-17 21:27:03 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.217 | label=REAL | api_total=2.5535s | router=2.5216s | result=/app/data/runtime_results/result_20260617_212701_064586.json
+2026-06-17 21:32:32 | INFO | pad_api | Challenge créé | challenge_id=dcb1e51a-8dd9-4a93-8390-e0a49fc4139a | type=SMILE
+2026-06-17 21:32:38 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1781731958486.mp4 | saved_path=/app/data/runtime_uploads/upload_20260617_213238_531926.mp4 | challenge_id=dcb1e51a-8dd9-4a93-8390-e0a49fc4139a | enable_liveness=True | require_challenge_validation=True
+2026-06-17 21:32:40 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1744 | label=REAL | api_total=2.2215s | router=2.1873s | result=/app/data/runtime_results/result_20260617_213238_531926.json
+2026-06-17 22:12:04 | INFO | pad_api | Challenge créé | challenge_id=830c0e0b-80cc-48d3-99ce-6a5a9edacd7b | type=SMILE
+2026-06-17 22:12:10 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1781734330024.mp4 | saved_path=/app/data/runtime_uploads/upload_20260617_221210_079926.mp4 | challenge_id=830c0e0b-80cc-48d3-99ce-6a5a9edacd7b | enable_liveness=True | require_challenge_validation=True
+2026-06-17 22:12:12 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1301 | label=REAL | api_total=2.7985s | router=2.7494s | result=/app/data/runtime_results/result_20260617_221210_079926.json
+2026-06-17 22:44:55 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-21 08:51:29 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-21 08:51:29 | INFO | pad_api | Version: v6.0
+2026-06-21 08:51:29 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-21 08:51:29 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-21 08:51:29 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-21 08:51:32 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-21 08:51:32 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-21 08:54:28 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-21 08:55:54 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-21 08:55:54 | INFO | pad_api | Version: v6.0
+2026-06-21 08:55:54 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-21 08:55:54 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-21 08:55:55 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-21 08:55:56 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-21 08:55:56 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-21 08:58:11 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-21 08:58:27 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-21 08:58:27 | INFO | pad_api | Version: v6.0
+2026-06-21 08:58:27 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-21 08:58:27 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-21 08:58:27 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-21 08:58:30 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-21 08:58:30 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-21 09:00:15 | INFO | pad_api | Challenge créé | challenge_id=36274940-81ab-4e7f-ade6-ffd3b26f4b1e | type=SMILE
+2026-06-21 09:00:21 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782032421609.mp4 | saved_path=/app/data/runtime_uploads/upload_20260621_090021_678060.mp4 | challenge_id=36274940-81ab-4e7f-ade6-ffd3b26f4b1e | enable_liveness=True | require_challenge_validation=True
+2026-06-21 09:00:30 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1352 | label=REAL | api_total=8.5785s | router=8.4017s | result=/app/data/runtime_results/result_20260621_090021_678060.json
+2026-06-21 09:02:19 | INFO | pad_api | Challenge créé | challenge_id=1436c570-ead7-4576-a394-ca2c5f25d9dd | type=SMILE
+2026-06-21 09:02:25 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782032545140.mp4 | saved_path=/app/data/runtime_uploads/upload_20260621_090225_243020.mp4 | challenge_id=1436c570-ead7-4576-a394-ca2c5f25d9dd | enable_liveness=True | require_challenge_validation=True
+2026-06-21 09:02:32 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1379 | label=REAL | api_total=7.5602s | router=7.3821s | result=/app/data/runtime_results/result_20260621_090225_243020.json
+2026-06-21 22:02:02 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-22 22:35:57 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-22 22:35:57 | INFO | pad_api | Version: v6.0
+2026-06-22 22:35:57 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-22 22:35:57 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-22 22:35:57 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-22 22:36:03 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-22 22:36:03 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-22 22:44:11 | INFO | pad_api | Challenge créé | challenge_id=7ea22155-0212-4336-8a9d-166d0cffc913 | type=SMILE
+2026-06-22 22:44:17 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168257657.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_224417_815223.mp4 | challenge_id=7ea22155-0212-4336-8a9d-166d0cffc913 | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:44:23 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=5.278s | router=5.0903s | result=/app/data/runtime_results/result_20260622_224417_815223.json
+2026-06-22 22:44:38 | INFO | pad_api | Challenge créé | challenge_id=1addddee-e58e-4e84-bc12-a354d23d8fba | type=TURN_LEFT
+2026-06-22 22:44:45 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168284846.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_224444_973248.mp4 | challenge_id=1addddee-e58e-4e84-bc12-a354d23d8fba | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:44:52 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.0243 | label=REAL | api_total=7.5616s | router=7.2382s | result=/app/data/runtime_results/result_20260622_224444_973248.json
+2026-06-22 22:45:00 | INFO | pad_api | Challenge créé | challenge_id=940e953e-b487-44c1-b46e-198893aa9cb5 | type=SMILE
+2026-06-22 22:45:32 | INFO | pad_api | Challenge créé | challenge_id=c299b676-c98a-4980-9585-274d30d0567d | type=TURN_LEFT
+2026-06-22 22:45:38 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168338706.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_224538_749108.mp4 | challenge_id=c299b676-c98a-4980-9585-274d30d0567d | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:45:44 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.0316 | label=REAL | api_total=5.9985s | router=5.9246s | result=/app/data/runtime_results/result_20260622_224538_749108.json
+2026-06-22 22:46:06 | INFO | pad_api | Challenge créé | challenge_id=22625dde-a69b-4fa5-847c-998a2ee5b0c2 | type=BLINK
+2026-06-22 22:46:12 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168372547.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_224612_605100.mp4 | challenge_id=22625dde-a69b-4fa5-847c-998a2ee5b0c2 | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:46:14 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=1.8821s | router=1.7664s | result=/app/data/runtime_results/result_20260622_224612_605100.json
+2026-06-22 22:48:52 | INFO | pad_api | Challenge créé | challenge_id=20686ea0-1755-4a1d-894d-504dd2cf1148 | type=SMILE
+2026-06-22 22:48:58 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168538400.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_224858_495919.mp4 | challenge_id=20686ea0-1755-4a1d-894d-504dd2cf1148 | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:49:06 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9955 | label=SPOOF | api_total=8.2943s | router=8.1473s | result=/app/data/runtime_results/result_20260622_224858_495919.json
+2026-06-22 22:50:37 | INFO | pad_api | Challenge créé | challenge_id=532ec8b6-24d9-455b-83db-069bc8dd8d22 | type=TURN_LEFT
+2026-06-22 22:50:43 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168643499.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_225043_546476.mp4 | challenge_id=532ec8b6-24d9-455b-83db-069bc8dd8d22 | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:50:51 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9343 | label=SPOOF | api_total=8.0821s | router=8.0142s | result=/app/data/runtime_results/result_20260622_225043_546476.json
+2026-06-22 22:51:08 | INFO | pad_api | Challenge créé | challenge_id=b1c13fdb-2e1d-4872-a10f-62fa1d9f73ee | type=TURN_LEFT
+2026-06-22 22:51:14 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168674697.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_225114_753242.mp4 | challenge_id=b1c13fdb-2e1d-4872-a10f-62fa1d9f73ee | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:51:22 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1752 | label=REAL | api_total=8.0718s | router=7.9795s | result=/app/data/runtime_results/result_20260622_225114_753242.json
+2026-06-22 22:51:31 | INFO | pad_api | Challenge créé | challenge_id=8fcb32ad-97a3-4d16-a1fe-f6977c68be88 | type=BLINK
+2026-06-22 22:51:37 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168697367.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_225137_426549.mp4 | challenge_id=8fcb32ad-97a3-4d16-a1fe-f6977c68be88 | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:51:41 | INFO | pad_api | Analyse terminée | decision=RETRY | score=None | label=UNCERTAIN | api_total=3.6326s | router=3.5385s | result=/app/data/runtime_results/result_20260622_225137_426549.json
+2026-06-22 22:52:37 | INFO | pad_api | Challenge créé | challenge_id=31424bde-ba08-4bf6-93a7-581a39fa9f3e | type=TURN_LEFT
+2026-06-22 22:52:43 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168763476.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_225243_547569.mp4 | challenge_id=31424bde-ba08-4bf6-93a7-581a39fa9f3e | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:52:50 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9697 | label=SPOOF | api_total=6.7171s | router=6.5268s | result=/app/data/runtime_results/result_20260622_225243_547569.json
+2026-06-22 22:53:04 | INFO | pad_api | Challenge créé | challenge_id=16b134e6-4dcf-4be2-b521-a463c84cc329 | type=BLINK
+2026-06-22 22:53:10 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782168790425.mp4 | saved_path=/app/data/runtime_uploads/upload_20260622_225310_466389.mp4 | challenge_id=16b134e6-4dcf-4be2-b521-a463c84cc329 | enable_liveness=True | require_challenge_validation=True
+2026-06-22 22:53:17 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9771 | label=SPOOF | api_total=7.0184s | router=6.9335s | result=/app/data/runtime_results/result_20260622_225310_466389.json
+2026-06-22 23:55:27 | INFO | pad_api | Arrêt de PAD Banking API.
+2026-06-23 09:14:27 | INFO | pad_api | Démarrage de PAD Banking API.
+2026-06-23 09:14:27 | INFO | pad_api | Version: v6.0
+2026-06-23 09:14:27 | INFO | pad_api | Modèle: V6 final — gated rPPG + behavior-pose
+2026-06-23 09:14:27 | INFO | pad_api | Warmup PAD: chargement du PADRouter et du modèle FOMA V6 au démarrage...
+2026-06-23 09:14:27 | INFO | pad_api | Initialisation du PADRouter et chargement du modèle V6...
+2026-06-23 09:14:30 | INFO | pad_api | PADRouter chargé avec succès.
+2026-06-23 09:14:30 | INFO | pad_api | Warmup PAD terminé: PADRouter et modèle FOMA V6 prêts.
+2026-06-23 09:25:48 | INFO | pad_api | Challenge créé | challenge_id=14302a88-ead4-4b54-b435-4e9bb6626252 | type=BLINK
+2026-06-23 09:25:54 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782206754358.mp4 | saved_path=/app/data/runtime_uploads/upload_20260623_092554_413333.mp4 | challenge_id=14302a88-ead4-4b54-b435-4e9bb6626252 | enable_liveness=True | require_challenge_validation=True
+2026-06-23 09:25:57 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.0106 | label=REAL | api_total=2.7983s | router=2.7439s | result=/app/data/runtime_results/result_20260623_092554_413333.json
+2026-06-23 14:25:47 | INFO | pad_api | Challenge créé | challenge_id=8933b392-6fca-436e-b9a7-3bc98df23f27 | type=BLINK
+2026-06-23 14:25:51 | INFO | pad_api | Challenge créé | challenge_id=f9a91a03-5346-463e-a292-0a0851b0e3ad | type=BLINK
+2026-06-23 14:26:15 | INFO | pad_api | Challenge créé | challenge_id=173793a8-9cb7-4d78-8524-6ff1594aec22 | type=BLINK
+2026-06-23 14:26:21 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782224781446.mp4 | saved_path=/app/data/runtime_uploads/upload_20260623_142621_564629.mp4 | challenge_id=173793a8-9cb7-4d78-8524-6ff1594aec22 | enable_liveness=True | require_challenge_validation=True
+2026-06-23 14:26:27 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.0394 | label=REAL | api_total=5.6478s | router=5.5623s | result=/app/data/runtime_results/result_20260623_142621_564629.json
+2026-06-23 14:26:44 | INFO | pad_api | Challenge créé | challenge_id=a8411913-00e1-4ffa-8272-f04bd7e9a6b3 | type=BLINK
+2026-06-23 14:26:51 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782224810833.mp4 | saved_path=/app/data/runtime_uploads/upload_20260623_142650_934606.mp4 | challenge_id=a8411913-00e1-4ffa-8272-f04bd7e9a6b3 | enable_liveness=True | require_challenge_validation=True
+2026-06-23 14:26:55 | INFO | pad_api | Challenge créé | challenge_id=a614e026-16a3-4221-a66c-e819d62b6880 | type=BLINK
+2026-06-23 14:26:57 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.0094 | label=REAL | api_total=6.801s | router=6.7147s | result=/app/data/runtime_results/result_20260623_142650_934606.json
+2026-06-23 14:28:09 | INFO | pad_api | Challenge créé | challenge_id=e7fa2514-b605-4cfc-aab7-b09d30100dbb | type=SMILE
+2026-06-23 14:28:15 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782224895064.mp4 | saved_path=/app/data/runtime_uploads/upload_20260623_142815_153827.mp4 | challenge_id=e7fa2514-b605-4cfc-aab7-b09d30100dbb | enable_liveness=True | require_challenge_validation=True
+2026-06-23 14:28:19 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.1843 | label=REAL | api_total=4.8372s | router=4.7792s | result=/app/data/runtime_results/result_20260623_142815_153827.json
+2026-06-23 14:28:32 | INFO | pad_api | Challenge créé | challenge_id=ea5b787e-b452-4208-bc2d-2f795664178b | type=SMILE
+2026-06-23 14:28:38 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782224918071.mp4 | saved_path=/app/data/runtime_uploads/upload_20260623_142838_135345.mp4 | challenge_id=ea5b787e-b452-4208-bc2d-2f795664178b | enable_liveness=True | require_challenge_validation=True
+2026-06-23 14:28:42 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.2287 | label=REAL | api_total=4.4244s | router=4.3411s | result=/app/data/runtime_results/result_20260623_142838_135345.json
+2026-06-23 14:28:59 | INFO | pad_api | Challenge créé | challenge_id=faabeb33-4055-454e-835a-286e3cb9aa14 | type=SMILE
+2026-06-23 14:29:05 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782224945642.mp4 | saved_path=/app/data/runtime_uploads/upload_20260623_142905_693290.mp4 | challenge_id=faabeb33-4055-454e-835a-286e3cb9aa14 | enable_liveness=True | require_challenge_validation=True
+2026-06-23 14:29:10 | INFO | pad_api | Analyse terminée | decision=ACCEPT | score=0.2354 | label=REAL | api_total=4.5337s | router=4.446s | result=/app/data/runtime_results/result_20260623_142905_693290.json
+2026-06-23 14:29:22 | INFO | pad_api | Challenge créé | challenge_id=c7eb9660-dcf9-4548-b49e-e8abf9577460 | type=TURN_LEFT
+2026-06-23 14:29:28 | INFO | pad_api | Vidéo reçue | filename=banking_challenge_1782224968269.mp4 | saved_path=/app/data/runtime_uploads/upload_20260623_142928_325339.mp4 | challenge_id=c7eb9660-dcf9-4548-b49e-e8abf9577460 | enable_liveness=True | require_challenge_validation=True
+2026-06-23 14:29:32 | INFO | pad_api | Analyse terminée | decision=REJECT | score=0.9741 | label=SPOOF | api_total=4.568s | router=4.4977s | result=/app/data/runtime_results/result_20260623_142928_325339.json
+2026-06-23 20:28:47 | INFO | pad_api | Arrêt de PAD Banking API.

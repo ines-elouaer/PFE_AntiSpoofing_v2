@@ -135,23 +135,7 @@ def make_hard_balanced_sampler(
     real_sampling_weight: float = 1.5,
     spoof_sampling_weight: float = 1.0,
 ) -> WeightedRandomSampler:
-    """
-    Sampler amélioré.
-
-    Objectif :
-    - renforcer légèrement la classe REAL pour réduire REAL -> SPOOF ;
-    - renforcer les hard examples REAL -> SPOOF ;
-    - renforcer aussi les hard examples SPOOF -> REAL pour préserver la sécurité.
-
-    Poids final :
-        class_weight * hard_weight
-
-    Exemple :
-        REAL normal      : 1.5
-        SPOOF normal     : 1.0
-        REAL->SPOOF hard : 1.5 * 3 = 4.5
-        SPOOF->REAL hard : 1.0 * 3 = 3.0
-    """
+    
 
     hard_weights = load_hard_examples(hard_real_csv, hard_spoof_csv)
 
@@ -218,19 +202,19 @@ def make_optimizer(model, lr_backbone: float, lr_head: float, weight_decay: floa
 
 def set_freeze_backbone_compat(model: nn.Module, freeze: bool):
     if hasattr(model, "freeze_backbone"):
-        model.freeze_backbone(freeze)  # type: ignore
+        model.freeze_backbone(freeze)  
         return
 
     if freeze:
         if hasattr(model, "freeze_all_backbone"):
-            model.freeze_all_backbone()  # type: ignore
+            model.freeze_all_backbone()  
         else:
             for name, p in model.named_parameters():
                 if name.startswith("backbone."):
                     p.requires_grad = False
     else:
         if hasattr(model, "unfreeze_all_backbone"):
-            model.unfreeze_all_backbone()  # type: ignore
+            model.unfreeze_all_backbone()  
         else:
             for name, p in model.named_parameters():
                 if name.startswith("backbone."):
@@ -248,9 +232,9 @@ class TrainConfig:
     train_aug: str = "strong"
     val_aug: str = "none"
 
-    # Bloc B
-    train_sample_mode: str = "uniform"            # uniform | random_clip | consecutive | center_consecutive
-    val_sample_mode: str = "uniform"              # uniform | random_clip | consecutive | center_consecutive
+    
+    train_sample_mode: str = "uniform"           
+    val_sample_mode: str = "uniform"              
 
     batch_size: int = 8
 
@@ -293,19 +277,19 @@ class TrainConfig:
     behav_train_csv: str = r"data\processed\CASIA\behav\train_behav.csv"
     behav_val_csv: str = r"data\processed\CASIA\behav\val_behav.csv"
 
-    # Gated / attention fusion
+    
     use_gated_fusion: bool = True
     gate_hidden: int = 128
 
-    # Hard examples
+    
     hard_real_csv: str = r"data\hard_examples\hard_real_samples.csv"
     hard_spoof_csv: str = r"data\hard_examples\hard_spoof_samples.csv"
 
-    # Sampling weights
+  
     real_sampling_weight: float = 1.5
     spoof_sampling_weight: float = 1.0
 
-    # Loss weights: label 0 = REAL, label 1 = SPOOF
+    
     loss_real_weight: float = 1.2
     loss_spoof_weight: float = 1.0
 
@@ -447,7 +431,7 @@ def main():
     parser.add_argument("--loss_real_weight", type=float, default=None)
     parser.add_argument("--loss_spoof_weight", type=float, default=None)
 
-    # Bloc B
+    
     parser.add_argument(
         "--train_sample_mode",
         type=str,

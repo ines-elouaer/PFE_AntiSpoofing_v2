@@ -39,17 +39,7 @@ class ChallengeSession:
 
 
 class ChallengeManager:
-    """
-    Gestion des challenges vidéo.
-
-    Version stabilisée :
-    - stockage mémoire pour compatibilité ;
-    - stockage SQLite optionnel pour API / Docker ;
-    - session_id unique ;
-    - challenge_id unique ;
-    - expiration courte ;
-    - usage unique du challenge.
-    """
+    
 
     def __init__(
         self,
@@ -80,10 +70,7 @@ class ChallengeManager:
                 self.store = SQLiteChallengeStore(db_path)
                 print(f"[CHALLENGE] Stockage SQLite activé: {db_path}")
 
-    # ==========================================================
-    # INTERNAL HELPERS
-    # ==========================================================
-
+   
     def _session_to_dict(self, session: ChallengeSession) -> Dict[str, Any]:
         return asdict(session)
 
@@ -121,10 +108,7 @@ class ChallengeManager:
 
         return None
 
-    # ==========================================================
-    # PUBLIC METHODS
-    # ==========================================================
-
+    
     def create_challenge(
         self,
         source: str = "direct_video_challenge",

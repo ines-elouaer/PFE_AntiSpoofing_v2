@@ -80,7 +80,7 @@ def normalize_file(input_csv: Path, output_csv: Path, mean, std):
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_csv, index=False, encoding="utf-8")
 
-    # Sauvegarde split files si colonne split existe
+   
     if "split" in df.columns:
         split_dir = output_csv.parent / "splits"
         split_dir.mkdir(parents=True, exist_ok=True)

@@ -19,20 +19,20 @@ from sklearn.metrics import (
 
 
 BEHAV_POSE_COLS = [
-    # EAR / blink
+    
     "ear_mean",
     "ear_std",
     "ear_min",
     "ear_max",
     "blink_count",
 
-    # optical flow / motion
+    
     "motion_mean",
     "motion_std",
     "motion_max",
     "skipped_rate",
 
-    # head pose dynamics
+    
     "yaw_std",
     "pitch_std",
     "roll_std",

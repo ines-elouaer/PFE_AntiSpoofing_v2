@@ -8,9 +8,7 @@ from api.dependencies import get_pad_router
 
 
 def create_app() -> FastAPI:
-    """
-    Crée l'application FastAPI principale.
-    """
+    
     ensure_runtime_dirs()
 
     app = FastAPI(
@@ -21,8 +19,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # à restreindre en production réelle
-        allow_credentials=True,
+        allow_origins=["*"],  
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -33,15 +30,7 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def startup_event():
-        """
-        Démarrage de l'API.
-
-        Amélioration professionnelle :
-        - création des répertoires runtime ;
-        - chargement immédiat du PADRouter ;
-        - chargement du modèle FOMA V6 au démarrage ;
-        - évite une latence forte lors de la première vérification.
-        """
+        
         logger.info("Démarrage de PAD Banking API.")
         logger.info("Version: %s", settings.API_VERSION)
         logger.info("Modèle: %s", settings.MODEL_NAME)

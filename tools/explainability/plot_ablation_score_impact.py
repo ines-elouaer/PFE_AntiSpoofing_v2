@@ -14,7 +14,7 @@ def main():
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Cas proches du seuil
+    
     near = df.copy()
     near["distance_to_threshold"] = (near["normal_score_spoof"] - 0.5).abs()
     near = near.sort_values("distance_to_threshold").head(20)

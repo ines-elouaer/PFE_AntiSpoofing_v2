@@ -83,10 +83,7 @@ def find_best_threshold(y_true, scores):
     for thr in np.linspace(0.05, 0.95, 181):
         m = compute_metrics(y_true, scores, threshold=float(thr))
 
-        # Priorité PAD :
-        # 1. minimiser ACER
-        # 2. minimiser APCER
-        # 3. minimiser BPCER
+        
         key = (m["ACER"], m["APCER"], m["BPCER"])
 
         if best is None or key < best["key"]:
@@ -196,7 +193,7 @@ def main():
     with open(out_dir / "behavior_pose_clf_metrics.json", "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
-    # Sauvegarde des prédictions pour vérification
+   
     for split_name, df, scores, y in [
         ("train", train_df, train_scores, y_train),
         ("val", val_df, val_scores, y_val),

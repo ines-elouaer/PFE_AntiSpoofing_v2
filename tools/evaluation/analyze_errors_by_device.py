@@ -73,10 +73,7 @@ def main():
         1: "SPOOF",
     })
 
-    # ======================================================
-    # 1. Résumé global par appareil et type d'erreur
-    # ======================================================
-
+    
     summary = (
         df.groupby(["device_id", "case"])
         .size()
@@ -129,10 +126,7 @@ def main():
     summary_path = OUT_DIR / "summary_by_device_cases.csv"
     summary.to_csv(summary_path, index=False, encoding="utf-8")
 
-    # ======================================================
-    # 2. Détails des REAL détectés comme SPOOF
-    # ======================================================
-
+    
     real_as_spoof = df[df["case"] == "REAL_AS_SPOOF"].copy()
     real_as_real = df[df["case"] == "REAL_AS_REAL"].copy()
     spoof_as_real = df[df["case"] == "SPOOF_AS_REAL"].copy()
@@ -172,10 +166,7 @@ def main():
         ascending=[True, False],
     ).to_csv(OUT_DIR / "spoof_detected_as_spoof.csv", index=False, encoding="utf-8")
 
-    # ======================================================
-    # 3. Résumé par source_dataset + appareil
-    # ======================================================
-
+    
     source_device_summary = (
         df.groupby(["source_dataset", "device_id", "case"])
         .size()
@@ -206,10 +197,7 @@ def main():
         encoding="utf-8",
     )
 
-    # ======================================================
-    # Console output
-    # ======================================================
-
+    
     print("\n========== SUMMARY BY DEVICE ==========")
     print(summary.to_string(index=False))
 

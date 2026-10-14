@@ -185,12 +185,7 @@ def save_roc_points_csv(path: str, video_scores: Dict[str, Dict]) -> bool:
 
 
 def banking_decision(score: float, accept_threshold: float, reject_threshold: float) -> str:
-    """
-    Banking logic:
-      - low spoof score => ACCEPT
-      - intermediate => RETRY
-      - high spoof score => REJECT
-    """
+    
     if score < accept_threshold:
         return "ACCEPT"
     if score < reject_threshold:
@@ -200,14 +195,7 @@ def banking_decision(score: float, accept_threshold: float, reject_threshold: fl
 
 def calibrate_banking_thresholds(val_scores: Dict[str, Dict],
                                   security_mode: str = "strict") -> Dict:
-    """
-    Calibre automatiquement les seuils accept/reject sur la validation.
-
-    strict   : FN = 0 garanti (aucune attaque acceptée) — recommandé banking
-    balanced : minimise ACER (équilibre sécurité / acceptation)
-
-    Retourne dict avec accept_threshold, reject_threshold, fn_val, reasoning.
-    """
+    
     if security_mode == "strict":
         best_accept = 0.01
         for th in [i / 100 for i in range(1, 60)]:
@@ -216,7 +204,7 @@ def calibrate_banking_thresholds(val_scores: Dict[str, Dict],
             if fn == 0:
                 best_accept = th
             else:
-                break  # dès qu'un FN apparaît on s'arrête
+                break  
 
         th_reject    = min(0.60, max(best_accept + 0.20, 0.50))
         fn_final     = sum(1 for d in val_scores.values()
@@ -238,7 +226,7 @@ def calibrate_banking_thresholds(val_scores: Dict[str, Dict],
             ),
         }
 
-    else:  # balanced
+    else: 
         best_acer, best_th = 1.0, (0.30, 0.60)
         for th_a in [i / 100 for i in range(5, 45, 5)]:
             for th_r in [j / 100 for j in range(50, 80, 5)]:
@@ -270,12 +258,7 @@ def calibrate_banking_thresholds(val_scores: Dict[str, Dict],
 
 
 def analyze_banking_errors(decisions: Dict[str, Dict]) -> Dict:
-    """
-    Analyse les erreurs du point de vue sécurité bancaire.
-      false_accept  : attaque acceptée   (CRITIQUE)
-      false_reject  : réel rejeté        (gênant)
-      missed_retry  : attaque en RETRY   (risque modéré)
-    """
+    
     out = {"false_accept": [], "false_reject": [], "missed_retry": [],
            "correct_accept": [], "correct_reject": []}
     for vid, d in decisions.items():
@@ -402,12 +385,11 @@ def main():
 
     args = parser.parse_args()
 
-    # Résoudre les seuils banking (auto ou manuels)
+    
     banking_calib_info = None
     if args.threshold_protocol == "banking":
         if args.auto_calibrate or (args.accept_threshold is None or args.reject_threshold is None):
-            # Calibration auto — nécessite les prédictions VAL en premier
-            # On marque pour calibrer après predict_video_scores(val)
+
             _banking_auto_calibrate = True
             _banking_accept = None
             _banking_reject = None
@@ -439,9 +421,6 @@ def main():
 
     ckpt = torch.load(model_path, map_location=device)
 
-# --------------------------------------------------
-# 1) récupérer config si elle existe
-# --------------------------------------------------
     if isinstance(ckpt, dict) and "config" in ckpt:
       cfg = ckpt.get("config", {})
     else:
@@ -462,18 +441,14 @@ def main():
       behav_hidden=behav_hidden,
       ).to(device)
 
-# --------------------------------------------------
-# 2) récupérer state_dict selon le format checkpoint
-# --------------------------------------------------
     if isinstance(ckpt, dict) and "model_state" in ckpt:
       state_dict = ckpt["model_state"]
     elif isinstance(ckpt, dict) and "model_state_dict" in ckpt:
        state_dict = ckpt["model_state_dict"]
     else:
-    # checkpoint sauvegardé directement comme state_dict
-      state_dict = ckpt
+       state_dict = ckpt
 
-# gérer DataParallel éventuel
+
     if isinstance(state_dict, dict) and all(k.startswith("module.") for k in state_dict.keys()):
       state_dict = {k[7:]: v for k, v in state_dict.items()}
 
@@ -511,7 +486,6 @@ def main():
     val_scores = predict_video_scores(model, val_loader, device)
     best_val   = find_best_threshold_on_val(val_scores, step=0.01)
 
-    # Calibration auto des seuils banking sur VAL
     if args.threshold_protocol == "banking" and _banking_auto_calibrate:
         banking_calib_info = calibrate_banking_thresholds(val_scores, args.security_mode)
         _banking_accept    = banking_calib_info["accept_threshold"]

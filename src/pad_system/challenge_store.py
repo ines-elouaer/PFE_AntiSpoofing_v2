@@ -6,16 +6,7 @@ from typing import Optional, Dict, Any
 
 
 class SQLiteChallengeStore:
-    """
-    Stockage SQLite simple pour les challenges PAD.
-
-    Objectif :
-    - éviter la perte des challenges si le serveur redémarre ;
-    - garder une trace locale des challenges créés ;
-    - rendre le prototype plus stable pour Docker et démonstration société.
-    """
-
-    def __init__(self, db_path: str | Path):
+    def __init__(self, db_path: str):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
@@ -23,7 +14,7 @@ class SQLiteChallengeStore:
     def _connect(self):
         return sqlite3.connect(str(self.db_path))
 
-    def _init_db(self) -> None:
+    def _init_db(self):
         with self._connect() as conn:
             conn.execute(
                 """
@@ -38,6 +29,66 @@ class SQLiteChallengeStore:
                     source TEXT NOT NULL
                 )
                 """
+            )
+            conn.commit()
+
+    def save(self, challenge: dict):
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO challenges (
+                    challenge_id,
+                    session_id,
+                    challenge_type,
+                    instruction,
+                    created_at,
+                    expires_at,
+                    used,
+                    source
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    challenge.get("challenge_id"),
+                    challenge.get("session_id"),
+                    challenge.get("challenge_type"),
+                    challenge.get("instruction"),
+                    challenge.get("created_at"),
+                    challenge.get("expires_at"),
+                    int(bool(challenge.get("used", False))),
+                    challenge.get("source", "api"),
+                ),
+            )
+            conn.commit()
+
+    def get(self, challenge_id: str):
+        with self._connect() as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                """
+                SELECT *
+                FROM challenges
+                WHERE challenge_id = ?
+                """,
+                (challenge_id,),
+            ).fetchone()
+
+        if row is None:
+            return None
+
+        data = dict(row)
+        data["used"] = bool(data.get("used", 0))
+        return data
+
+    def mark_used(self, challenge_id: str):
+        with self._connect() as conn:
+            conn.execute(
+                """
+                UPDATE challenges
+                SET used = 1
+                WHERE challenge_id = ?
+                """,
+                (challenge_id,),
             )
             conn.commit()
 

@@ -15,13 +15,7 @@ def banking_decision(
     profile: str = "video",
     video_quality_score: float = 0.70,
 ) -> str:
-    """
-    Politique bancaire finale quality-aware.
-
-    Convention :
-    - score proche de 0 => REAL
-    - score proche de 1 => SPOOF
-    """
+    
 
     score = float(score)
     level = quality_level(video_quality_score)

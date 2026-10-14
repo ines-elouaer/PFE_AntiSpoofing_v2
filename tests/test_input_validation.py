@@ -11,16 +11,13 @@ def main():
     )
 
     test_files = [
-        # Image : doit être refusée dans le nouveau flux
         r"E:\PFE_AntiSpoofing_v2\data\processed\casia\all_img\color\10_1.avi_100_real.jpg",
 
-        # Vidéo demo : doit être acceptée si elle existe et respecte les contraintes
         r"E:\PFE_AntiSpoofing_v2\data\demo\webcam_challenge.mp4",
 
-        # Fichier inexistant
         r"E:\PFE_AntiSpoofing_v2\fichier_inexistant.mp4",
 
-        # Format non supporté
+        
         r"E:\PFE_AntiSpoofing_v2\README.md",
     ]
 

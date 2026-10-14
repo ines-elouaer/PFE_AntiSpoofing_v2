@@ -25,9 +25,6 @@ from src.deep_learning.models_cnn_lstm import CNN_LSTM_PAD
 from src.deep_learning.datasets_sequence import CASIASequenceDataset
 
 
-# ==========================================================
-# CONFIG
-# ==========================================================
 
 T = 16
 IMG_SIZE = 224
@@ -52,9 +49,6 @@ FEATURE_COLS = [
 ]
 
 
-# ==========================================================
-# MODEL UTILS
-# ==========================================================
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -130,9 +124,6 @@ def create_model(checkpoint_path: Path, device):
     return model
 
 
-# ==========================================================
-# DATASET / METRICS
-# ==========================================================
 def build_dataset(frames_csv: Path, behav_csv: Path):
     print("\n========== DATASET BUILD ==========")
     print(f"Frames CSV used : {frames_csv}")
@@ -150,26 +141,7 @@ def build_dataset(frames_csv: Path, behav_csv: Path):
 
     return ds
 def unpack_batch(batch, device):
-    """
-    Récupère un batch du DataLoader et force la compatibilité
-    avec le modèle évalué.
-
-    Le checkpoint mixed_casia_axon_local_msu historique attend
-    un vecteur comportemental de dimension 9 :
-
-    - ear_mean
-    - ear_std
-    - ear_min
-    - ear_max
-    - blink_count
-    - motion_mean
-    - motion_std
-    - motion_max
-    - skipped_rate
-
-    Si le Dataset renvoie 15 features, on garde uniquement
-    les 9 premières, qui correspondent aux features historiques.
-    """
+    
 
     if len(batch) == 4:
         x, y, vids, behav = batch
@@ -325,13 +297,7 @@ def load_video_meta(frames_csv: Path):
 
     return meta[wanted_cols].copy()
 def prepare_behav_csv_for_model(behav_csv: Path, out_root: Path) -> Path:
-    """
-    Prépare un fichier behavior compatible avec le modèle chargé.
-
-    Le modèle mixed_casia_axon_local_msu historique attend BEHAV_DIM = 9.
-    Si le CSV contient plus de colonnes, par exemple rPPG ou pose,
-    on garde uniquement les 9 features utilisées à l'entraînement.
-    """
+    
 
     df = pd.read_csv(behav_csv)
 
@@ -367,12 +333,7 @@ def prepare_behav_csv_for_model(behav_csv: Path, out_root: Path) -> Path:
     return filtered_path
 
 def load_baseline_metrics(path: Path) -> dict:
-    """
-    Charge les métriques baseline depuis un fichier JSON.
-
-    Objectif :
-    éviter les métriques hardcodées dans le script d'évaluation.
-    """
+    
 
     if not path.exists():
         raise FileNotFoundError(
@@ -394,10 +355,6 @@ def load_baseline_metrics(path: Path) -> dict:
 
     return metrics
 
-
-# ==========================================================
-# REPORTS
-# ==========================================================
 
 def attack_type_summary(pred_df: pd.DataFrame):
     rows = []
@@ -491,14 +448,7 @@ def write_results_txt(
 
 
 def save_eval_block(name: str, pred_df: pd.DataFrame, out_root: Path):
-    """
-    Crée un dossier comme l'ancien rapport :
-    reports/.../{name}/
-      - predictions.csv
-      - metrics.json
-      - errors_by_attack_type.csv
-      - results.txt
-    """
+    
 
     out_dir = out_root / name
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -541,9 +491,6 @@ def save_eval_block(name: str, pred_df: pd.DataFrame, out_root: Path):
     }
 
 
-# ==========================================================
-# MAIN
-# ==========================================================
 
 def main():
     parser = argparse.ArgumentParser()
@@ -659,12 +606,12 @@ def main():
         "outputs": {},
     }
 
-    # 1. Bloc global mixed_test
+  
     mixed_block = save_eval_block("mixed_test", pred_df, out_root)
     all_results["mixed_test"] = mixed_block["metrics"]
     all_results["outputs"]["mixed_test"] = mixed_block["outputs"]
 
-    # 2. Blocs par source_dataset
+  
     source_name_map = {
         "CASIA": "casia_test",
         "AXON": "axon_test",
@@ -679,7 +626,6 @@ def main():
         all_results["by_source_dataset"][source] = block["metrics"]
         all_results["outputs"][block_name] = block["outputs"]
 
-    # 3. Résumés CSV globaux par source / device / attack
     by_source = subgroup_summary(pred_df, "source_dataset")
     by_device = subgroup_summary(pred_df, "device_id")
     by_attack = subgroup_summary(pred_df, "attack_type")
@@ -696,7 +642,6 @@ def main():
     all_results["outputs"]["metrics_by_device"] = str(by_device_path)
     all_results["outputs"]["metrics_by_attack_type"] = str(by_attack_path)
 
-    # 4. Comparison before/after sans métriques hardcodées
     comparison = {
         "model": str(model_path),
 
@@ -727,7 +672,6 @@ def main():
     with comparison_path.open("w", encoding="utf-8") as f:
         json.dump(comparison, f, indent=2, ensure_ascii=False)
 
-    # 5. Console report
     print("\n========== MIXED TEST FINAL METRICS ==========")
 
     for k, v in all_results["mixed_test"].items():

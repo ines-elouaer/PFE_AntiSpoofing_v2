@@ -21,15 +21,7 @@ class InputValidationResult:
 
 
 class PADInputValidator:
-    """
-    Validation des entrées du système PAD.
-
-    Version adaptée au flux final société :
-    - le flux principal accepte uniquement les vidéos challenge ;
-    - les images sont détectées mais refusées si allow_images=False ;
-    - la validation vérifie le format, la lisibilité, la durée, la résolution
-      et le nombre minimal de frames.
-    """
+    
 
     def __init__(
         self,
@@ -116,10 +108,7 @@ class PADInputValidator:
         )
 
     def validate_image(self, path: Path) -> InputValidationResult:
-        """
-        Conservé pour compatibilité éventuelle, mais non utilisé dans le flux final
-        lorsque allow_images=False.
-        """
+        
         img = cv2.imread(str(path))
 
         if img is None:

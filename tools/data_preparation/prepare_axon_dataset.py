@@ -12,12 +12,7 @@ VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv"}
 
 
 def load_config():
-    """
-    Charge configs/paths.json.
-
-    Comme ce fichier est placé dans tools/axon/,
-    project_root = parents[2].
-    """
+   
     project_root = Path(__file__).resolve().parents[2]
     config_path = project_root / "configs" / "paths.json"
 
@@ -69,25 +64,10 @@ def infer_level(path: Path) -> str:
 
 
 def infer_label_attack_group(path: Path):
-    """
-    Retourne :
-    - label : 0 REAL, 1 SPOOF, None si ignoré
-    - label_name : REAL / SPOOF / UNKNOWN
-    - attack_type : type d'attaque
-    - media_group :
-        static_real_image
-        static_spoof_image
-        video_real
-        video_spoof
-        ignore
-    """
-
+   
     text = norm(path)
     ext = path.suffix.lower()
 
-    # ==========================================================
-    # REAL
-    # ==========================================================
     if "/1. real/" in text or "real - omit bias" in text:
         if ext in IMAGE_EXTS:
             return 0, "REAL", "real_selfie_or_image", "static_real_image"
@@ -95,9 +75,6 @@ def infer_label_attack_group(path: Path):
         if ext in VIDEO_EXTS:
             return 0, "REAL", "real_video", "video_real"
 
-    # ==========================================================
-    # SPOOF
-    # ==========================================================
     attack_type = None
 
     if "print + cut" in text:
@@ -151,10 +128,7 @@ def infer_label_attack_group(path: Path):
 
 
 def is_static_spoof_candidate(attack_type: str) -> bool:
-    """
-    Ces attaques sont utiles pour créer un dataset statique spoof
-    à partir de frames vidéo.
-    """
+    
     return attack_type in {
         "print_cut",
         "pc_image_replay",
@@ -174,18 +148,13 @@ def relative_to_axon(path: Path, axon_raw_dir: Path) -> str:
 
 
 def short_hash(path: Path, axon_raw_dir: Path) -> str:
-    """
-    Hash stable à partir du chemin relatif Axon.
-    Évite les noms trop longs et garde la reproductibilité.
-    """
+    
     rel = str(path.resolve().relative_to(axon_raw_dir.resolve())).replace("\\", "/")
     return hashlib.md5(rel.encode("utf-8")).hexdigest()[:12]
 
 
 def safe_stem(path: Path, max_len: int = 30) -> str:
-    """
-    Nettoie une petite partie du nom original.
-    """
+    
     stem = path.stem[:max_len]
 
     bad_chars = [" ", ":", "?", "+", "(", ")", ",", ";", "'", '"', "[", "]", "#", "&"]
@@ -196,15 +165,7 @@ def safe_stem(path: Path, max_len: int = 30) -> str:
 
 
 def safe_filename(path: Path, axon_raw_dir: Path) -> str:
-    """
-    Nom court et stable basé sur :
-    - level L1/L2
-    - hash du chemin relatif
-    - petit stem lisible
-
-    Exemple :
-    L1_a8f31c2d0912_10.jpg
-    """
+    
     rel = str(path.resolve().relative_to(axon_raw_dir.resolve())).replace("\\", "/")
     rel_low = rel.lower()
 
@@ -223,9 +184,7 @@ def safe_filename(path: Path, axon_raw_dir: Path) -> str:
 
 
 def copy_image(src: Path, dst_dir: Path, axon_raw_dir: Path) -> Path:
-    """
-    Copie une image directe avec nom court.
-    """
+    
     dst_dir.mkdir(parents=True, exist_ok=True)
 
     out_name = safe_filename(src, axon_raw_dir)
@@ -238,14 +197,7 @@ def copy_image(src: Path, dst_dir: Path, axon_raw_dir: Path) -> Path:
 
 
 def extract_frames(video_path: Path, out_dir: Path, axon_raw_dir: Path, frames_per_video: int):
-    """
-    Extrait quelques frames depuis une vidéo d'attaque statique.
-
-    Correction :
-    - noms courts avec hash
-    - vérification que cv2.imwrite a bien sauvegardé l'image
-    - évite les chemins Windows trop longs
-    """
+    
     out_dir.mkdir(parents=True, exist_ok=True)
 
     cap = cv2.VideoCapture(str(video_path))
@@ -353,9 +305,6 @@ def main():
             ignored_count += 1
             continue
 
-        # ======================================================
-        # 1) Manifest vidéo complet
-        # ======================================================
         if path.suffix.lower() in VIDEO_EXTS:
             video_rows.append({
                 "raw_relative_path": relative_to_axon(path, axon_raw_dir),
@@ -367,9 +316,6 @@ def main():
                 "source": "axon_raw",
             })
 
-        # ======================================================
-        # 2) Images réelles directes
-        # ======================================================
         if media_group == "static_real_image":
             dst = copy_image(path, static_real_dir, axon_raw_dir)
 
@@ -383,9 +329,6 @@ def main():
                 "origin_raw_relative_path": relative_to_axon(path, axon_raw_dir),
             })
 
-        # ======================================================
-        # 3) Images spoof directes si elles existent
-        # ======================================================
         elif media_group == "static_spoof_image":
             dst = copy_image(path, static_spoof_dir, axon_raw_dir)
 
@@ -399,9 +342,6 @@ def main():
                 "origin_raw_relative_path": relative_to_axon(path, axon_raw_dir),
             })
 
-        # ======================================================
-        # 4) Frames spoof extraites depuis vidéos d'attaque statique
-        # ======================================================
         elif media_group == "video_spoof" and is_static_spoof_candidate(attack_type):
             if spoof_video_used_for_static >= max_spoof_videos_for_static:
                 continue
@@ -429,9 +369,6 @@ def main():
                     "origin_raw_relative_path": relative_to_axon(path, axon_raw_dir),
                 })
 
-    # ==========================================================
-    # Sauvegarde CSV
-    # ==========================================================
     save_csv(
         static_manifest_path,
         static_rows,
@@ -460,9 +397,6 @@ def main():
         ],
     )
 
-    # ==========================================================
-    # Résumé
-    # ==========================================================
     static_label_counts = Counter(r["label_name"] for r in static_rows)
     static_attack_counts = Counter(r["attack_type"] for r in static_rows)
     video_label_counts = Counter(r["label_name"] for r in video_rows)

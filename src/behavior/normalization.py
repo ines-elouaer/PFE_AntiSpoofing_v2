@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-# Colonnes comportementales à normaliser
+
 FEAT_COLS = [
     "ear_mean",
     "ear_std",

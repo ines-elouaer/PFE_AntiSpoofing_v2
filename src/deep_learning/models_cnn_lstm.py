@@ -21,21 +21,7 @@ class MobileNetV3Feature(nn.Module):
 
 
 class GatedBehaviorFusion(nn.Module):
-    """
-    Fusion attentionnelle / gated fusion.
-
-    Ancienne logique :
-        z_fused = concat(z_deep, z_behavior)
-
-    Nouvelle logique :
-        gate = sigmoid(MLP(concat(z_deep, z_behavior)))
-        z_behavior_weighted = gate * z_behavior
-        z_fused = concat(z_deep, z_behavior_weighted)
-
-    Intérêt :
-        Le modèle apprend automatiquement quand les features comportementales
-        sont utiles et quand elles doivent être atténuées.
-    """
+    
 
     def __init__(
         self,
@@ -132,7 +118,6 @@ class CNN_LSTM_PAD(nn.Module):
             nn.Linear(128, 2),
         )
 
-    # PTS
     def freeze_all_backbone(self):
         for p in self.backbone.parameters():
             p.requires_grad = False

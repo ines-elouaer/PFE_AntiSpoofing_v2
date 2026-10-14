@@ -29,14 +29,7 @@ def load_paths(project_root: Path):
 
 
 def safe_stratified_split(video_df: pd.DataFrame, train_ratio=0.70, val_ratio=0.15, test_ratio=0.15):
-    """
-    Split robuste par video_id.
-
-    Priorité :
-    1. Stratification par label + attack_type si possible.
-    2. Si certaines classes sont trop petites, fallback par label.
-    3. Si encore impossible, fallback manuel.
-    """
+    
 
     assert abs(train_ratio + val_ratio + test_ratio - 1.0) < 1e-6
 
@@ -45,7 +38,7 @@ def safe_stratified_split(video_df: pd.DataFrame, train_ratio=0.70, val_ratio=0.
     df["strata_attack"] = df["label_name"].astype(str) + "__" + df["attack_type"].astype(str)
     df["strata_label"] = df["label_name"].astype(str)
 
-    # Split 1 : train / temp
+   
     temp_ratio = val_ratio + test_ratio
 
     try:
@@ -74,7 +67,6 @@ def safe_stratified_split(video_df: pd.DataFrame, train_ratio=0.70, val_ratio=0.
             )
             split_level_1 = "random_fallback"
 
-    # Split 2 : val / test
     relative_test_ratio = test_ratio / (val_ratio + test_ratio)
 
     try:
@@ -257,20 +249,20 @@ def main():
     frames_with_split = attach_split_to_frames(frames_df, split_video_df)
     behav_with_split = split_behavior_df(behav_df, split_video_df)
 
-    # Sorties video-level
+    
     split_video_path = splits_dir / "axon_video_split_video_level.csv"
 
-    # Sorties frame-level
+    
     frames_train_path = splits_dir / "axon_video_frames_train.csv"
     frames_val_path = splits_dir / "axon_video_frames_val.csv"
     frames_test_path = splits_dir / "axon_video_frames_test.csv"
 
-    # Sorties behavior
+    
     behav_train_path = splits_dir / "axon_video_behav_train.csv"
     behav_val_path = splits_dir / "axon_video_behav_val.csv"
     behav_test_path = splits_dir / "axon_video_behav_test.csv"
 
-    # Summary
+   
     summary_path = splits_dir / "axon_video_split_summary.json"
 
     split_video_df.to_csv(split_video_path, index=False, encoding="utf-8")

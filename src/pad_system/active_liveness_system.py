@@ -8,17 +8,7 @@ import numpy as np
 
 
 class ActiveLivenessSystem:
-    """
-    Vérification active légère des challenges :
-    - BLINK
-    - TURN_LEFT
-    - SMILE
-    - EYEBROW_RAISE
-
-    TURN_RIGHT a été retiré car il générait souvent des instabilités
-    de pose en runtime webcam.
-    """
-
+   
     SUPPORTED_CHALLENGES = {
         "BLINK",
         "TURN_LEFT",
@@ -46,8 +36,6 @@ class ActiveLivenessSystem:
         self.min_face_rate = float(min_face_rate)
         self.sample_every = max(1, int(sample_every))
 
-        # Important pour MediaPipe en mode VIDEO :
-        # les timestamps doivent être strictement croissants entre les appels.
         self._timestamp_lock = threading.Lock()
         self._last_timestamp_ms = 0
 
@@ -71,24 +59,13 @@ class ActiveLivenessSystem:
 
         print(f"[LIVENESS] FaceLandmarker chargé: {self.model_path}")
 
-    # ==========================================================
-    # UTILS
-    # ==========================================================
-
+    
     @staticmethod
     def _dist(a, b) -> float:
         return math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 
     def _next_timestamp_ms(self, step_ms: int = 33) -> int:
-        """
-        Génère un timestamp strictement croissant pour MediaPipe.
-
-        Pourquoi ?
-        L'API garde ActiveLivenessSystem en mémoire.
-        Donc si une vidéo commence à 0 ms après une autre vidéo,
-        MediaPipe peut lever :
-        "Input timestamp must be monotonically increasing".
-        """
+        
         step_ms = max(1, int(step_ms))
 
         with self._timestamp_lock:
@@ -96,10 +73,7 @@ class ActiveLivenessSystem:
             return self._last_timestamp_ms
 
     def _eye_ear(self, landmarks, idxs: List[int]) -> float:
-        """
-        EAR approximatif avec indices MediaPipe FaceMesh.
-        idxs = [p1, p2, p3, p4, p5, p6]
-        """
+        
         p1, p2, p3, p4, p5, p6 = [landmarks[i] for i in idxs]
 
         vertical_1 = self._dist(p2, p6)
@@ -112,9 +86,7 @@ class ActiveLivenessSystem:
         return (vertical_1 + vertical_2) / (2.0 * horizontal)
 
     def _extract_smile_score(self, result) -> float:
-        """
-        Utilise les blendshapes MediaPipe si disponibles.
-        """
+        
         try:
             if not result.face_blendshapes:
                 return 0.0
@@ -134,14 +106,7 @@ class ActiveLivenessSystem:
             return 0.0
 
     def _extract_eyebrow_score(self, landmarks) -> float:
-        """
-        Score simple pour EYEBROW_RAISE.
-
-        Principe :
-        - On mesure la distance verticale entre sourcils et yeux.
-        - Si l'utilisateur lève les sourcils, cette distance augmente.
-        - On normalise par la largeur du visage.
-        """
+        
         try:
             left_brow = landmarks[70]
             right_brow = landmarks[300]
@@ -164,10 +129,7 @@ class ActiveLivenessSystem:
         except Exception:
             return 0.0
 
-    # ==========================================================
-    # MAIN ANALYZE
-    # ==========================================================
-
+    
     def analyze(
         self,
         video_path: str,
@@ -230,8 +192,6 @@ class ActiveLivenessSystem:
                 data=rgb,
             )
 
-            # Correction importante :
-            # timestamp global strictement croissant, même entre plusieurs vidéos.
             timestamp_ms = self._next_timestamp_ms(step_ms=33)
 
             try:
@@ -358,10 +318,7 @@ class ActiveLivenessSystem:
                 "metrics": metrics,
             }
 
-        # ======================================================
-        # Challenge BLINK
-        # ======================================================
-
+        
         if challenge == "BLINK":
             blink_closed_frames = metrics.get("blink_closed_frames", 0)
             ear_min = metrics.get("ear_min", 1.0)
@@ -376,10 +333,7 @@ class ActiveLivenessSystem:
                 "metrics": metrics,
             }
 
-        # ======================================================
-        # Challenge TURN_LEFT
-        # ======================================================
-
+        
         if challenge == "TURN_LEFT":
             nose_range = metrics.get("nose_shift_range", 0.0)
             nose_min = metrics.get("nose_shift_min", 0.0)
@@ -399,10 +353,7 @@ class ActiveLivenessSystem:
                 "metrics": metrics,
             }
 
-        # ======================================================
-        # Challenge SMILE
-        # ======================================================
-
+        
         if challenge == "SMILE":
             smile_max = metrics.get("smile_score_max", 0.0)
             passed = smile_max >= 0.20
@@ -415,10 +366,7 @@ class ActiveLivenessSystem:
                 "metrics": metrics,
             }
 
-        # ======================================================
-        # Challenge EYEBROW_RAISE
-        # ======================================================
-
+        
         if challenge == "EYEBROW_RAISE":
             eyebrow_amplitude = metrics.get("eyebrow_amplitude", 0.0)
             eyebrow_peak = metrics.get("eyebrow_peak", 0.0)

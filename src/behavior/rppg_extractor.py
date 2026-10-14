@@ -1,29 +1,4 @@
-"""
-extract_rppg.py
-================
 
-Extraction professionnelle des features rPPG par vidéo.
-
-Objectif :
-- Extraire un signal physiologique approximatif depuis les variations RGB du visage.
-- Ajouter des features rPPG au vecteur comportemental.
-- Produire un CSV par split : train_rppg.csv, val_rppg.csv, test_rppg.csv.
-
-Features générées :
-- rppg_dominant_freq
-- rppg_hr_estimate
-- rppg_snr
-- rppg_signal_std
-- rppg_skipped_rate
-- rppg_valid
-
-Usage :
-python -m src.behavior.extract_rppg ^
-  --split_csv data/mixed_casia_axon_local_msu/mixed_train_frames.csv ^
-  --out_csv data/mixed_casia_axon_local_msu_rppg/mixed_train_rppg.csv ^
-  --fps 25 ^
-  --model models/face_landmarker.task
-"""
 
 from __future__ import annotations
 
@@ -133,10 +108,7 @@ def extract_rgb_signal_from_frames(frame_rows, landmarker):
 
 
 def bandpass_filter(signal: np.ndarray, fps: float, low_hz: float = 0.75, high_hz: float = 4.0):
-    """
-    Filtrage FFT simple.
-    Bande 0.75–4 Hz ≈ 45–240 bpm.
-    """
+    
     if len(signal) < 8:
         return signal.astype(np.float32)
 
@@ -153,9 +125,7 @@ def bandpass_filter(signal: np.ndarray, fps: float, low_hz: float = 0.75, high_h
 
 
 def chrom_rppg(signal_r: np.ndarray, signal_g: np.ndarray, signal_b: np.ndarray):
-    """
-    Méthode CHROM simplifiée.
-    """
+    
     if len(signal_r) < 4:
         return np.zeros(max(len(signal_r), 1), dtype=np.float32)
 
@@ -226,8 +196,7 @@ def extract_rppg_features(
 
     signal_std = float(rppg_filt.std()) if len(rppg_filt) > 0 else 0.0
 
-    # Critère simple de validité.
-    # Tu peux l’ajuster après analyse.
+    
     valid = 1.0
     if skipped_rate > 0.40:
         valid = 0.0
@@ -246,14 +215,7 @@ def extract_rppg_features(
     }
 
 def estimate_fps_for_video(frame_rows, default_fps=25.0):
-    """
-    Estime le FPS réel d'une vidéo.
-
-    Priorité :
-    1. Utiliser la colonne video_fps si elle existe dans external_all_frames.csv
-    2. Sinon lire original_video_id avec OpenCV
-    3. Sinon utiliser default_fps
-    """
+    
     import cv2
 
     if len(frame_rows) == 0:
@@ -268,7 +230,6 @@ def estimate_fps_for_video(frame_rows, default_fps=25.0):
         except Exception:
             pass
 
-    # Cas 2 : lire le FPS depuis la vidéo originale
     original_video = frame_rows[0].get("original_video_id", None)
 
     if original_video is None or str(original_video).strip() == "":

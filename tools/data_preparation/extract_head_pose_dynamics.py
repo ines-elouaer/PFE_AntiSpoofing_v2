@@ -110,7 +110,6 @@ def estimate_pose_from_landmarks(face_landmarks, width, height):
 
     angles, _, _, _, _, _ = cv2.RQDecomp3x3(rotation_mat)
 
-    # OpenCV returns Euler-like angles in degrees.
     pitch = float(angles[0])
     yaw = float(angles[1])
     roll = float(angles[2])
