@@ -1,0 +1,73 @@
+{
+  "type": "video",
+  "branch": "video_dynamic_decision_system",
+  "score": null,
+  "label": "UNCERTAIN",
+  "decision": "RETRY",
+  "next_action": "RETRY_VIDEO_CHALLENGE",
+  "liveness": {
+    "status": "FAIL",
+    "passed": false,
+    "challenge": "BLINK",
+    "reason": "blink_not_detected",
+    "metrics": {
+      "total_frames": 160,
+      "processed_frames": 80,
+      "detected_frames": 79,
+      "face_rate": 0.9875,
+      "ear_min": 0.3964,
+      "ear_mean": 0.4184,
+      "blink_closed_frames": 0,
+      "nose_shift_min": 0.0757,
+      "nose_shift_max": 0.1141,
+      "nose_shift_range": 0.0383,
+      "smile_score_max": 0.0077,
+      "smile_score_mean": 0.0028,
+      "eyebrow_score_min": 0.1474,
+      "eyebrow_score_max": 0.1791,
+      "eyebrow_score_mean": 0.1665,
+      "eyebrow_baseline": 0.16,
+      "eyebrow_peak": 0.177,
+      "eyebrow_amplitude": 0.017
+    }
+  },
+  "model_called": false,
+  "runtime_profile": {
+    "profiling_enabled": true,
+    "input_value": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205918_221243.webm",
+    "enable_liveness": true,
+    "require_challenge_validation": true,
+    "challenge_validation_sec": 0.0,
+    "active_liveness_sec": 2.1114,
+    "mark_challenge_used_sec": 0.0093,
+    "router_total_sec": 2.1209
+  },
+  "message": "Liveness échoué. Nouvelle capture vidéo requise.",
+  "validation": {
+    "is_valid": true,
+    "input_type": "video",
+    "reason": "valid_video",
+    "details": {
+      "path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205918_221243.webm",
+      "frame_count": 5951,
+      "fps": 1000.0,
+      "duration_sec": 5.951,
+      "width": 640,
+      "height": 480
+    }
+  },
+  "session_id": "5754923a-866c-4ea6-bb3a-8bda605e0b4e",
+  "challenge_id": "fe5a5b7c-b891-4fce-a57a-40375c380840",
+  "challenge": {
+    "session_id": "5754923a-866c-4ea6-bb3a-8bda605e0b4e",
+    "challenge_id": "fe5a5b7c-b891-4fce-a57a-40375c380840",
+    "challenge_type": "BLINK",
+    "instruction": "Clignez les yeux.",
+    "created_at": "2026-05-21T19:59:12.144257+00:00",
+    "expires_at": "2026-05-21T20:00:12.144257+00:00",
+    "used": false,
+    "source": "api"
+  },
+  "original_input": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205918_221243.webm",
+  "saved_video_path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205918_221243.webm"
+}

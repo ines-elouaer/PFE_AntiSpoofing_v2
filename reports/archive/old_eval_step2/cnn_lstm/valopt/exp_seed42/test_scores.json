@@ -1,0 +1,184 @@
+{
+  "model_name": "cnn_lstm",
+  "protocol_name": "cnn_lstm_valopt",
+  "threshold_protocol": "valopt",
+  "threshold_val": {
+    "th": 0.5,
+    "acer": 0.0,
+    "apcer": 0.0,
+    "bpcer": 0.0,
+    "f1": 1.0,
+    "acc": 1.0,
+    "n_tied_candidates": 11
+  },
+  "threshold_used": {
+    "th": 0.5,
+    "source": "valopt"
+  },
+  "metrics_test": {
+    "ACC": 0.8333333333333334,
+    "F1": 0.8947368421052632,
+    "APCER": 0.05555555555555555,
+    "BPCER": 0.5,
+    "ACER": 0.2777777777777778,
+    "AUC": 0.9166666666666667,
+    "TN": 3,
+    "FP": 3,
+    "FN": 1,
+    "TP": 17
+  },
+  "score_stats": {
+    "attack_mean": 0.6551763017972311,
+    "real_mean": 0.48397884766260785
+  },
+  "sampling": {
+    "val_sample_mode": "center_consecutive",
+    "test_sample_mode": "center_consecutive",
+    "T": 16
+  },
+  "artifacts": {
+    "confusion_matrix_csv": "reports\\eval\\step2\\cnn_lstm_consecutive\\valopt\\exp_seed42\\confusion_matrix.csv",
+    "score_distribution_csv": "reports\\eval\\step2\\cnn_lstm_consecutive\\valopt\\exp_seed42\\score_distribution.csv",
+    "roc_points_csv": "reports\\eval\\step2\\cnn_lstm_consecutive\\valopt\\exp_seed42\\roc_points.csv"
+  },
+  "test_scores": {
+    "10_1": {
+      "label": 0,
+      "score": 0.5210680365562439
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.5599321126937866
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.7918175458908081
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.5787767171859741
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.5602754950523376
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.6473811864852905
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.5099888443946838
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.5325521230697632
+    },
+    "13_1": {
+      "label": 0,
+      "score": 0.4854622781276703
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.3842547833919525
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.5481802225112915
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.6282318830490112
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.5997344255447388
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.5622910857200623
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.5993438959121704
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.49889546632766724
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.5340463519096375
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.4191095232963562
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.8026392459869385
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.840304434299469
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.8306179046630859
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.8176005482673645
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.8035888671875
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.640953540802002
+    }
+  },
+  "config": {
+    "train_csv": "data\\processed\\CASIA\\splits_subject\\train.csv",
+    "val_csv": "data\\processed\\CASIA\\splits_subject\\val.csv",
+    "out_dir": "experiments\\step2_sampling\\cnn_lstm_consecutive_seed42",
+    "T": 16,
+    "img_size": 224,
+    "train_aug": "strong",
+    "val_aug": "none",
+    "train_sample_mode": "consecutive",
+    "val_sample_mode": "center_consecutive",
+    "batch_size": 8,
+    "epochs": 14,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "num_workers": 2,
+    "hidden": 256,
+    "num_layers": 1,
+    "bidir": false,
+    "temporal_pool": "median",
+    "seed": 42,
+    "freeze_backbone_epochs": 2,
+    "use_amp": true,
+    "use_balanced_sampler": true,
+    "use_pts": false,
+    "phase1_epochs": 3,
+    "phase2_epochs": 6,
+    "phase3_epochs": 5,
+    "unfreeze_last_k": 4,
+    "lr_head_p1": 0.0002,
+    "lr_bb_p1": 0.0,
+    "lr_head_p2": 0.0001,
+    "lr_bb_p2": 1e-05,
+    "lr_head_p3": 5e-05,
+    "lr_bb_p3": 5e-06,
+    "use_behav": false,
+    "behav_dim": 9,
+    "behav_hidden": 16,
+    "behav_train_csv": "data\\processed\\CASIA\\behav\\train_behav.csv",
+    "behav_val_csv": "data\\processed\\CASIA\\behav\\val_behav.csv"
+  },
+  "checkpoint_path": "experiments\\step2_sampling\\cnn_lstm_consecutive_seed42\\best_model.pth",
+  "output_dir": "reports\\eval\\step2\\cnn_lstm_consecutive\\valopt\\exp_seed42"
+}

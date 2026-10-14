@@ -1,0 +1,14 @@
+{
+  "accuracy": 0.5,
+  "f1": 0.6666666666666666,
+  "auc": 0.5,
+  "apcer": 0.0,
+  "bpcer": 1.0,
+  "acer": 0.5,
+  "confusion_matrix": {
+    "REAL->REAL": 0,
+    "REAL->SPOOF": 1000,
+    "SPOOF->REAL": 0,
+    "SPOOF->SPOOF": 1000
+  }
+}

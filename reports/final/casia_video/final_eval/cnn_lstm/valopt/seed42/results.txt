@@ -1,0 +1,46 @@
+========================================
+CASIA CNN+LSTM Evaluation (Video-Level)
+========================================
+Date: 2026-04-14 13:56:03
+Device: cuda
+Model name: cnn_lstm
+Protocol name: cnn_lstm_valopt
+Threshold protocol: valopt
+Fusion behav: False (behav_dim=9)
+Model: MobileNetV3-Large + LSTM (T=16, pool=median)
+VAL sample_mode: consecutive
+TEST sample_mode: consecutive
+Threshold (best on VAL): 0.5000
+Threshold (USED on TEST): 0.5000
+Threshold source: valopt
+
+Video Accuracy: 0.8333
+F1: 0.8947
+APCER: 0.0556
+BPCER: 0.5000
+ACER: 0.2778
+ROC-AUC: 0.9167
+
+--- Confusion Matrix ---
+TN=3  FP=3  FN=1  TP=17
+
+--- Threshold Sweep ---
+th	ACC	APCER	BPCER	ACER	F1
+0.1	0.7500	0.0000	1.0000	0.5000	0.8571
+0.2	0.7500	0.0000	1.0000	0.5000	0.8571
+0.3	0.7500	0.0000	1.0000	0.5000	0.8571
+0.4	0.7917	0.0000	0.8333	0.4167	0.8780
+0.5	0.8333	0.0556	0.5000	0.2778	0.8947
+0.6	0.6250	0.5000	0.0000	0.2500	0.6667
+0.7	0.5000	0.6667	0.0000	0.3333	0.5000
+0.8	0.4583	0.7222	0.0000	0.3611	0.4348
+0.9	0.2500	1.0000	0.0000	0.5000	0.0000
+
+--- Score Separation ---
+Attack mean: 0.6552
+Real mean: 0.4840
+
+--- Exported Artifacts ---
+confusion_matrix.csv: reports\final_lock\cnn_lstm\valopt\seed42\confusion_matrix.csv
+score_distribution.csv: reports\final_lock\cnn_lstm\valopt\seed42\score_distribution.csv
+roc_points.csv: reports\final_lock\cnn_lstm\valopt\seed42\roc_points.csv

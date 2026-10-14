@@ -1,0 +1,270 @@
+{
+  "cnn_lstm_fixed05": {
+    "ACC": {
+      "mean": 0.861111111111111,
+      "std": 0.06364688465216445,
+      "values": [
+        0.7916666666666666,
+        0.9166666666666666,
+        0.875
+      ]
+    },
+    "F1": {
+      "mean": 0.9024050024050023,
+      "std": 0.04907060729476037,
+      "values": [
+        0.8484848484848485,
+        0.9444444444444444,
+        0.9142857142857143
+      ]
+    },
+    "APCER": {
+      "mean": 0.12962962962962962,
+      "std": 0.08486251286955258,
+      "values": [
+        0.2222222222222222,
+        0.05555555555555555,
+        0.1111111111111111
+      ]
+    },
+    "BPCER": {
+      "mean": 0.16666666666666666,
+      "std": 0.0,
+      "values": [
+        0.16666666666666666,
+        0.16666666666666666,
+        0.16666666666666666
+      ]
+    },
+    "ACER": {
+      "mean": 0.14814814814814814,
+      "std": 0.042431256434776285,
+      "values": [
+        0.19444444444444442,
+        0.1111111111111111,
+        0.1388888888888889
+      ]
+    },
+    "AUC": {
+      "mean": 0.9660493827160495,
+      "std": 0.0053458358258298925,
+      "values": [
+        0.962962962962963,
+        0.9722222222222223,
+        0.962962962962963
+      ]
+    },
+    "n_runs": 3,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "threshold_protocols": [
+      "fixed05"
+    ],
+    "threshold_sources": [
+      "fixed05"
+    ],
+    "threshold_used_values": [
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "cnn_lstm_valopt": {
+    "ACC": {
+      "mean": 0.9166666666666666,
+      "std": 0.041666666666666685,
+      "values": [
+        0.875,
+        0.9166666666666666,
+        0.9583333333333334
+      ]
+    },
+    "F1": {
+      "mean": 0.9448757027704398,
+      "std": 0.029422930112109637,
+      "values": [
+        0.9142857142857143,
+        0.9473684210526316,
+        0.972972972972973
+      ]
+    },
+    "APCER": {
+      "mean": 0.037037037037037035,
+      "std": 0.06415002990995841,
+      "values": [
+        0.1111111111111111,
+        0.0,
+        0.0
+      ]
+    },
+    "BPCER": {
+      "mean": 0.2222222222222222,
+      "std": 0.09622504486493763,
+      "values": [
+        0.16666666666666666,
+        0.3333333333333333,
+        0.16666666666666666
+      ]
+    },
+    "ACER": {
+      "mean": 0.12962962962962962,
+      "std": 0.0424312564347763,
+      "values": [
+        0.1388888888888889,
+        0.16666666666666666,
+        0.08333333333333333
+      ]
+    },
+    "AUC": {
+      "mean": 0.9660493827160495,
+      "std": 0.0053458358258298925,
+      "values": [
+        0.962962962962963,
+        0.9722222222222223,
+        0.962962962962963
+      ]
+    },
+    "n_runs": 3,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "threshold_protocols": [
+      "valopt"
+    ],
+    "threshold_sources": [
+      "valopt"
+    ],
+    "threshold_used_values": [
+      0.19,
+      0.39,
+      0.45
+    ]
+  },
+  "runs": [
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn_lstm\\fixed05\\exp_cnn_lstm_seed42",
+      "seed": 42,
+      "model_name": "cnn_lstm",
+      "protocol_name": "cnn_lstm_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.19,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 0.7916666666666666,
+      "F1": 0.8484848484848485,
+      "APCER": 0.2222222222222222,
+      "BPCER": 0.16666666666666666,
+      "ACER": 0.19444444444444442,
+      "AUC": 0.962962962962963,
+      "TN": 5,
+      "FP": 1,
+      "FN": 4,
+      "TP": 14
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn_lstm\\fixed05\\exp_cnn_lstm_seed43",
+      "seed": 43,
+      "model_name": "cnn_lstm",
+      "protocol_name": "cnn_lstm_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.39,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 0.9166666666666666,
+      "F1": 0.9444444444444444,
+      "APCER": 0.05555555555555555,
+      "BPCER": 0.16666666666666666,
+      "ACER": 0.1111111111111111,
+      "AUC": 0.9722222222222223,
+      "TN": 5,
+      "FP": 1,
+      "FN": 1,
+      "TP": 17
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn_lstm\\fixed05\\exp_cnn_lstm_seed44",
+      "seed": 44,
+      "model_name": "cnn_lstm",
+      "protocol_name": "cnn_lstm_fixed05",
+      "threshold_protocol": "fixed05",
+      "threshold_val_th": 0.45,
+      "threshold_used_th": 0.5,
+      "threshold_source": "fixed05",
+      "ACC": 0.875,
+      "F1": 0.9142857142857143,
+      "APCER": 0.1111111111111111,
+      "BPCER": 0.16666666666666666,
+      "ACER": 0.1388888888888889,
+      "AUC": 0.962962962962963,
+      "TN": 5,
+      "FP": 1,
+      "FN": 2,
+      "TP": 16
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn_lstm\\valopt\\exp_cnn_lstm_seed42",
+      "seed": 42,
+      "model_name": "cnn_lstm",
+      "protocol_name": "cnn_lstm_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.19,
+      "threshold_used_th": 0.19,
+      "threshold_source": "valopt",
+      "ACC": 0.875,
+      "F1": 0.9142857142857143,
+      "APCER": 0.1111111111111111,
+      "BPCER": 0.16666666666666666,
+      "ACER": 0.1388888888888889,
+      "AUC": 0.962962962962963,
+      "TN": 5,
+      "FP": 1,
+      "FN": 2,
+      "TP": 16
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn_lstm\\valopt\\exp_cnn_lstm_seed43",
+      "seed": 43,
+      "model_name": "cnn_lstm",
+      "protocol_name": "cnn_lstm_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.39,
+      "threshold_used_th": 0.39,
+      "threshold_source": "valopt",
+      "ACC": 0.9166666666666666,
+      "F1": 0.9473684210526316,
+      "APCER": 0.0,
+      "BPCER": 0.3333333333333333,
+      "ACER": 0.16666666666666666,
+      "AUC": 0.9722222222222223,
+      "TN": 4,
+      "FP": 2,
+      "FN": 0,
+      "TP": 18
+    },
+    {
+      "exp_dir": "reports\\eval\\step1\\cnn_lstm\\valopt\\exp_cnn_lstm_seed44",
+      "seed": 44,
+      "model_name": "cnn_lstm",
+      "protocol_name": "cnn_lstm_valopt",
+      "threshold_protocol": "valopt",
+      "threshold_val_th": 0.45,
+      "threshold_used_th": 0.45,
+      "threshold_source": "valopt",
+      "ACC": 0.9583333333333334,
+      "F1": 0.972972972972973,
+      "APCER": 0.0,
+      "BPCER": 0.16666666666666666,
+      "ACER": 0.08333333333333333,
+      "AUC": 0.962962962962963,
+      "TN": 5,
+      "FP": 1,
+      "FN": 0,
+      "TP": 18
+    }
+  ]
+}

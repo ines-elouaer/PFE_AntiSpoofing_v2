@@ -1,0 +1,120 @@
+{
+  "type": "video",
+  "branch": "video_dynamic_decision_system",
+  "score": 0.998,
+  "label": "SPOOF",
+  "decision": "REJECT",
+  "next_action": "NONE",
+  "liveness": {
+    "status": "PASS",
+    "passed": true,
+    "challenge": "TURN_LEFT",
+    "reason": "head_turn_passed",
+    "metrics": {
+      "total_frames": 183,
+      "processed_frames": 92,
+      "detected_frames": 65,
+      "face_rate": 0.7065,
+      "ear_min": 0.0458,
+      "ear_mean": 0.2806,
+      "blink_closed_frames": 6,
+      "nose_shift_min": -0.0586,
+      "nose_shift_max": 0.2241,
+      "nose_shift_range": 0.2827,
+      "smile_score_max": 0.6969,
+      "smile_score_mean": 0.0874,
+      "eyebrow_score_min": 0.1407,
+      "eyebrow_score_max": 0.4372,
+      "eyebrow_score_mean": 0.2187,
+      "eyebrow_baseline": 0.1871,
+      "eyebrow_peak": 0.2768,
+      "eyebrow_amplitude": 0.0897
+    }
+  },
+  "model_called": true,
+  "model_details": {
+    "score_v3_multimodal": 0.9989987015724182,
+    "score_behavior_pose": 0.9920813829687781,
+    "score_final_v6": 0.9979611037818721,
+    "video_quality_score": 0.5938606984812809,
+    "behavior_pose_status": "behavior_pose_reliable",
+    "behavior_pose_features": {
+      "ear_mean": 0.24954994784616358,
+      "ear_std": 0.0284639288180504,
+      "ear_min": 0.19667325810954256,
+      "ear_max": 0.2973507765918266,
+      "blink_count": 1.0,
+      "motion_mean": 13.775339192708334,
+      "motion_std": 6.2418594972991635,
+      "motion_max": 24.220354817708333,
+      "skipped_rate": 0.0,
+      "yaw_std": 3.6017252194392895,
+      "pitch_std": 2.6258059808063647,
+      "roll_std": 1.7245869552650055,
+      "yaw_range": 12.578364833868264,
+      "pitch_range": 10.184598705773254,
+      "roll_range": 6.378375214379027,
+      "yaw_delta_mean": 2.43533992767334,
+      "pitch_delta_mean": 3.0437662601470947,
+      "roll_delta_mean": 0.9711936712265015,
+      "pose_autocorr": 0.6446644138220179,
+      "pose_valid_rate": 1.0
+    },
+    "fusion": {
+      "type": "score_level_fusion_v6",
+      "formula": "score_final_v6 = 0.85 * score_v3 + 0.15 * score_behavior_pose",
+      "w_v3_multimodal": 0.85,
+      "w_behavior_pose": 0.15,
+      "status": "behavior_pose_loaded"
+    }
+  },
+  "video_quality_score": 0.5939,
+  "behavior_pose_status": "behavior_pose_reliable",
+  "runtime_instability_guard": {
+    "enabled": true,
+    "triggered": false,
+    "reason": null,
+    "score_extreme_reject_kept": false
+  },
+  "runtime_profile": {
+    "profiling_enabled": true,
+    "input_value": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205939_742152.webm",
+    "enable_liveness": true,
+    "require_challenge_validation": true,
+    "challenge_validation_sec": 0.0001,
+    "active_liveness_sec": 2.3894,
+    "video_model_predict_sec": 2.0766,
+    "banking_decision_sec": 0.0,
+    "runtime_guard_sec": 0.0,
+    "mark_challenge_used_sec": 0.0082,
+    "router_total_sec": 4.4746
+  },
+  "message": "Analyse vidéo terminée. Vidéo rejetée comme attaque probable.",
+  "validation": {
+    "is_valid": true,
+    "input_type": "video",
+    "reason": "valid_video",
+    "details": {
+      "path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205939_742152.webm",
+      "frame_count": 5967,
+      "fps": 1000.0,
+      "duration_sec": 5.967,
+      "width": 640,
+      "height": 480
+    }
+  },
+  "session_id": "74587c98-946e-46df-8df6-146b3f70b7ee",
+  "challenge_id": "57238906-d1bf-4c9b-b54a-427a0a2e7664",
+  "challenge": {
+    "session_id": "74587c98-946e-46df-8df6-146b3f70b7ee",
+    "challenge_id": "57238906-d1bf-4c9b-b54a-427a0a2e7664",
+    "challenge_type": "TURN_LEFT",
+    "instruction": "Tournez legerement la tete vers la gauche.",
+    "created_at": "2026-05-21T19:59:33.676302+00:00",
+    "expires_at": "2026-05-21T20:00:33.676302+00:00",
+    "used": true,
+    "source": "api"
+  },
+  "original_input": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205939_742152.webm",
+  "saved_video_path": "E:\\PFE_AntiSpoofing_v2\\data\\runtime_uploads\\upload_20260521_205939_742152.webm"
+}

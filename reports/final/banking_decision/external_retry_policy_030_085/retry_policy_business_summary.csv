@@ -1,0 +1,2 @@
+real_total,spoof_total,REAL_ACCEPT_good,REAL_RETRY_friction,REAL_REJECT_hard_false_reject,SPOOF_ACCEPT_danger,SPOOF_RETRY_safe_uncertain,SPOOF_REJECT_good,hard_false_reject_rate_%,dangerous_attack_accept_rate_%
+60,60,32,6,22,1,4,55,36.67,1.67

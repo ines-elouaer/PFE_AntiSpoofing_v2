@@ -1,0 +1,47 @@
+========================================
+CASIA CNN+LSTM Evaluation (Video-Level)
+========================================
+Date: 2026-04-14 16:03:25
+Device: cuda
+Model name: deep_behav_no_pts
+Protocol name: deep_behav_no_pts_banking
+Threshold protocol: banking
+Fusion behav: True (behav_dim=9)
+Model: MobileNetV3-Large + LSTM (T=16, pool=median)
+VAL sample_mode: consecutive
+TEST sample_mode: consecutive
+Threshold (best on VAL): 0.5000
+Threshold (USED on TEST): N/A (banking decision mode)
+Threshold source: banking
+
+ROC-AUC: 1.0000
+
+--- Calibration des Seuils Banking ---
+Mode          : manuel
+
+--- Banking Decision Policy ---
+ACCEPT if score < 0.1000
+RETRY  if 0.1000 <= score < 0.6000
+REJECT if score >= 0.6000
+
+--- Banking Decision Summary ---
+ACCEPT=4  RETRY=0  REJECT=20
+
+--- Analyse Erreurs Bancaires ---
+[CRITIQUE] False Accept (attaque->ACCEPT) : 0
+    OK — aucune attaque acceptée
+[MODERE]   False Reject (réel->REJECT)    : 2
+    !  vidéo 10_1 score=0.8748
+    !  vidéo 10_2 score=0.7757
+[FAIBLE]   Missed RETRY (attaque->RETRY)  : 0
+
+Sécurité : OK — aucune attaque acceptée
+
+--- Score Separation ---
+Attack mean: 0.9922
+Real mean: 0.2901
+
+--- Exported Artifacts ---
+score_distribution.csv: reports\banking_final\seed44\score_distribution.csv
+roc_points.csv: reports\banking_final\seed44\roc_points.csv
+banking_decisions.csv: reports\banking_final\seed44\banking_decisions.csv

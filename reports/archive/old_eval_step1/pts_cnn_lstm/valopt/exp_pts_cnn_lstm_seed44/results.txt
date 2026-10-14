@@ -1,0 +1,39 @@
+========================================
+CASIA CNN+LSTM Evaluation (Video-Level)
+========================================
+Date: 2026-03-11 12:35:25
+Device: cuda
+Model name: pts_cnn_lstm
+Protocol name: pts_cnn_lstm_valopt
+Threshold protocol: valopt
+Fusion behav: False (behav_dim=9)
+Model: MobileNetV3-Large + LSTM (T=16, pool=median)
+Threshold (best on VAL): 0.0400
+Threshold (USED on TEST): 0.0400
+Threshold source: valopt
+
+Video Accuracy: 0.8333
+F1: 0.8889
+APCER: 0.1111
+BPCER: 0.3333
+ACER: 0.2222
+ROC-AUC: 0.9537
+
+--- Confusion Matrix ---
+TN=4  FP=2  FN=2  TP=16
+
+--- Threshold Sweep ---
+th	ACC	APCER	BPCER	ACER	F1
+0.1	0.8333	0.1667	0.1667	0.1667	0.8824
+0.2	0.8750	0.1667	0.0000	0.0833	0.9091
+0.3	0.8750	0.1667	0.0000	0.0833	0.9091
+0.4	0.8750	0.1667	0.0000	0.0833	0.9091
+0.5	0.8750	0.1667	0.0000	0.0833	0.9091
+0.6	0.8750	0.1667	0.0000	0.0833	0.9091
+0.7	0.8750	0.1667	0.0000	0.0833	0.9091
+0.8	0.8333	0.2222	0.0000	0.1111	0.8750
+0.9	0.8333	0.2222	0.0000	0.1111	0.8750
+
+--- Score Separation ---
+Attack mean: 0.8162
+Real mean: 0.0406

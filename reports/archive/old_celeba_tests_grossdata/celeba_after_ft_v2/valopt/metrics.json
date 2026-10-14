@@ -1,0 +1,35 @@
+{
+  "checkpoint": "experiments\\celeba_finetune_v2\\seed42\\best_model_celeba_ft.pth",
+  "test_csv": "data\\celeba\\celeba_ft_test.csv",
+  "val_csv": "data\\celeba\\celeba_ft_val.csv",
+  "threshold_protocol": "valopt",
+  "threshold_source": "valopt",
+  "threshold_used": 0.41,
+  "best_val": {
+    "TN": 173,
+    "FP": 32,
+    "FN": 20,
+    "TP": 191,
+    "APCER": 0.0947867298578199,
+    "BPCER": 0.15609756097560976,
+    "ACER": 0.12544214541671483,
+    "Accuracy": 0.875,
+    "F1": 0.880184331797235,
+    "AUC": 0.9521904982082996,
+    "threshold": 0.41
+  },
+  "test_metrics": {
+    "TN": 174,
+    "FP": 37,
+    "FN": 15,
+    "TP": 171,
+    "APCER": 0.08064516129032258,
+    "BPCER": 0.17535545023696683,
+    "ACER": 0.1280003057636447,
+    "Accuracy": 0.8690176322418136,
+    "F1": 0.868020304568528,
+    "AUC": 0.9550782245324364,
+    "threshold": 0.41
+  },
+  "note": "CelebA image-based: behav=zeros and synthetic repeated-frame sequence."
+}

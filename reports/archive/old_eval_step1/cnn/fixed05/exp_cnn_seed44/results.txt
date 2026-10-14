@@ -1,0 +1,41 @@
+========================================
+CASIA CNN Evaluation (Video-Level)
+========================================
+Date: 2026-03-11 14:00:15
+Device: cuda
+Model name: cnn
+Protocol name: cnn_fixed05
+Threshold protocol: fixed05
+Model: MobileNetV3-Large
+Checkpoint: experiments/step1_baselines/cnn/exp_cnn_seed44\best_model.pth
+Threshold (best on VAL): 0.5000
+Threshold (USED on TEST): 0.5000
+Threshold source: fixed05
+Tied optimal thresholds on VAL: 98
+Threshold selection rule: min_ACER -> max_F1 -> max_ACC -> closest_to_0.5
+
+Video Accuracy: 1.0000
+F1: 1.0000
+APCER: 0.0000
+BPCER: 0.0000
+ACER: 0.0000
+ROC-AUC: 1.0000
+
+--- Confusion Matrix ---
+TN=6  FP=0  FN=0  TP=18
+
+--- Threshold Sweep ---
+th	ACC	APCER	BPCER	ACER	F1
+0.1	0.9167	0.0000	0.3333	0.1667	0.9474
+0.2	0.9583	0.0000	0.1667	0.0833	0.9730
+0.3	0.9583	0.0000	0.1667	0.0833	0.9730
+0.4	1.0000	0.0000	0.0000	0.0000	1.0000
+0.5	1.0000	0.0000	0.0000	0.0000	1.0000
+0.6	1.0000	0.0000	0.0000	0.0000	1.0000
+0.7	1.0000	0.0000	0.0000	0.0000	1.0000
+0.8	1.0000	0.0000	0.0000	0.0000	1.0000
+0.9	1.0000	0.0000	0.0000	0.0000	1.0000
+
+--- Score Separation ---
+Attack mean: 0.9976
+Real mean: 0.0947

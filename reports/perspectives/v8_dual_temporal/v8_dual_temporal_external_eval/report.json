@@ -1,0 +1,24 @@
+{
+  "model": "experiments\\v8_dual_temporal\\seed42\\best_model_v8_dual_temporal.pth",
+  "metrics": {
+    "total": 120,
+    "real_count": 60,
+    "spoof_count": 60,
+    "tn_real": 29,
+    "fp_real_as_spoof": 31,
+    "fn_spoof_as_real": 9,
+    "tp_spoof": 51,
+    "accuracy": 0.6666666666666666,
+    "precision_spoof": 0.6219512195121951,
+    "recall_spoof": 0.85,
+    "f1_spoof": 0.7183098591549296,
+    "APCER": 0.15,
+    "BPCER": 0.5166666666666667,
+    "ACER": 0.33333333333333337,
+    "AUC": 0.7297222222222222
+  },
+  "outputs": {
+    "predictions": "reports\\v8_dual_temporal_external_eval\\predictions.csv",
+    "metrics": "reports\\v8_dual_temporal_external_eval\\metrics.json"
+  }
+}

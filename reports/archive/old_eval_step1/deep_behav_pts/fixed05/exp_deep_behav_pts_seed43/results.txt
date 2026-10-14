@@ -1,0 +1,39 @@
+========================================
+CASIA CNN+LSTM Evaluation (Video-Level)
+========================================
+Date: 2026-03-11 13:04:29
+Device: cuda
+Model name: deep_behav_pts
+Protocol name: deep_behav_pts_fixed05
+Threshold protocol: fixed05
+Fusion behav: True (behav_dim=9)
+Model: MobileNetV3-Large + LSTM (T=16, pool=median)
+Threshold (best on VAL): 0.0400
+Threshold (USED on TEST): 0.5000
+Threshold source: fixed05
+
+Video Accuracy: 0.8750
+F1: 0.9091
+APCER: 0.1667
+BPCER: 0.0000
+ACER: 0.0833
+ROC-AUC: 0.9722
+
+--- Confusion Matrix ---
+TN=6  FP=0  FN=3  TP=15
+
+--- Threshold Sweep ---
+th	ACC	APCER	BPCER	ACER	F1
+0.1	0.9167	0.1111	0.0000	0.0556	0.9412
+0.2	0.9167	0.1111	0.0000	0.0556	0.9412
+0.3	0.8750	0.1667	0.0000	0.0833	0.9091
+0.4	0.8750	0.1667	0.0000	0.0833	0.9091
+0.5	0.8750	0.1667	0.0000	0.0833	0.9091
+0.6	0.8750	0.1667	0.0000	0.0833	0.9091
+0.7	0.8750	0.1667	0.0000	0.0833	0.9091
+0.8	0.8333	0.2222	0.0000	0.1111	0.8750
+0.9	0.8333	0.2222	0.0000	0.1111	0.8750
+
+--- Score Separation ---
+Attack mean: 0.8258
+Real mean: 0.0272

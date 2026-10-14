@@ -1,0 +1,4724 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no" class="notranslate">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="google" content="notranslate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:," />
+  <title>SecureBank PAD — Démo FOMA V6</title>
+  <!-- FIX 4: Lucide icons instead of emojis -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<style>
+  :root {
+    --bg: #f7fafc;
+    --panel: rgba(255, 255, 255, 0.9);
+
+    /* FIX 1: Navy moins saturé — transition visuelle douce */
+    --navy: #0b1b34;
+    --navy-2: #102a4c;
+
+    --primary: #4f46e5;
+    --primary-2: #3730a3;
+
+    --bank-blue: #123b66;
+    --bank-blue-2: #2563eb;
+    --bank-blue-soft: #eaf2fb;
+
+    --success: #16a34a;
+    --success-bg: #eaf8ef;
+
+    --warning: #f59e0b;
+    --warning-bg: #fff7e6;
+
+    --danger: #dc2626;
+    --danger-bg: #feecec;
+
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #d8e2ef;
+
+    --shadow: 0 22px 55px rgba(15, 23, 42, 0.1);
+    --soft-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, Segoe UI, Arial, sans-serif; }
+
+  body {
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(18, 59, 102, 0.10), transparent 32%),
+      radial-gradient(circle at 88% 0%, rgba(22, 163, 74, 0.08), transparent 30%),
+      linear-gradient(135deg, #f7fafc 0%, #eef4fa 100%);
+    overflow-x: hidden;
+  }
+
+  .hidden { display: none !important; }
+  .role-hidden { display: none !important; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 265px minmax(720px, 1fr) 430px;
+    min-height: 100vh;
+    align-items: stretch;
+  }
+
+  /* FIX 1: Sidebar moins saturée — #1a2940 au lieu de quasi-noir */
+  .sidebar {
+    background:
+      linear-gradient(180deg, rgba(20, 38, 70, 0.97), rgba(26, 41, 64, 0.97)),
+      radial-gradient(circle at top, rgba(18, 59, 102, 0.25), transparent 42%);
+    color: #fff;
+    padding: 26px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 34px; }
+  .brand-icon {
+    width: 50px; height: 50px; border-radius: 17px; display: grid; place-items: center;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.28), rgba(22, 163, 74, 0.14));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.22);
+  }
+  .brand h1 { font-size: 23px; letter-spacing: -0.03em; }
+  .brand p { font-size: 12px; color: #bac7e9; margin-top: 4px; }
+
+  .nav { display: grid; gap: 10px; }
+  .nav-item {
+    padding: 15px 16px; color: #dce6ff; display: flex; align-items: center; gap: 12px;
+    border-radius: 16px; font-size: 14px; border: 1px solid transparent; cursor: pointer; user-select: none;
+  }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(18,59,102,0.6), rgba(26,41,64,0.8));
+    color: #fff; box-shadow: 0 8px 20px rgba(18, 59, 102, 0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .sidebar-card {
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.13);
+    padding: 18px; border-radius: 21px; color: #dce5ff; backdrop-filter: blur(14px);
+  }
+  .sidebar-card h3 { color: #fff; margin: 8px 0 4px; }
+
+  .main { padding: 26px 30px 22px; }
+
+  .right-panel {
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.58);
+    border-left: 1px solid var(--border);
+    backdrop-filter: blur(18px);
+
+    /* Même hauteur visuelle que la zone centrale, sans scroll interne */
+    height: auto;
+    min-height: 100%;
+    align-self: stretch;
+
+    overflow: visible;
+    max-height: none;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-panel-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-panel-section.secondary {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .right-panel-section.secondary .right-card:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .right-panel-section.secondary .right-card:last-child .log-actions {
+    margin-top: auto;
+  }
+
+  /* FIX 3: Panneau admin — hiérarchie visuelle claire */
+  .right-panel-section {
+    margin-bottom: 8px;
+  }
+  .right-panel-section-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); padding: 0 4px 6px; border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .right-panel-section.secondary .right-card {
+    background: #f8fafc;
+    border-color: #e8eef5;
+  }
+  .right-panel-section.secondary .right-card h3 {
+    font-size: 13px; color: var(--muted);
+  }
+  .right-panel-section.secondary .metric b,
+  .right-panel-section.secondary .risk-card b {
+    font-size: 14px;
+  }
+
+  .topbar {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 18px; margin-bottom: 22px;
+  }
+
+  .title-badge, .welcome-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--bank-blue); background: var(--bank-blue-soft);
+    border: 1px solid #cfe0f2; padding: 7px 10px; border-radius: 999px;
+    font-weight: 850; font-size: 12px; margin-bottom: 10px;
+  }
+
+  .title h2, .history-header-page h2 {
+    font-size: 31px; line-height: 1.1; letter-spacing: -0.04em; margin-bottom: 8px; color: var(--navy);
+  }
+  .title p, .history-header-page p { color: var(--muted); font-size: 14px; max-width: 760px; line-height: 1.45; }
+
+  .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+  .input {
+    border: 1px solid var(--border); background: rgba(255, 255, 255, 0.94);
+    padding: 12px 13px; border-radius: 13px; outline: none; color: var(--text);
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
+  }
+
+  .btn {
+    border: none; border-radius: 14px; padding: 13px 17px; cursor: pointer;
+    font-weight: 850; transition: 0.18s ease; white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-1px); opacity: 0.96; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: white; box-shadow: 0 14px 30px rgba(79, 70, 229, 0.18);
+  }
+  .btn-outline { background: rgba(255, 255, 255, 0.86); border: 1px solid var(--border); color: var(--text); }
+
+  /* FIX 1: Bouton Annuler discret — plus de rouge vif */
+  .btn-danger {
+    background: rgba(255,255,255,0.7);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+  .btn-danger:hover {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: #fecaca;
+  }
+
+  .btn-new-verification { border-color: rgba(18, 59, 102, 0.25); color: var(--bank-blue); background: #ffffff; }
+  .btn-new-verification:hover { background: var(--bank-blue-soft); }
+
+  .panel, .right-card {
+    background: var(--panel); border: 1px solid var(--border);
+    box-shadow: var(--shadow); border-radius: 27px; backdrop-filter: blur(20px);
+  }
+  .panel { padding: 24px; }
+  .right-card { padding: 18px; margin-bottom: 15px; }
+
+  .welcome-main {
+    grid-column: 2 / 4; min-height: 100vh; padding: 40px;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(18, 59, 102, 0.10), transparent 32%),
+      radial-gradient(circle at 88% 0%, rgba(22, 163, 74, 0.08), transparent 30%),
+      linear-gradient(135deg, #f7fafc 0%, #eef4fa 100%);
+  }
+
+  .welcome-hero {
+    width: min(1180px, 100%); background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--border); border-radius: 34px; box-shadow: var(--shadow);
+    padding: 44px; position: relative; overflow: hidden;
+  }
+  .welcome-hero::before {
+    content: ""; position: absolute; width: 360px; height: 360px; border-radius: 50%;
+    right: -120px; top: -140px; background: rgba(18, 59, 102, 0.08);
+  }
+  .welcome-hero h1 {
+    max-width: 760px; font-size: 44px; line-height: 1.05;
+    letter-spacing: -0.05em; color: var(--navy); margin-bottom: 16px; position: relative;
+  }
+  .welcome-subtitle { max-width: 760px; color: var(--muted); font-size: 16px; line-height: 1.65; margin-bottom: 28px; position: relative; }
+
+  .welcome-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; position: relative; }
+
+  .welcome-card { background: #fff; border: 1px solid var(--border); border-radius: 24px; padding: 20px; box-shadow: var(--soft-shadow); }
+
+  /* FIX 4: Icône SVG propre à la place des emojis */
+  .welcome-icon {
+    width: 46px; height: 46px; border-radius: 16px;
+    background: var(--bank-blue-soft); display: grid; place-items: center; margin-bottom: 14px;
+    color: var(--bank-blue);
+  }
+  .welcome-icon svg { width: 22px; height: 22px; stroke: var(--bank-blue); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .welcome-card h3 { color: var(--navy); font-size: 16px; margin-bottom: 8px; }
+  .welcome-card p { color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+  .welcome-policy {
+    background: linear-gradient(135deg, #ffffff, #f8fbff); border: 1px solid var(--border);
+    border-radius: 24px; padding: 22px; margin: 18px 0 24px; position: relative;
+  }
+  .welcome-policy h3 { color: var(--navy); margin-bottom: 14px; }
+
+  .policy-row {
+    display: grid; grid-template-columns: 18px 80px 1fr; gap: 12px;
+    align-items: center; padding: 10px 0; border-top: 1px solid #e6edf7;
+  }
+  .policy-row:first-of-type { border-top: 0; }
+  .policy-row strong { color: var(--navy); font-size: 13px; }
+  .policy-row p { color: var(--muted); font-size: 13px; }
+  .policy-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .policy-dot.accept { background: var(--success); }
+  .policy-dot.retry { background: var(--warning); }
+  .policy-dot.reject { background: var(--danger); }
+
+  .welcome-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; position: relative; }
+  .welcome-start-btn { min-width: 240px; height: 52px; font-size: 15px; box-shadow: 0 14px 30px rgba(79, 70, 229, 0.18); }
+  .welcome-note { margin-top: 14px; color: var(--muted); font-size: 13px; position: relative; }
+
+  .admin-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .layout.client-mode { grid-template-columns: 265px minmax(690px, 1fr); }
+  .layout.client-mode #verificationMain { grid-column: 2 / 3; }
+  .layout.admin-mode { grid-template-columns: 265px minmax(720px, 1fr) 430px; }
+  .layout.admin-mode #verificationMain { grid-column: 2 / 3; }
+
+  .admin-only { display: none !important; }
+  .layout.admin-mode .admin-only { display: block !important; }
+  .layout.client-mode .admin-only { display: none !important; }
+  .layout.client-mode .admin-tools { display: none !important; }
+  .layout.client-mode #verificationRightPanel { display: none !important; }
+  .layout.client-mode .instruction-card { align-content: center; }
+  .layout.client-mode .panel { padding-bottom: 20px; }
+
+  .client-instruction-box {
+    background: linear-gradient(135deg, #ffffff, #f8fbff); border: 1px solid var(--border);
+    border-radius: 20px; padding: 18px; text-align: left; box-shadow: var(--soft-shadow);
+  }
+  .client-instruction-box h4 { color: var(--navy); font-size: 15px; margin-bottom: 8px; }
+  .client-instruction-box p { color: var(--text); font-weight: 850; font-size: 15px; line-height: 1.45; margin-bottom: 8px; }
+  .client-instruction-box span { color: var(--muted); font-size: 12px; line-height: 1.45; display: block; }
+
+  .admin-challenge-box { margin-top: 12px; }
+
+  .client-result-card {
+    margin-top: 14px; display: flex; gap: 13px; align-items: center;
+    border: 1px solid var(--border); border-radius: 18px; padding: 15px;
+    background: #f8fafc; box-shadow: var(--soft-shadow);
+  }
+  .client-result-card.accept { background: var(--success-bg); border-color: rgba(22, 163, 74, 0.3); color: var(--success); }
+  .client-result-card.retry { background: var(--warning-bg); border-color: rgba(245, 158, 11, 0.35); color: #b45309; }
+  .client-result-card.reject { background: var(--danger-bg); border-color: rgba(220, 38, 38, 0.35); color: var(--danger); }
+  .client-result-icon { width: 38px; height: 38px; border-radius: 999px; display: grid; place-items: center; background: var(--bank-blue); color: #fff; font-weight: 950; flex: 0 0 auto; }
+  .client-result-card.accept .client-result-icon { background: var(--success); }
+  .client-result-card.retry .client-result-icon { background: var(--warning); }
+  .client-result-card.reject .client-result-icon { background: var(--danger); }
+  .client-result-card b { display: block; font-size: 15px; margin-bottom: 3px; }
+  .client-result-card span { display: block; font-size: 13px; line-height: 1.45; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); position: relative; margin-bottom: 26px; }
+  .steps::before {
+    content: ""; position: absolute; top: 25px; left: 17%; width: 66%; height: 3px;
+    background: linear-gradient(90deg, var(--bank-blue-2), #dbe3f5 45%, #dbe3f5); border-radius: 999px;
+  }
+  .step { text-align: center; z-index: 1; }
+  .circle {
+    width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 10px;
+    display: grid; place-items: center; background: #eef4fa; color: #8994ae;
+    border: 1px solid #d8def2; font-weight: 900;
+  }
+  .step.active .circle, .step.done .circle {
+    background: linear-gradient(135deg, var(--bank-blue), var(--bank-blue-2));
+    color: white; box-shadow: 0 12px 25px rgba(18, 59, 102, 0.24);
+  }
+  .step b { font-size: 14px; }
+  .step p { font-size: 12px; margin-top: 5px; color: var(--muted); }
+
+  /* FIX 2: Grille plus équilibrée — 1.3fr / 0.9fr */
+  .verification-grid { display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 24px; align-items: stretch; }
+
+  .camera-card {
+    border-radius: 22px; overflow: hidden; min-height: 480px; position: relative;
+    display: grid; place-items: center; color: white;
+    background:
+      linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.8)),
+      radial-gradient(circle at 50% 30%, rgba(18, 59, 102, 0.24), transparent 45%);
+    box-shadow: var(--soft-shadow);
+  }
+  video { width: 100%; height: 480px; object-fit: cover; background: #0f172a; }
+
+  .camera-placeholder { position: absolute; text-align: center; color: #d9e3ff; padding: 24px; }
+  .big-icon { font-size: 52px; margin-bottom: 12px; }
+
+  .camera-status, .recording-pill {
+    position: absolute; top: 18px; padding: 9px 13px; border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45); color: white; backdrop-filter: blur(10px); font-size: 12px; z-index: 2;
+  }
+  .camera-status { left: 18px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .recording-pill { right: 18px; }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; }
+  .dot.online { background: #22c55e; box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.18); }
+  .dot.recording-dot { background: #ef4444; box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.18); animation: blink 0.8s infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+  .face-frame {
+    position: absolute; width: 300px; height: 380px;
+    border: 2px dashed rgba(255, 255, 255, 0.78); border-radius: 50%;
+    pointer-events: none; box-shadow: inset 0 0 35px rgba(255, 255, 255, 0.08);
+  }
+
+  .action-row { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .status-line { margin-top: 16px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  #secureSessionBanner { display: none !important; }
+
+  .instruction-card {
+    border: 1px solid var(--border); border-radius: 22px; padding: 25px;
+    background: rgba(255, 255, 255, 0.92); text-align: center; min-height: 480px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: var(--soft-shadow);
+  }
+
+  .instruction-icon {
+    width: 78px; height: 78px; margin: 0 auto 16px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--bank-blue-soft), #eaf8ef);
+    color: var(--bank-blue); display: grid; place-items: center; font-size: 34px;
+  }
+  .instruction-card h3 { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+
+  /* FIX 2: Texte instruction moins lourd */
+  .instruction-text {
+    font-size: 22px; line-height: 1.4; font-weight: 700;
+    margin-bottom: 16px; letter-spacing: -0.02em; color: var(--navy);
+  }
+  .instruction-text span { color: var(--bank-blue); }
+
+  .mini-progress { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin: 18px auto 0; max-width: 210px; }
+  .mini-progress span { height: 6px; border-radius: 999px; background: #d9deea; }
+  .mini-progress span.active { background: linear-gradient(90deg, var(--bank-blue), var(--bank-blue-2)); }
+
+  .timer { font-size: 40px; font-weight: 950; color: var(--bank-blue); margin-top: 10px; }
+  .small { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+  .challenge-status-card { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .challenge-status-card div { background: #f8fbff; border: 1px solid var(--border); border-radius: 16px; padding: 11px; text-align: center; }
+  .challenge-status-card span { display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px; }
+  .challenge-status-card b { color: var(--bank-blue); font-size: 12px; }
+
+  .attempt-panel {
+    margin-top: 22px; display: grid; grid-template-columns: 1fr 1.5fr 1fr;
+    border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: rgba(255, 255, 255, 0.82);
+  }
+  .attempt-box { padding: 20px; text-align: center; border-right: 1px solid var(--border); }
+  .attempt-box:last-child { border-right: none; }
+  .attempt-box p { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .attempt-box b { color: var(--bank-blue); font-size: 24px; }
+
+  .bank-policy-card {
+    margin-top: 18px; background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border); border-radius: 24px; padding: 18px; box-shadow: var(--soft-shadow);
+  }
+  .policy-header { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .policy-header h3 { color: var(--navy); font-size: 16px; margin-bottom: 4px; }
+  .policy-header p { color: var(--muted); font-size: 13px; }
+  .policy-badge { background: var(--bank-blue-soft); color: var(--bank-blue); border: 1px solid #cfe0f2; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 900; white-space: nowrap; }
+
+  .policy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .policy-item { border: 1px solid var(--border); border-radius: 18px; padding: 13px; background: #fff; }
+  .policy-item b { display: block; font-size: 13px; margin-bottom: 5px; }
+  .policy-item span { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .policy-item.accept b { color: var(--success); }
+  .policy-item.retry b { color: #b45309; }
+  .policy-item.reject b { color: var(--danger); }
+  .policy-item.wait b { color: var(--bank-blue); }
+
+  .right-card h3 { font-size: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 6px; }
+  .model-title { font-size: 22px; font-weight: 950; margin: 8px 0; }
+
+  .badge { display: inline-flex; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 900; margin-left: 8px; }
+  .badge-success { background: #dcfce7; color: #15803d; }
+
+  .result-box { border-radius: 16px; padding: 18px; text-align: center; border: 1px solid var(--border); background: #f8fafc; margin-bottom: 14px; }
+  .result-box.accept { background: var(--success-bg); border-color: rgba(22, 163, 74, 0.3); color: var(--success); }
+  .result-box.retry { background: var(--warning-bg); border-color: rgba(245, 158, 11, 0.35); color: #b45309; }
+  .result-box.reject { background: var(--danger-bg); border-color: rgba(220, 38, 38, 0.35); color: var(--danger); }
+  .result-box h2 { font-size: 32px; margin-top: 4px; letter-spacing: -0.02em; }
+
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 14px; background: #fff; }
+  .metric { padding: 12px; text-align: center; border-right: 1px solid var(--border); }
+  .metric:last-child { border-right: none; }
+  .metric p { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .metric b { color: var(--bank-blue); font-size: 17px; }
+
+  .message-box { padding: 13px; border-radius: 14px; background: #f8fafc; border: 1px solid var(--border); color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+  .attempt-list { display: grid; gap: 10px; }
+  .attempt-row { display: grid; grid-template-columns: 30px 1fr 74px; align-items: center; font-size: 13px; color: var(--muted); gap: 8px; }
+  .attempt-number { width: 24px; height: 24px; border-radius: 50%; background: var(--bank-blue-soft); color: var(--bank-blue); display: grid; place-items: center; font-weight: 900; }
+
+  .risk-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .risk-card { border: 1px solid var(--border); border-radius: 15px; padding: 13px; background: #fff; font-size: 12px; color: var(--muted); }
+  .risk-card b { display: block; font-size: 18px; color: var(--text); margin-top: 6px; }
+
+  .json-box, .history-json, .model-tech-json {
+    overflow: auto; background: #0f172a; color: #dbeafe; padding: 14px;
+    border-radius: 14px; font-size: 12px; white-space: pre-wrap; border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .json-box { max-height: 280px; display: none; margin-top: 12px; }
+  .log-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+
+  .footer { margin-top: 24px; color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; }
+
+  .toast {
+    position: fixed; top: 22px; left: 50%;
+    transform: translateX(-50%) translateY(-14px);
+    background: rgba(7, 18, 38, 0.96); color: white; padding: 14px 18px;
+    border-radius: 16px; box-shadow: var(--shadow); z-index: 300;
+    opacity: 0; pointer-events: none; transition: 0.2s ease;
+    max-width: 580px; text-align: center; line-height: 1.45;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .history-main { grid-column: 2 / 4; max-height: 100vh; overflow-y: auto; }
+  .history-header-page { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 24px; }
+
+  .history-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .history-stat-card { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 22px; padding: 20px; box-shadow: var(--soft-shadow); }
+  .history-stat-card p { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .history-stat-card b { font-size: 30px; color: var(--bank-blue); }
+
+  .history-filters { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 22px; padding: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; box-shadow: var(--soft-shadow); }
+  .history-table-card { background: rgba(255, 255, 255, 0.94); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; }
+  .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .history-table thead { background: #f1f5f9; }
+  .history-table th { text-align: left; padding: 15px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .history-table td { padding: 15px; border-top: 1px solid var(--border); color: var(--text); vertical-align: top; }
+
+  .history-decision { display: inline-flex; padding: 6px 10px; border-radius: 999px; font-weight: 900; font-size: 12px; }
+  .history-decision.accept { background: var(--success-bg); color: var(--success); }
+  .history-decision.retry { background: var(--warning-bg); color: #b45309; }
+  .history-decision.reject { background: var(--danger-bg); color: var(--danger); }
+  .history-decision.other { background: var(--bank-blue-soft); color: var(--bank-blue); }
+
+  .history-small { color: var(--muted); font-size: 12px; line-height: 1.45; word-break: break-word; }
+  .history-empty { text-align: center; padding: 42px; color: var(--muted); }
+  .history-detail-btn { border: 1px solid var(--border); background: #fff; border-radius: 12px; padding: 8px 10px; cursor: pointer; font-weight: 800; color: var(--bank-blue); }
+  .history-json { max-height: 360px; display: none; margin-top: 12px; }
+
+  .model-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(15, 23, 42, 0.62); backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center; padding: 28px;
+  }
+  .model-details-card {
+    width: min(980px, 96vw); max-height: 92vh; overflow-y: auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid var(--border); border-radius: 28px; padding: 26px;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+  }
+  .model-details-header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; margin-bottom: 22px; }
+  .model-details-header h2 { color: var(--navy); font-size: 30px; letter-spacing: -0.04em; margin: 8px 0; }
+  .model-details-header p { color: var(--muted); font-size: 14px; }
+  /* FIX 1: Bouton Fermer dans la modale aussi discret */
+  .model-details-header .btn-danger {
+    background: rgba(255,255,255,0.7); color: var(--muted);
+    border: 1px solid var(--border); font-size: 13px; padding: 10px 16px;
+  }
+  .model-details-header .btn-danger:hover { background: var(--danger-bg); color: var(--danger); border-color: #fecaca; }
+
+  .model-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .model-info-item { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 20px; padding: 16px; }
+  .model-info-item.full { grid-column: 1 / -1; }
+  .model-info-item span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 7px; }
+  .model-info-item b { color: var(--navy); font-size: 15px; line-height: 1.45; }
+
+  .model-tech-section { margin-top: 18px; background: #fff; border: 1px solid var(--border); border-radius: 22px; padding: 16px; }
+  .model-tech-title { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .model-tech-title h3 { color: var(--navy); font-size: 16px; }
+  .model-tech-json { max-height: 300px; }
+
+
+
+
+
+  /* Résultat final affiché au centre de la carte de droite */
+  .instruction-card.result-accept,
+  .instruction-card.result-retry,
+  .instruction-card.result-reject {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 480px;
+    padding: 42px;
+  }
+
+  .instruction-card.result-accept > div:first-child,
+  .instruction-card.result-retry > div:first-child,
+  .instruction-card.result-reject > div:first-child {
+    width: 100%;
+    max-width: 620px;
+    margin: auto;
+  }
+
+  .instruction-card.result-accept > div:nth-child(2),
+  .instruction-card.result-retry > div:nth-child(2),
+  .instruction-card.result-reject > div:nth-child(2) {
+    display: none !important;
+  }
+
+  .instruction-card.result-accept {
+    border-color: rgba(22, 163, 74, 0.42);
+    background: linear-gradient(180deg, #ffffff 0%, #ecfdf3 100%);
+  }
+
+  .instruction-card.result-retry {
+    border-color: rgba(245, 158, 11, 0.42);
+    background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
+  }
+
+  .instruction-card.result-reject {
+    border-color: rgba(220, 38, 38, 0.42);
+    background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%);
+  }
+
+  .instruction-card.result-accept .instruction-icon,
+  .instruction-card.result-retry .instruction-icon,
+  .instruction-card.result-reject .instruction-icon {
+    width: 92px;
+    height: 92px;
+    margin: 0 auto 22px;
+    border-radius: 999px;
+    font-size: 42px;
+    color: #ffffff;
+    font-weight: 950;
+  }
+
+  .instruction-card.result-accept .instruction-icon {
+    background: #16a34a;
+    box-shadow: 0 18px 38px rgba(22, 163, 74, 0.22);
+  }
+
+  .instruction-card.result-retry .instruction-icon {
+    background: #f59e0b;
+    box-shadow: 0 18px 38px rgba(245, 158, 11, 0.22);
+  }
+
+  .instruction-card.result-reject .instruction-icon {
+    background: #dc2626;
+    box-shadow: 0 18px 38px rgba(220, 38, 38, 0.22);
+  }
+
+  .instruction-card.result-accept h3,
+  .instruction-card.result-retry h3,
+  .instruction-card.result-reject h3 {
+    font-size: 21px;
+    margin-bottom: 14px;
+    color: #071b3a;
+  }
+
+  .instruction-card.result-accept .instruction-text,
+  .instruction-card.result-retry .instruction-text,
+  .instruction-card.result-reject .instruction-text {
+    font-size: 30px;
+    line-height: 1.28;
+    font-weight: 950;
+    letter-spacing: -0.03em;
+  }
+
+  .instruction-card.result-accept .instruction-text,
+  .instruction-card.result-accept .instruction-text span {
+    color: #15803d;
+  }
+
+  .instruction-card.result-retry .instruction-text,
+  .instruction-card.result-retry .instruction-text span {
+    color: #b45309;
+  }
+
+  .instruction-card.result-reject .instruction-text,
+  .instruction-card.result-reject .instruction-text span {
+    color: #b91c1c;
+  }
+
+  .instruction-card.result-accept .mini-progress,
+  .instruction-card.result-retry .mini-progress,
+  .instruction-card.result-reject .mini-progress {
+    display: none !important;
+  }
+
+  .instruction-card.result-accept .timer,
+  .instruction-card.result-retry .timer,
+  .instruction-card.result-reject .timer {
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 750;
+    line-height: 1.55;
+    color: #475569;
+  }
+
+  /* Page Paramètres sécurité avancés */
+  .settings-main {
+    grid-column: 2 / -1;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .settings-header-page {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  .settings-page-card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+
+  .settings-section {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--soft-shadow);
+  }
+
+  .settings-section:last-child { margin-bottom: 0; }
+
+  .settings-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .settings-section-header h3 {
+    color: var(--navy);
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  .settings-section-header p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .settings-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: var(--bank-blue-soft);
+    color: var(--bank-blue);
+    border: 1px solid #cfe0f2;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .settings-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .settings-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .settings-info-card {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 17px;
+    background: linear-gradient(135deg, #ffffff, #f8fbff);
+    min-height: 118px;
+  }
+
+  .settings-info-card .settings-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 15px;
+    display: grid;
+    place-items: center;
+    background: var(--bank-blue-soft);
+    color: var(--bank-blue);
+    margin-bottom: 13px;
+    font-weight: 900;
+  }
+
+  .settings-info-card h4 {
+    color: var(--navy);
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .settings-info-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .decision-rule-row {
+    display: grid;
+    grid-template-columns: 18px 90px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-top: 1px solid #e6edf7;
+  }
+
+  .decision-rule-row:first-of-type { border-top: none; }
+  .decision-rule-row strong { color: var(--navy); font-size: 13px; }
+  .decision-rule-row p { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+  .settings-param-card {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 15px;
+    background: #fff;
+  }
+
+  .settings-param-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 7px;
+  }
+
+  .settings-param-card b {
+    display: block;
+    color: var(--navy);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .settings-param-card.accept b { color: var(--success); }
+  .settings-param-card.retry b { color: #b45309; }
+  .settings-param-card.reject b { color: var(--danger); }
+  .settings-param-card.blue b { color: var(--bank-blue); }
+
+  .settings-note {
+    border: 1px solid #cfe0f2;
+    background: #f8fbff;
+    color: var(--muted);
+    border-radius: 16px;
+    padding: 13px 15px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .settings-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 1250px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar, .right-panel { display: none; }
+    .welcome-main, .history-main { grid-column: 1 / -1; }
+    .welcome-main { padding: 22px; }
+    .welcome-grid, .history-stats-grid { grid-template-columns: 1fr 1fr; }
+    .verification-grid, .attempt-panel, .policy-grid { grid-template-columns: 1fr; }
+    .attempt-box { border-right: none; border-bottom: 1px solid var(--border); }
+    .attempt-box:last-child { border-bottom: none; }
+    .history-table-card { overflow-x: auto; }
+    .history-table { min-width: 1180px; }
+    .history-header-page { flex-direction: column; }
+    .welcome-hero h1 { font-size: 34px; }
+  }
+  @media (max-width: 700px) {
+    .welcome-grid { grid-template-columns: 1fr; }
+    .welcome-hero { padding: 28px; }
+    .policy-row { grid-template-columns: 16px 1fr; }
+    .policy-row p { grid-column: 2; }
+  }
+  /* ============================================================
+   MOBILE RESPONSIVE PRO — SecureBank PAD V6
+   Organisation mobile propre sans mélanger les pages
+   ============================================================ */
+
+@media (max-width: 900px) {
+  body {
+    overflow-x: hidden;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(18, 59, 102, 0.10), transparent 32%),
+      radial-gradient(circle at 88% 0%, rgba(22, 163, 74, 0.08), transparent 30%),
+      linear-gradient(135deg, #f7fafc 0%, #eef4fa 100%);
+  }
+
+  .layout,
+  .layout.client-mode,
+  .layout.admin-mode {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    min-height: 100vh;
+  }
+
+  /* Sidebar devient un header mobile propre */
+  .sidebar {
+    display: flex !important;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 14px 14px 12px !important;
+    border-radius: 0 0 22px 22px;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .brand {
+    margin-bottom: 8px !important;
+  }
+
+  .brand-icon {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 14px !important;
+  }
+
+  .brand h1 {
+    font-size: 20px !important;
+  }
+
+  .brand p {
+    font-size: 11px !important;
+  }
+
+  .nav {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 8px !important;
+  }
+
+  .nav-item {
+    padding: 11px 13px !important;
+    font-size: 13px !important;
+    border-radius: 14px !important;
+  }
+
+  .sidebar-card {
+    display: none !important;
+  }
+
+  .main,
+  #welcomeMain,
+  #verificationMain,
+  #historyMain,
+  #settingsMain {
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .main {
+    padding: 14px !important;
+  }
+
+  .topbar {
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .top-actions {
+    width: 100%;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .top-actions .btn {
+    padding: 11px 13px !important;
+    font-size: 12px !important;
+  }
+
+  .title h2,
+  .history-header-page h2 {
+    font-size: 26px !important;
+    line-height: 1.1 !important;
+  }
+
+  .title p,
+  .history-header-page p {
+    font-size: 13px !important;
+  }
+
+  .panel {
+    padding: 14px !important;
+    border-radius: 22px !important;
+  }
+
+  .steps {
+    margin-bottom: 18px !important;
+  }
+
+  .steps::before {
+    top: 23px !important;
+    left: 18% !important;
+    width: 64% !important;
+  }
+
+  .circle {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .step b {
+    font-size: 12px !important;
+  }
+
+  .step p {
+    font-size: 11px !important;
+  }
+
+  /* Organisation mobile :
+     Challenge en premier, caméra ensuite */
+  .verification-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .verification-grid > div:first-child {
+    order: 2;
+  }
+
+  .verification-grid > .instruction-card {
+    order: 1;
+  }
+
+  /* Challenge compact et lisible */
+  .instruction-card {
+    min-height: auto !important;
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .instruction-icon {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 28px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .instruction-card h3 {
+    font-size: 13px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .instruction-text {
+    font-size: 22px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .mini-progress {
+    max-width: 180px !important;
+    margin-top: 12px !important;
+  }
+
+  .timer {
+    font-size: 28px !important;
+  }
+
+  .client-instruction-box {
+    margin-top: 14px !important;
+    padding: 15px !important;
+  }
+
+  .client-instruction-box h4 {
+    font-size: 14px !important;
+  }
+
+  .client-instruction-box p {
+    font-size: 14px !important;
+  }
+
+  .admin-challenge-box {
+    display: none !important;
+  }
+
+  .layout.admin-mode .admin-challenge-box {
+    display: block !important;
+  }
+
+  .challenge-status-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Résultat mobile propre */
+  .instruction-card.result-accept,
+  .instruction-card.result-retry,
+  .instruction-card.result-reject {
+    min-height: 300px !important;
+    padding: 28px 18px !important;
+  }
+
+  .instruction-card.result-accept .instruction-icon,
+  .instruction-card.result-retry .instruction-icon,
+  .instruction-card.result-reject .instruction-icon {
+    width: 74px !important;
+    height: 74px !important;
+    font-size: 34px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .instruction-card.result-accept h3,
+  .instruction-card.result-retry h3,
+  .instruction-card.result-reject h3 {
+    font-size: 17px !important;
+  }
+
+  .instruction-card.result-accept .instruction-text,
+  .instruction-card.result-retry .instruction-text,
+  .instruction-card.result-reject .instruction-text {
+    font-size: 24px !important;
+    line-height: 1.25 !important;
+  }
+
+  .instruction-card.result-accept .timer,
+  .instruction-card.result-retry .timer,
+  .instruction-card.result-reject .timer {
+    font-size: 13px !important;
+  }
+
+  /* Caméra */
+  .camera-card {
+    min-height: auto !important;
+    height: auto !important;
+    border-radius: 18px !important;
+  }
+
+  video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 430px !important;
+    object-fit: cover !important;
+  }
+
+  .face-frame {
+    width: 230px !important;
+    height: 300px !important;
+  }
+
+  .camera-status,
+  .recording-pill {
+    top: 12px !important;
+    font-size: 11px !important;
+    padding: 7px 10px !important;
+  }
+
+  .camera-status {
+    left: 12px !important;
+  }
+
+  .recording-pill {
+    right: 12px !important;
+  }
+
+  .action-row {
+    margin-top: 12px !important;
+    gap: 8px !important;
+  }
+
+  .action-row .btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 12px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .status-line {
+    font-size: 13px !important;
+    margin-top: 12px !important;
+  }
+
+  /* Tentatives */
+  .attempt-panel {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    margin-top: 16px !important;
+  }
+
+  .attempt-box {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+    padding: 16px !important;
+  }
+
+  .attempt-box:last-child {
+    border-bottom: none !important;
+  }
+
+  .bank-policy-card {
+    display: none !important;
+  }
+
+  .layout.admin-mode .bank-policy-card {
+    display: block !important;
+  }
+
+  .policy-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Panneau admin :
+     caché par défaut,
+     affiché uniquement dans la page vérification + mode admin */
+  #verificationRightPanel,
+  .right-panel,
+  .right-panel.hidden {
+    display: none !important;
+  }
+
+  .layout.admin-mode #verificationMain:not(.hidden) ~ #verificationRightPanel {
+    display: flex !important;
+  }
+
+  #verificationRightPanel {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid var(--border) !important;
+    padding: 14px !important;
+    background: rgba(255, 255, 255, 0.75) !important;
+    flex-direction: column !important;
+  }
+
+  .right-card {
+    border-radius: 20px !important;
+    padding: 16px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr !important;
+  }
+
+  .metric {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  .metric:last-child {
+    border-bottom: none !important;
+  }
+
+  .risk-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Journal seul, sans panneau résultat */
+  #historyMain:not(.hidden) {
+    display: block !important;
+  }
+
+  #historyMain:not(.hidden) ~ #verificationRightPanel {
+    display: none !important;
+  }
+
+  .history-main {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  .history-header-page {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .history-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .history-stat-card {
+    padding: 16px !important;
+  }
+
+  .history-stat-card b {
+    font-size: 24px !important;
+  }
+
+  .history-filters {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .history-filters .input,
+  .history-filters .btn {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .history-table-card {
+    overflow-x: auto !important;
+  }
+
+  .history-table {
+    min-width: 1050px !important;
+  }
+
+  /* Paramètres seuls */
+  .settings-header-page {
+    flex-direction: column !important;
+  }
+
+  .settings-grid-4,
+  .settings-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Accueil */
+  .welcome-main {
+    padding: 16px !important;
+  }
+
+  .welcome-hero {
+    padding: 26px 20px !important;
+    border-radius: 26px !important;
+  }
+
+  .welcome-hero h1 {
+    font-size: 30px !important;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px !important;
+  }
+
+  .welcome-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .welcome-start-btn {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+}
+/* ============================================================
+   Authentification équilibrée — SecureBank
+   ============================================================ */
+
+.auth-main {
+  grid-column: 2 / -1;
+  min-height: 100vh;
+  padding: 38px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(18, 59, 102, 0.08), transparent 34%),
+    radial-gradient(circle at 85% 0%, rgba(22, 163, 74, 0.06), transparent 32%),
+    linear-gradient(135deg, #f7fafc 0%, #eef4fa 100%);
+}
+
+.auth-card {
+  width: min(900px, 100%);
+  display: grid;
+  grid-template-columns: 0.82fr 1.18fr;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.auth-side {
+  padding: 36px 32px;
+  background:
+    linear-gradient(180deg, rgba(18, 59, 102, 0.96), rgba(26, 41, 64, 0.96));
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.auth-brand-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.auth-brand-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.auth-brand h3 {
+  font-size: 20px;
+  letter-spacing: -0.03em;
+  margin-bottom: 3px;
+}
+
+.auth-brand p {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.auth-side h1 {
+  font-size: 30px;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  margin-bottom: 14px;
+}
+
+.auth-side-text {
+  color: #d7e2f1;
+  font-size: 14px;
+  line-height: 1.65;
+  max-width: 320px;
+}
+
+.auth-form-panel {
+  padding: 34px 36px;
+}
+
+.auth-form-header {
+  margin-bottom: 22px;
+}
+
+.auth-form-header h2 {
+  color: var(--navy);
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  margin-bottom: 8px;
+}
+
+.auth-form-header p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-field label {
+  display: block;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 850;
+  margin-bottom: 7px;
+}
+
+.auth-field input,
+.auth-field select {
+  width: 100%;
+}
+
+.auth-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.auth-error {
+  display: none;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.auth-error.show {
+  display: block;
+}
+
+.auth-user-summary {
+  display: none;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: #f8fbff;
+  border-radius: 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auth-user-summary.show {
+  display: block;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--bank-blue);
+  border: 1px solid #cfe0f2;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.logout-btn {
+  margin-top: 12px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .auth-main {
+    grid-column: auto !important;
+    padding: 16px !important;
+  }
+
+  .auth-card {
+    grid-template-columns: 1fr;
+    border-radius: 24px;
+  }
+
+  .auth-side {
+    padding: 24px 20px;
+  }
+
+  .auth-side h1 {
+    font-size: 25px;
+  }
+
+  .auth-side-text {
+    max-width: none;
+  }
+
+  .auth-form-panel {
+    padding: 24px 20px;
+  }
+
+  .auth-form-header h2 {
+    font-size: 24px;
+  }
+
+  .auth-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+  .language-switcher {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.13);
+  }
+
+  .language-switcher label {
+    display: block;
+    margin-bottom: 7px;
+    color: #dce5ff;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .language-switcher select {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: #ffffff;
+    color: var(--navy);
+    padding: 10px 11px;
+    border-radius: 12px;
+    outline: none;
+    font-weight: 800;
+  }
+
+
+  .no-translate {
+    unicode-bidi: isolate;
+  }
+</style>
+</head>
+
+<body translate="no" class="notranslate">
+  <div class="toast" id="toast"></div>
+
+  <div id="appLayout" class="layout client-mode">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-icon">
+            <!-- FIX 4: icône SVG shield à la place de l'emoji -->
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7eb8f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div><h1><span class="no-translate" translate="no">SecureBank</span></h1><p>Vérification bancaire intelligente</p></div>
+        </div>
+        <div class="nav">
+          <div id="navVerification" class="nav-item active" onclick="showWelcomePage()">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Vérification identité
+          </div>
+          <div id="navHistory" class="nav-item" onclick="showHistoryPage()">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Journal des vérifications
+          </div>
+          <div id="navSettings" class="nav-item" onclick="showSettingsPage()">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Paramètres sécurité
+          </div>
+        </div>
+
+        <div class="language-switcher">
+          <label for="languageSelect">Langue</label>
+          <select id="languageSelect" onchange="setLanguage(this.value)">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+            <option value="pt">Português</option>
+          </select>
+        </div>
+      </div>
+      <div class="sidebar-card"><p>Sécurisé par</p><h3><span class="no-translate" translate="no">FOMA V6</span></h3><p>Anti-spoofing vidéo • Challenge actif • Liveness</p></div>
+    </aside>
+  <main id="authMain" class="main auth-main">
+  <section class="auth-card">
+
+    <div class="auth-side">
+      <div class="auth-brand">
+        <div class="auth-brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#7eb8f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <h3><span class="no-translate" translate="no">SecureBank</span></h3>
+          <p>Identity Verification</p>
+        </div>
+      </div>
+
+      <h1>Accès sécurisé à la vérification</h1>
+      
+    </div>
+
+    <div class="auth-form-panel">
+      <div class="auth-form-header">
+        <div class="title-badge">● Authentification</div>
+        <h2>Créer une session utilisateur</h2>
+        <p>Saisissez les informations nécessaires pour accéder au parcours bancaire sécurisé.</p>
+      </div>
+
+      <div id="authError" class="auth-error"></div>
+
+      <form class="auth-form" onsubmit="submitAuthentication(event)">
+        <div class="auth-grid-2">
+          <div class="auth-field">
+            <label for="authNom">Nom</label>
+            <input id="authNom" class="input" type="text" placeholder="Ex : Mansour" />
+          </div>
+
+          <div class="auth-field">
+            <label for="authPrenom">Prénom</label>
+            <input id="authPrenom" class="input" type="text" placeholder="Ex : Hassine" />
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="authEmail">Adresse e-mail</label>
+          <input id="authEmail" class="input" type="email" placeholder="exemple@mail.com" />
+        </div>
+
+        <div class="auth-field">
+          <label for="authPhone">Numéro de téléphone</label>
+          <input id="authPhone" class="input" type="tel" placeholder="Ex : +216 20 000 000" />
+        </div>
+
+        <div class="auth-field">
+          <label for="authRole">Rôle</label>
+          <select id="authRole" class="input">
+            <option value="">Choisir un rôle</option>
+            <option value="client">Client</option>
+            <option value="admin">Administrateur</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" type="submit" style="width:100%;margin-top:8px">
+          Accéder à SecureBank
+        </button>
+      </form>
+
+      <div id="authUserSummary" class="auth-user-summary"></div>
+    </div>
+
+  </section>
+</main>
+    <main id="welcomeMain" class="main welcome-main">
+      <section class="welcome-hero">
+        <div class="welcome-badge">● SecureBank Identity Verification</div>
+        <h1>Bienvenue dans SecureBank Identity Verification</h1>
+        <p class="welcome-subtitle">Cette démonstration simule un parcours bancaire sécurisé pour vérifier l'identité d'un utilisateur à partir d'une vidéo capturée en temps réel.</p>
+        <div class="welcome-grid">
+          <!-- FIX 4: icônes SVG propres -->
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3>Challenge actif</h3>
+            <p>Un challenge est généré automatiquement afin de limiter les attaques par photo, vidéo rejouée ou tentative de réutilisation.</p>
+          </div>
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h3>Détection de vivacité</h3>
+            <p>Le système vérifie que l'utilisateur réalise bien l'action demandée : clignement, sourire ou mouvement de tête.</p>
+          </div>
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 1 9 9c0 4.97-4.03 9-9 9S3 15.97 3 11a9 9 0 0 1 9-9z"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3>Modèle PAD FOMA V6</h3>
+            <p>Le modèle analyse la vidéo avec une approche multimodale : CNN-LSTM, rPPG, comportement et posture.</p>
+          </div>
+          <div class="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <h3>Décision bancaire</h3>
+            <p>La réponse finale est adaptée au contexte bancaire : ACCEPT, RETRY ou REJECT.</p>
+          </div>
+        </div>
+        <div class="welcome-policy">
+          <h3>Politique de sécurité</h3>
+          <div class="policy-row"><span class="policy-dot accept"></span><strong><span class="no-translate" translate="no">ACCEPT</span></strong><p>Identité vérifiée et accès autorisé.</p></div>
+          <div class="policy-row"><span class="policy-dot retry"></span><strong><span class="no-translate" translate="no">RETRY</span></strong><p>Nouvelle capture demandée si le score ou la qualité est ambiguë.</p></div>
+          <div class="policy-row"><span class="policy-dot reject"></span><strong><span class="no-translate" translate="no">REJECT</span></strong><p>Risque d'attaque détecté ou non-respect du challenge.</p></div>
+        </div>
+        <div class="welcome-actions">
+          <button class="btn btn-primary welcome-start-btn" onclick="startWelcomeVerification()">Commencer la vérification</button>
+          <button class="btn btn-outline" onclick="getModelInfo(true)">Voir infos modèle V6</button>
+        </div>
+        <p class="welcome-note">La caméra sera activée uniquement après le démarrage de la vérification.</p>
+      </section>
+    </main>
+
+    <main id="verificationMain" class="main hidden">
+      <div class="topbar">
+        <div class="title"><div class="title-badge">● Session client sécurisée</div><h2>Confirmer votre identité</h2><p>Suivez les instructions affichées à l'écran pour sécuriser votre accès bancaire.</p></div>
+        <div class="top-actions">
+          
+          <!-- FIX 1: adminModeBtn label dynamique via JS -->
+          <button id="adminModeBtn" class="btn btn-outline" onclick="toggleAdminMode()">Mode administrateur</button>
+          <!-- FIX 1: Annuler discret -->
+          <button class="btn btn-danger" onclick="resetSession()">Annuler</button>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="steps">
+          <div id="step1" class="step done"><div class="circle">✓</div><b>Préparation</b><p>Positionnement du visage</p></div>
+          <div id="step2" class="step active"><div class="circle">2</div><b>Instruction</b><p>Challenge actif</p></div>
+          <div id="step3" class="step"><div class="circle">3</div><b>Résultat</b><p>Décision bancaire</p></div>
+        </div>
+        <!-- FIX 2: grille rééquilibrée via CSS -->
+        <div class="verification-grid">
+          <div>
+            <div class="camera-card">
+              <div class="camera-status"><span id="cameraDot" class="dot"></span><span id="cameraStatus">Caméra inactive</span></div>
+              <div class="recording-pill" id="recordingPill">En attente</div>
+              <video id="cameraPreview" autoplay muted playsinline></video>
+              <div class="camera-placeholder" id="cameraPlaceholder"><div class="big-icon">🎥</div><b>Caméra prête</b><p class="small" style="margin-top:8px;color:#cbd5e1">Cliquez sur démarrer pour lancer la vérification.</p></div>
+              <div class="face-frame"></div>
+            </div>
+            <div class="action-row">
+              <button id="newVerificationBtn" class="btn btn-outline btn-new-verification" onclick="startNewVerification()">Nouvelle vérification</button>
+              <button id="startBtn" class="btn btn-primary" onclick="startBankingFlow()">Démarrer la vérification</button>
+            </div>
+            <p class="status-line" id="flowStatus">Initialisation de la caméra et création d'un nouveau challenge...</p>
+            <div id="clientResultCard" class="client-result-card hidden">
+              <div class="client-result-icon" id="clientResultIcon">✓</div>
+              <div><b id="clientResultTitle">Résultat en attente</b><span id="clientResultMessage">La décision finale sera affichée ici.</span></div>
+            </div>
+          </div>
+          <div class="instruction-card">
+            <div>
+              <div class="instruction-icon" id="instructionIcon">🧑‍💼</div>
+              <h3>Instruction actuelle</h3>
+              <!-- FIX 2: taille et poids réduits via CSS -->
+              <div id="instructionText" class="instruction-text">Prêt pour la <span>vérification</span></div>
+              <div class="mini-progress"><span id="bar1"></span><span id="bar2"></span><span id="bar3"></span><span id="bar4"></span><span id="bar5"></span><span id="bar6"></span></div>
+              <div class="timer" id="timerText">--</div>
+            </div>
+            <div>
+              <div class="client-instruction-box">
+                <h4>Challenge de vivacité actif</h4>
+                <p id="clientSecurityInstruction">Suivez l'instruction affichée à l'écran.</p>
+                <span>Cette étape permet de vérifier que la vidéo est capturée en temps réel.</span>
+              </div>
+              <div class="admin-challenge-box admin-only">
+                <p class="small">Challenge ID</p>
+                <input id="challengeId" class="input" placeholder="créé automatiquement" style="width:100%;margin-top:8px" readonly />
+                <div class="challenge-status-card">
+                  <div><span>Challenge</span><b id="challengeTypeView">--</b></div>
+                  <div><span>Statut</span><b id="challengeStatusView">En attente</b></div>
+                  <div><span>Usage unique</span><b id="challengeSingleUseView">Oui</b></div>
+                </div>
+                <p class="small" style="margin-top:16px">Le challenge est à usage unique. Après analyse, il est marqué comme utilisé pour éviter une réutilisation frauduleuse.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="attempt-panel">
+          <div class="attempt-box"><p>Tentatives RETRY</p><b><span id="retryCount">0</span> / <span id="retryLimitText">3</span></b></div>
+          <div class="attempt-box"><p>Règle de sécurité</p><b id="cooldownSecondsText">120 secondes</b><p id="cooldownRuleText">Après 3 tentatives non concluantes, une pause de 120 secondes est appliquée.</p></div>
+          <div class="attempt-box"><p>Prochaine tentative dans</p><b id="cooldownText">--:--</b></div>
+        </div>
+        <div class="bank-policy-card admin-only">
+          <div class="policy-header"><div><h3>Politique de sécurité bancaire</h3><p>Système de décision métier appliqué après l'analyse PAD.</p></div><span class="policy-badge">ACCEPT / RETRY / REJECT</span></div>
+          <div class="policy-grid">
+            <div class="policy-item accept"><b><span class="no-translate" translate="no">ACCEPT</span></b><span>Identité vérifiée</span></div>
+            <div class="policy-item retry"><b><span class="no-translate" translate="no">RETRY</span></b><span>Nouvelle capture demandée</span></div>
+            <div class="policy-item reject"><b><span class="no-translate" translate="no">REJECT</span></b><span>Risque d'attaque détecté</span></div>
+            <div class="policy-item wait"><b>3 RETRY</b><span>Attente de 120 secondes</span></div>
+          </div>
+        </div>
+        <div class="footer">
+  <span id="securityModeLabel">🔒 Connexion sécurisée</span>
+</div>
+      </section>
+    </main>
+
+    <!-- FIX 3: Panneau admin avec hiérarchie claire — sections Critique / Technique -->
+    <aside id="verificationRightPanel" class="right-panel hidden">
+
+      <!-- Section critique : modèle + résultat -->
+      <div class="right-panel-section">
+        <div class="right-panel-section-label">Modèle & Décision</div>
+
+        <div class="right-card">
+          <h3>◼ Mode administrateur</h3>
+          <p class="small">Modèle actif</p>
+          <div class="model-title">FOMA V6 <span class="badge badge-success">Actif</span></div>
+          <p class="small" id="modelSummary">CNN + LSTM + rPPG + behavior-pose</p>
+          <button class="btn btn-outline" style="width:100%;margin-top:14px" onclick="openModelDetails()">Voir détails du modèle →</button>
+          <pre id="modelJson" class="json-box"></pre>
+        </div>
+
+        <div class="right-card">
+          <h3>● Résultat de l'analyse</h3>
+          <div id="resultBox" class="result-box"><p>Décision finale</p><h2 id="decision">--</h2></div>
+          <div class="metrics">
+            <div class="metric"><p>Score PAD</p><b id="score">--</b></div>
+            <div class="metric"><p>Liveness</p><b id="liveness">--</b></div>
+            <div class="metric"><p>Qualité</p><b id="quality">--</b><small id="qualityLabel" style="display:block;margin-top:4px;color:var(--muted)">--</small></div>
+          </div>
+          <div class="message-box" id="message">Analyse en attente.</div>
+          <button class="btn btn-outline" style="width:100%;margin-top:14px" onclick="toggleJson('resultJson')">Voir réponse complète</button>
+          <pre id="resultJson" class="json-box"></pre>
+        </div>
+      </div>
+
+      <!-- Section secondaire : détails techniques -->
+      <div class="right-panel-section secondary">
+        <div class="right-panel-section-label">Détails techniques</div>
+
+        <div class="right-card">
+          <h3>● Tentatives</h3>
+          <div id="attemptList" class="attempt-list">
+            <div class="attempt-row"><div class="attempt-number">1</div><div>--</div><div>--:--</div></div>
+          </div>
+        </div>
+
+        <div class="right-card">
+          <h3>● Performance runtime</h3>
+          <div class="risk-row">
+  <div class="risk-card">Capture vidéo<b id="captureTime">--</b></div>
+  <div class="risk-card">Analyse API<b id="responseTime">--</b></div>
+</div>
+
+<div class="risk-row" style="margin-top:10px">
+  <div class="risk-card">Temps modèle V6<b id="modelV6Time">--</b></div>
+  <div class="risk-card">Total parcours<b id="totalTime">--</b></div>
+</div>
+
+<div class="risk-row" style="margin-top:10px">
+  <div class="risk-card">Liveness actif<b id="livenessTime">--</b></div>
+  <div class="risk-card">Dernier test<b id="lastTestTime">--:--</b></div>
+</div>
+          <div class="message-box" style="margin-top:12px"><strong>Statut :</strong> <span id="responseStatus">En attente d'analyse.</span></div>
+          
+        </div>
+      </div>
+
+    </aside>
+
+    <main id="historyMain" class="main history-main hidden">
+      <div class="history-header-page">
+        <div><div class="title-badge">● Journal des vérifications</div><h2 id="historyPageTitle">Journal des vérifications PAD</h2><p id="historyPageDescription">Historique des vérifications réalisées.</p></div>
+        <div class="top-actions">
+          <button class="btn btn-outline history-admin-only" onclick="downloadJson()">Export JSON</button>
+          <button class="btn btn-outline history-admin-only" onclick="downloadTxt()">Export TXT</button>
+          <button class="btn btn-danger history-admin-only" onclick="clearHistoryPage()">Vider historique</button>
+          <button class="btn btn-primary" onclick="showVerificationPage()">Retour vérification</button>
+        </div>
+      </div>
+      <div class="history-stats-grid">
+        <div class="history-stat-card"><p>Total tentatives</p><b id="histTotal">0</b></div>
+        <div class="history-stat-card"><p>Acceptées</p><b id="histAccept">0</b></div>
+        <div class="history-stat-card"><p>Retry</p><b id="histRetry">0</b></div>
+        <div class="history-stat-card"><p>Rejetées</p><b id="histReject">0</b></div>
+      </div>
+      <div class="history-filters">
+        <input id="historySearch" class="input" placeholder="Rechercher par décision, challenge, message..." oninput="renderHistoryPage()" style="min-width:300px" />
+        <select id="historyFilter" class="input" onchange="renderHistoryPage()">
+          <option value="ALL">Toutes les décisions</option>
+          <option value="ACCEPT">ACCEPT</option>
+          <option value="RETRY">RETRY</option>
+          <option value="REJECT">REJECT</option>
+          <option value="OTHER">Autres</option>
+        </select>
+        <button class="btn btn-outline" onclick="renderHistoryPage()">Actualiser</button>
+      </div>
+      <div class="history-table-card">
+        <table class="history-table">
+          <thead><tr><th>#</th><th class="history-admin-column">Client</th><th>Décision</th><th>Score PAD</th><th>Liveness</th><th>Qualité</th><th>Challenge</th><th>Heure</th><th class="history-admin-column">Fichiers</th><th class="history-admin-column">Raison métier</th><th class="history-admin-column">Détails</th></tr></thead>
+          <tbody id="historyTableBody"><tr><td colspan="11" class="history-empty">Aucune tentative enregistrée.</td></tr></tbody>
+        </table>
+      </div>
+    </main>
+
+    <main id="settingsMain" class="main settings-main hidden">
+      <div class="settings-header-page">
+        <div>
+          <div class="title-badge">● Paramètres sécurité avancés</div>
+          <h2 style="font-size:31px;line-height:1.1;letter-spacing:-0.04em;margin-bottom:8px;color:var(--navy)">Paramètres de sécurité bancaire</h2>
+          <p style="color:var(--muted);font-size:14px;max-width:820px;line-height:1.45">
+            Cette page regroupe les règles appliquées dans le prototype PAD FOMA V6 : décision métier, tentatives, challenge actif, journalisation et limites de production.
+          </p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-outline" onclick="showVerificationPage()">Retour vérification</button>
+          <button class="btn btn-primary" onclick="getModelInfo(true)">Voir modèle V6</button>
+        </div>
+      </div>
+
+      <section class="settings-page-card">
+        <div class="settings-section">
+          <div class="settings-grid-4">
+            <div class="settings-info-card">
+              <div class="settings-icon">⚖</div>
+              <h4>Politique de décision</h4>
+              <p>Le système applique une logique métier bancaire : ACCEPT pour autoriser, RETRY pour demander une nouvelle capture, REJECT en cas de risque d’attaque.</p>
+            </div>
+            <div class="settings-info-card">
+              <div class="settings-icon">↻</div>
+              <h4>Gestion des tentatives</h4>
+              <p>Après 3 tentatives RETRY non concluantes, une pause de 120 secondes est appliquée pour limiter les répétitions abusives.</p>
+            </div>
+            <div class="settings-info-card">
+              <div class="settings-icon">ID</div>
+              <h4>Challenge à usage unique</h4>
+              <p>Chaque vérification crée un challenge temporaire. Après analyse, il est marqué comme utilisé pour éviter toute réutilisation.</p>
+            </div>
+            <div class="settings-info-card">
+              <div class="settings-icon">▤</div>
+              <h4>Traçabilité</h4>
+              <p>Les décisions, résultats JSON, vidéos uploadées et messages système sont conservés pour faciliter l’audit technique de la démonstration.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Règles de décision</h3>
+              <p>Traduction métier des sorties du modèle PAD et du module de vivacité.</p>
+            </div>
+            <span class="settings-status-badge">ACCEPT / RETRY / REJECT</span>
+          </div>
+          <div class="decision-rule-row">
+            <span class="policy-dot accept"></span>
+            <strong><span class="no-translate" translate="no">ACCEPT</span></strong>
+            <p>L’identité est vérifiée : liveness validé, score PAD faible et qualité vidéo suffisante.</p>
+          </div>
+          <div class="decision-rule-row">
+            <span class="policy-dot retry"></span>
+            <strong><span class="no-translate" translate="no">RETRY</span></strong>
+            <p>Nouvelle capture demandée si la vivacité échoue, si la qualité est moyenne ou si le score PAD est ambigu.</p>
+          </div>
+          <div class="decision-rule-row">
+            <span class="policy-dot reject"></span>
+            <strong><span class="no-translate" translate="no">REJECT</span></strong>
+            <p>Vérification refusée lorsqu’un risque d’attaque de présentation est détecté.</p>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Configuration du prototype</h3>
+              <p>Paramètres utilisés dans la démonstration locale.</p>
+            </div>
+            <span class="settings-status-badge">Démo locale R&D</span>
+          </div>
+          <div class="settings-grid-4">
+            <div class="settings-param-card accept">
+              <span>Modèle actif</span>
+              <b>FOMA V6 — MobileNetV3 + LSTM + rPPG + behavior-pose</b>
+            </div>
+
+            <div class="settings-param-card retry">
+              <label for="settingRetryMax"><span>RETRY maximum</span></label>
+              <input
+                id="settingRetryMax"
+                class="input settings-editable"
+                type="number"
+                min="1"
+                max="10"
+                value="3"
+                style="width:100%"
+              />
+            </div>
+
+            <div class="settings-param-card blue">
+              <label for="settingCooldown"><span>Pause de sécurité en secondes</span></label>
+              <input
+                id="settingCooldown"
+                class="input settings-editable"
+                type="number"
+                min="10"
+                max="600"
+                value="120"
+                style="width:100%"
+              />
+            </div>
+
+            <div class="settings-param-card reject">
+              <span>Production</span>
+              <b>Non certifié production bancaire réelle</b>
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <button
+              class="btn btn-primary settings-admin-only"
+              onclick="saveSecuritySettings()"
+            >
+              Enregistrer les paramètres
+            </button>
+
+            <button
+              class="btn btn-outline settings-admin-only"
+              onclick="resetSecuritySettings()"
+            >
+              Restaurer les valeurs par défaut
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Features comportementales FOMA V6</h3>
+              <p>Indices utilisés par le système pour renforcer la détection PAD.</p>
+            </div>
+            <span class="settings-status-badge">20 features</span>
+          </div>
+          <div class="settings-grid-4">
+            <div class="settings-param-card blue"><span>EAR ×5</span><b>Détection des yeux et clignement</b></div>
+            <div class="settings-param-card blue"><span>Motion ×3</span><b>Mouvement facial et stabilité vidéo</b></div>
+            <div class="settings-param-card blue"><span>Pose ×11</span><b>Yaw, pitch, roll et dynamique de tête</b></div>
+            <div class="settings-param-card blue"><span><span class="no-translate" translate="no">rPPG</span></span><b>Indice physiologique extrait du flux vidéo</b></div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div>
+              <h3>Limites et usage démonstrateur</h3>
+              <p>Ce prototype est conçu pour une soutenance PFE et une démonstration technique locale.</p>
+            </div>
+            <span class="settings-status-badge">Prototype contrôlé</span>
+          </div>
+          <div class="settings-grid-3">
+            <div class="settings-param-card"><span>Runtime</span><b>Analyse locale dépendante du GPU, de la caméra et de la qualité de capture.</b></div>
+            <div class="settings-param-card"><span>Sécurité</span><b>Les paramètres sont affichés pour la démo ; en production ils seraient côté backend.</b></div>
+            <div class="settings-param-card"><span>Audit</span><b>Les exports JSON/TXT servent à tracer les décisions et préparer l’analyse jury.</b></div>
+          </div>
+          <p class="settings-note" style="margin-top:14px">
+            Note prototype : dans une version production, ces règles seraient protégées par authentification administrateur, chiffrement, journal d’audit sécurisé et validation métier bancaire.
+          </p>
+          <div class="settings-actions">
+            <button class="btn btn-outline settings-admin-only" onclick="downloadJson()">Export JSON</button>
+            <button class="btn btn-outline settings-admin-only" onclick="downloadTxt()">Export TXT</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modelDetailsOverlay" class="model-overlay hidden">
+    <div class="model-details-card">
+      <div class="model-details-header">
+        <div><span class="title-badge">● Modèle actif</span><h2>FOMA V6 — Détails du modèle</h2><p>Prototype PAD bancaire multimodal pour la détection d'attaques de présentation faciale.</p></div>
+        <button class="btn btn-danger" onclick="closeModelDetails()">Fermer</button>
+      </div>
+      <div class="model-info-grid">
+        <div class="model-info-item"><span>Modèle</span><b><span class="no-translate" translate="no">FOMA V6</span></b></div>
+        <div class="model-info-item"><span>Type de système</span><b>PAD vidéo bancaire</b></div>
+        <div class="model-info-item"><span>Architecture</span><b>MobileNetV3 + LSTM + fusion comportementale</b></div>
+        <div class="model-info-item"><span>Mode runtime</span><b>Challenge actif + liveness + modèle PAD V6</b></div>
+        <div class="model-info-item"><span>Features</span><b>EAR, blink_count, motion, rPPG, head pose</b></div>
+        <div class="model-info-item"><span>Fusion</span><b>0.85 score multimodal + 0.15 behavior-pose</b></div>
+        <div class="model-info-item"><span>Sortie métier</span><b>ACCEPT / RETRY / REJECT</b></div>
+        <div class="model-info-item"><span>Datasets</span><b>CASIA-FASD + AxonLabs + MSU + données locales</b></div>
+        <div class="model-info-item full"><span>Objectif</span><b>Détecter les attaques de présentation faciale dans un contexte bancaire.</b></div>
+        
+      </div>
+      <div class="model-tech-section">
+        <div class="model-tech-title"><h3>Détails techniques API </h3><button class="btn btn-outline" onclick="loadModelTechnicalDetails()">Charger JSON technique</button></div>
+        <p class="small" style="margin-bottom:10px">Ces informations sont destinées à la traçabilité technique du prototype.</p>
+        <pre id="modelTechnicalJson" class="model-tech-json">Cliquez sur "Charger JSON technique" pour afficher les informations retournées par /model/info.</pre>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let currentChallenge = null;
+  let currentResult = null;
+  let modelInfo = null;
+  let stream = null;
+
+  let mediaRecorder = null;
+  let recordedChunks = [];
+
+  let retryCount = Number(localStorage.getItem("pad_retry_count") || "0");
+  let cooldownUntil = Number(localStorage.getItem("pad_cooldown_until") || "0");
+  let analysisLogs = JSON.parse(localStorage.getItem("pad_analysis_logs") || "[]");
+
+  let adminMode = false;
+  let authenticatedUser = JSON.parse(localStorage.getItem("securebank_user") || "null");
+  let countdownInterval = null;
+  let cooldownInterval = null;
+
+  let requestStartTime = null;
+  let lastResponseTimeMs = null;
+  let totalStartTime = null;
+  let lastTotalTimeMs = null;
+
+  const RECORD_SECONDS = 6;
+
+  let currentRecordingMimeType = "video/webm";
+  let currentRecordingExtension = "webm";
+
+  document.addEventListener("DOMContentLoaded", () => {
+  updateRetryUI();
+  updateLogUI();
+  updateCooldownUI();
+  getModelInfo(false);
+  updateChallengeStatus(null, "En attente");
+  setCameraStatus("Caméra inactive", "idle");
+  updateSecurityModeLabel();
+  updateSecuritySettingsUI();
+
+  if (authenticatedUser) {
+    applyUserRoleUI();
+    showWelcomePage();
+  } else {
+    showAuthPage();
+  }
+
+  applyLanguage(currentLanguage);
+});
+
+
+  const UI_TRANSLATIONS = {
+  "en": {
+    "Langue": "Language",
+    "Français": "French",
+    "Vérification identité": "Identity verification",
+    "Journal des vérifications": "Verification history",
+    "Paramètres sécurité": "Security settings",
+    "Sécurisé par": "Secured by",
+    "Vérification bancaire intelligente": "Intelligent banking verification",
+    "Authentification": "Authentication",
+    "Créer une session utilisateur": "Create a user session",
+    "Saisissez les informations nécessaires pour accéder au parcours bancaire sécurisé.": "Enter the required information to access the secure banking flow.",
+    "Nom": "Last name",
+    "Prénom": "First name",
+    "Adresse e-mail": "Email address",
+    "Numéro de téléphone": "Phone number",
+    "Rôle": "Role",
+    "Choisir un rôle": "Choose a role",
+    "Client": "Client",
+    "Administrateur": "Administrator",
+    "Accéder à SecureBank": "Access SecureBank",
+    "Bienvenue dans SecureBank Identity Verification": "Welcome to SecureBank Identity Verification",
+    "Cette démonstration simule un parcours bancaire sécurisé pour vérifier l'identité d'un utilisateur à partir d'une vidéo capturée en temps réel.": "This demo simulates a secure banking journey to verify a user's identity from a video captured in real time.",
+    "Challenge actif": "Active challenge",
+    "Détection de vivacité": "Liveness detection",
+    "Modèle PAD FOMA V6": "FOMA V6 PAD model",
+    "Décision bancaire": "Banking decision",
+    "Politique de sécurité": "Security policy",
+    "Identité vérifiée et accès autorisé.": "Identity verified and access granted.",
+    "Nouvelle capture demandée si le score ou la qualité est ambiguë.": "A new capture is requested when the score or quality is ambiguous.",
+    "Risque d'attaque détecté ou non-respect du challenge.": "Attack risk detected or challenge not completed.",
+    "Commencer la vérification": "Start verification",
+    "Voir infos modèle V6": "View V6 model information",
+    "Confirmer votre identité": "Confirm your identity",
+    "Suivez les instructions affichées à l'écran pour sécuriser votre accès bancaire.": "Follow the on-screen instructions to secure your banking access.",
+    "Mode administrateur": "Administrator mode",
+    "Annuler": "Cancel",
+    "Préparation": "Preparation",
+    "Instruction": "Instruction",
+    "Résultat": "Result",
+    "Positionnement du visage": "Face positioning",
+    "Caméra inactive": "Camera inactive",
+    "En attente": "Waiting",
+    "Caméra prête": "Camera ready",
+    "Cliquez sur démarrer pour lancer la vérification.": "Click start to begin verification.",
+    "Nouvelle vérification": "New verification",
+    "Démarrer la vérification": "Start verification",
+    "Instruction actuelle": "Current instruction",
+    "Challenge de vivacité actif": "Active liveness challenge",
+    "Suivez l'instruction affichée à l'écran.": "Follow the on-screen instruction.",
+    "Tentatives RETRY": "RETRY attempts",
+    "Règle de sécurité": "Security rule",
+    "Prochaine tentative dans": "Next attempt in",
+    "Paramètres de sécurité bancaire": "Banking security settings",
+    "Règles de décision": "Decision rules",
+    "Configuration du prototype": "Prototype configuration",
+    "Modèle actif": "Active model",
+    "RETRY maximum": "Maximum RETRY",
+    "Pause de sécurité en secondes": "Security pause in seconds",
+    "Production": "Production",
+    "Enregistrer les paramètres": "Save settings",
+    "Restaurer les valeurs par défaut": "Restore defaults",
+    "Features comportementales FOMA V6": "FOMA V6 behavioral features",
+    "Limites et usage démonstrateur": "Demo limitations and usage",
+    "Retour vérification": "Back to verification",
+    "Voir modèle V6": "View V6 model",
+    "Journal global des vérifications PAD": "Global PAD verification history",
+    "Mes vérifications": "My verifications",
+    "Total tentatives": "Total attempts",
+    "Acceptées": "Accepted",
+    "Rejetées": "Rejected",
+    "Toutes les décisions": "All decisions",
+    "Actualiser": "Refresh",
+    "Décision": "Decision",
+    "Score PAD": "PAD score",
+    "Qualité": "Quality",
+    "Heure": "Time",
+    "Fichiers": "Files",
+    "Raison métier": "Business reason",
+    "Détails": "Details",
+    "Export JSON": "Export JSON",
+    "Export TXT": "Export TXT",
+    "Vider historique": "Clear history",
+    "Déconnexion": "Sign out",
+    "Utilisateur connecté": "Connected user",
+    "Lecture seule": "Read only",
+    "Administration": "Administration",
+    "Prototype PAD bancaire multimodal pour la détection d'attaques de présentation faciale.": "Multimodal banking PAD prototype for facial presentation attack detection.",
+    "Type de système": "System type",
+    "PAD vidéo bancaire": "Banking video PAD",
+    "Architecture": "Architecture",
+    "MobileNetV3 + LSTM + fusion comportementale": "MobileNetV3 + LSTM + behavioral fusion",
+    "Mode runtime": "Runtime mode",
+    "Challenge actif + liveness + modèle PAD V6": "Active challenge + liveness + PAD V6 model",
+    "Features": "Features",
+    "EAR, blink_count, motion, rPPG, head pose": "EAR, blink_count, motion, rPPG, head pose",
+    "Fusion": "Fusion",
+    "0.85 score multimodal + 0.15 behavior-pose": "0.85 multimodal score + 0.15 behavior-pose",
+    "Sortie métier": "Business output",
+    "Datasets": "Datasets",
+    "Objectif": "Objective",
+    "Détecter les attaques de présentation faciale dans un contexte bancaire.": "Detect facial presentation attacks in a banking context.",
+    "Détails techniques API": "API technical details",
+    "Ces informations sont destinées à la traçabilité technique du prototype.": "This information is intended for the prototype's technical traceability.",
+    "Charger JSON technique": "Load technical JSON",
+    "Fermer": "Close",
+    "Voir détails du modèle →": "View model details →",
+    "Résultat de l'analyse": "Analysis result",
+    "Décision finale": "Final decision",
+    "Analyse en attente.": "Analysis pending.",
+    "Voir réponse complète": "View full response",
+    "Détails techniques": "Technical details",
+    "Tentatives": "Attempts",
+    "Performance runtime": "Runtime performance",
+    "Capture vidéo": "Video capture",
+    "Analyse API": "API analysis",
+    "Temps modèle V6": "V6 model time",
+    "Total parcours": "Total flow",
+    "Liveness actif": "Active liveness",
+    "Dernier test": "Last test",
+    "Statut :": "Status:",
+    "Session client sécurisée": "Secure client session",
+    "Prêt pour la vérification": "Ready for verification",
+    "Regardez la caméra et attendez l'instruction de sécurité.": "Look at the camera and wait for the security instruction.",
+    "Cette étape permet de vérifier que la vidéo est capturée en temps réel.": "This step verifies that the video is captured in real time.",
+    "Challenge ID": "Challenge ID",
+    "Statut": "Status",
+    "Usage unique": "Single use",
+    "Oui": "Yes",
+    "Le challenge est à usage unique. Après analyse, il est marqué comme utilisé pour éviter une réutilisation frauduleuse.": "The challenge is single-use. After analysis, it is marked as used to prevent fraudulent reuse.",
+    "Politique de décision": "Decision policy",
+    "Gestion des tentatives": "Attempt management",
+    "Challenge à usage unique": "Single-use challenge",
+    "Traçabilité": "Traceability",
+    "Le système applique une logique métier bancaire : ACCEPT pour autoriser, RETRY pour demander une nouvelle capture, REJECT en cas de risque d’attaque.": "The system applies banking business logic: ACCEPT to authorize, RETRY to request a new capture, and REJECT when an attack risk is detected.",
+    "Après 3 tentatives RETRY non concluantes, une pause de 120 secondes est appliquée pour limiter les répétitions abusives.": "After 3 inconclusive RETRY attempts, a 120-second pause is applied to limit repeated attempts.",
+    "Chaque vérification crée un challenge temporaire. Après analyse, il est marqué comme utilisé pour éviter toute réutilisation.": "Each verification creates a temporary challenge. After analysis, it is marked as used to prevent reuse.",
+    "Les décisions, résultats JSON, vidéos uploadées et messages système sont conservés pour faciliter l’audit technique de la démonstration.": "Decisions, JSON results, uploaded videos, and system messages are retained to support technical auditing of the demo.",
+    "Traduction métier des sorties du modèle PAD et du module de vivacité.": "Business interpretation of PAD model and liveness module outputs.",
+    "L’identité est vérifiée : liveness validé, score PAD faible et qualité vidéo suffisante.": "Identity is verified: liveness validated, low PAD score, and sufficient video quality.",
+    "Nouvelle capture demandée si la vivacité échoue, si la qualité est moyenne ou si le score PAD est ambigu.": "A new capture is requested if liveness fails, quality is average, or the PAD score is ambiguous.",
+    "Vérification refusée lorsqu’un risque d’attaque de présentation est détecté.": "Verification is refused when a presentation attack risk is detected.",
+    "Paramètres utilisés dans la démonstration locale.": "Parameters used in the local demo.",
+    "Démo locale R&D": "Local R&D demo",
+    "Non certifié production bancaire réelle": "Not certified for real banking production",
+    "Détection des yeux et clignement": "Eye and blink detection",
+    "Mouvement facial et stabilité vidéo": "Facial movement and video stability",
+    "Yaw, pitch, roll et dynamique de tête": "Yaw, pitch, roll, and head dynamics",
+    "Indice physiologique extrait du flux vidéo": "Physiological indicator extracted from the video stream",
+    "Ce prototype est conçu pour une soutenance PFE et une démonstration technique locale.": "This prototype is designed for a final-year project defense and local technical demonstration.",
+    "Runtime": "Runtime",
+    "Sécurité": "Security",
+    "Audit": "Audit",
+    "Anti-spoofing vidéo • Challenge actif • Liveness": "Video anti-spoofing • Active challenge • Liveness",
+    "Un challenge est généré automatiquement afin de limiter les attaques par photo, vidéo rejouée ou tentative de réutilisation.": "A challenge is generated automatically to limit photo attacks, replayed videos, or reuse attempts.",
+    "Le système vérifie que l'utilisateur réalise bien l'action demandée : clignement, sourire ou mouvement de tête.": "The system verifies that the user performs the requested action: blinking, smiling, or head movement.",
+    "Le modèle analyse la vidéo avec une approche multimodale : CNN-LSTM, rPPG, comportement et posture.": "The model analyzes the video using a multimodal approach: CNN-LSTM, rPPG, behavior, and pose.",
+    "La réponse finale est adaptée au contexte bancaire : ACCEPT, RETRY ou REJECT.": "The final response is adapted to the banking context: ACCEPT, RETRY, or REJECT.",
+    "La caméra sera activée uniquement après le démarrage de la vérification.": "The camera will be activated only after verification starts.",
+    "Initialisation de la caméra et création d'un nouveau challenge...": "Initializing the camera and creating a new challenge...",
+    "Politique de sécurité bancaire": "Banking security policy",
+    "Système de décision métier appliqué après l'analyse PAD.": "Business decision system applied after PAD analysis.",
+    "Identité vérifiée": "Identity verified",
+    "Nouvelle capture demandée": "New capture requested",
+    "Risque d'attaque détecté": "Attack risk detected",
+    "Attente de 120 secondes": "120-second wait",
+    "Après 3 tentatives non concluantes, une pause de 120 secondes est appliquée.": "After 3 inconclusive attempts, a 120-second pause is applied.",
+    "Connexion locale de démonstration": "Local demo connection",
+    "Modèle & Décision": "Model & Decision",
+    "Actif": "Active",
+    "Journal des vérifications PAD": "PAD verification history",
+    "Historique des vérifications réalisées.": "History of completed verifications.",
+    "Aucune tentative enregistrée.": "No attempt recorded.",
+    "Paramètres sécurité avancés": "Advanced security settings",
+    "Cette page regroupe les règles appliquées dans le prototype PAD FOMA V6 : décision métier, tentatives, challenge actif, journalisation et limites de production.": "This page groups the rules applied in the FOMA V6 PAD prototype: business decision, attempts, active challenge, logging, and production limits.",
+    "Indices utilisés par le système pour renforcer la détection PAD.": "Indicators used by the system to strengthen PAD detection.",
+    "20 features": "20 features",
+    "Prototype contrôlé": "Controlled prototype",
+    "Analyse locale dépendante du GPU, de la caméra et de la qualité de capture.": "Local analysis depends on the GPU, camera, and capture quality.",
+    "Les paramètres sont affichés pour la démo ; en production ils seraient côté backend.": "Settings are displayed for the demo; in production they would be handled by the backend.",
+    "Les exports JSON/TXT servent à tracer les décisions et préparer l’analyse jury.": "JSON/TXT exports are used to trace decisions and prepare the jury analysis.",
+    "Note prototype : dans une version production, ces règles seraient protégées par authentification administrateur, chiffrement, journal d’audit sécurisé et validation métier bancaire.": "Prototype note: in production, these rules would be protected by administrator authentication, encryption, a secure audit log, and banking business validation.",
+    "FOMA V6 — Détails du modèle": "FOMA V6 — Model details",
+    "Modèle": "Model",
+    "CASIA-FASD + AxonLabs + MSU + données locales": "CASIA-FASD + AxonLabs + MSU + local data",
+    "Informations modèle V6 chargées.": "V6 model information loaded.",
+    "Cliquez sur \"Charger JSON technique\" pour afficher les informations retournées par /model/info.": "Click “Load technical JSON” to display the information returned by /model/info.",
+    "Créé automatiquement": "Created automatically",
+    "créé automatiquement": "created automatically",
+    "Masquer admin": "Hide administrator",
+    "Vérification réussie": "Verification successful",
+    "Votre identité est vérifiée. Vous pouvez continuer.": "Your identity has been verified. You may continue.",
+    "Vivacité validée et qualité vidéo suffisante.": "Liveness validated and video quality is sufficient.",
+    "Nouvelle tentative requise": "New attempt required",
+    "Vérification non concluante": "Verification inconclusive",
+    "Veuillez réessayer.": "Please try again.",
+    "Vérification refusée": "Verification refused",
+    "pour raison de sécurité.": "for security reasons.",
+    "Risque d’attaque ou non-respect du challenge détecté.": "Attack risk or challenge failure detected.",
+    "Bonne": "Good",
+    "Moyenne": "Average",
+    "Faible": "Low",
+    "Utilisateur inconnu": "Unknown user",
+    "Voir JSON": "View JSON",
+    "Vidéo": "Video",
+    "Aucun résultat pour ce filtre.": "No result for this filter.",
+    "Informations techniques API": "API technical information",
+    "Impossible de charger /model/info.": "Unable to load /model/info.",
+    "Accès sécurisé à la vérification": "Secure access to verification",
+    "Identifiez l'utilisateur avant de lancer la vérification PAD et appliquez automatiquement le bon espace : client ou administrateur.": "Identify the user before starting PAD verification and automatically apply the correct space: client or administrator.",
+    "Rechercher par décision, challenge, message...": "Search by decision, challenge, message...",
+    "Déconnexion effectuée.": "Signed out.",
+    "Session réinitialisée.": "Session reset.",
+    "Session réinitialisée. Vous pouvez démarrer une nouvelle vérification.": "Session reset. You can start a new verification.",
+    "Parcours de vérification prêt. Cliquez sur Démarrer la vérification.": "Verification flow ready. Click Start verification.",
+    "Réessayer la vérification": "Retry verification",
+    "Veuillez remplir tous les champs avant de continuer.": "Please complete all fields before continuing.",
+    "Veuillez saisir une adresse e-mail valide.": "Please enter a valid email address.",
+    "Veuillez saisir un numéro de téléphone valide.": "Please enter a valid phone number.",
+    "Veuillez vous authentifier avant d'accéder à SecureBank.": "Please sign in before accessing SecureBank.",
+    "Veuillez vous authentifier avant de commencer la vérification.": "Please sign in before starting verification.",
+    "Veuillez vous authentifier avant d'accéder au journal.": "Please sign in before accessing the verification history.",
+    "Veuillez vous authentifier avant d'accéder aux paramètres.": "Please sign in before accessing settings.",
+    "Veuillez vous authentifier avant de lancer une nouvelle vérification.": "Please sign in before starting a new verification.",
+    "Veuillez vous authentifier avant de lancer la vérification.": "Please sign in before starting verification.",
+    "Préparation d'une nouvelle vérification...": "Preparing a new verification...",
+    "Initialisation de la caméra...": "Initializing the camera...",
+    "Création du challenge bancaire...": "Creating the banking challenge...",
+    "Erreur pendant la vérification. Réessayez.": "An error occurred during verification. Please try again.",
+    "Mode administrateur activé.": "Administrator mode enabled.",
+    "Mode client bancaire activé.": "Banking client mode enabled.",
+    "Accès administrateur non autorisé pour ce compte.": "Administrator access is not allowed for this account.",
+    "Paramètres administrateur : modification autorisée.": "Administrator settings: editing enabled.",
+    "Paramètres affichés en lecture seule.": "Settings are displayed in read-only mode.",
+    "Modification réservée à l'administrateur.": "Editing is restricted to the administrator.",
+    "Action réservée à l'administrateur.": "This action is restricted to the administrator.",
+    "Paramètres de sécurité enregistrés.": "Security settings saved.",
+    "Valeurs par défaut restaurées.": "Default values restored.",
+    "Identité vérifiée avec succès. Session sécurisée terminée.": "Identity verified successfully. Secure session completed.",
+    "Nouvelle capture recommandée. Le système ne rejette pas définitivement une vidéo ambiguë.": "A new capture is recommended. The system does not permanently reject an ambiguous video.",
+    "Vidéo rejetée comme attaque probable. Le résultat est enregistré dans les logs.": "The video was rejected as a probable attack. The result was saved in the logs.",
+    "Décision incertaine. Vous pouvez refaire une vérification.": "Uncertain decision. You may run another verification.",
+    "Historique supprimé.": "History cleared."
+  },
+  "pt": {
+    "Langue": "Idioma",
+    "Français": "Francês",
+    "Vérification identité": "Verificação de identidade",
+    "Journal des vérifications": "Histórico de verificações",
+    "Paramètres sécurité": "Parâmetros de segurança",
+    "Sécurisé par": "Protegido por",
+    "Vérification bancaire intelligente": "Verificação bancária inteligente",
+    "Authentification": "Autenticação",
+    "Créer une session utilisateur": "Criar uma sessão de utilizador",
+    "Saisissez les informations nécessaires pour accéder au parcours bancaire sécurisé.": "Introduza as informações necessárias para aceder ao percurso bancário seguro.",
+    "Nom": "Apelido",
+    "Prénom": "Nome",
+    "Adresse e-mail": "Endereço de e-mail",
+    "Numéro de téléphone": "Número de telefone",
+    "Rôle": "Função",
+    "Choisir un rôle": "Escolher uma função",
+    "Client": "Cliente",
+    "Administrateur": "Administrador",
+    "Accéder à SecureBank": "Aceder ao SecureBank",
+    "Bienvenue dans SecureBank Identity Verification": "Bem-vindo ao SecureBank Identity Verification",
+    "Cette démonstration simule un parcours bancaire sécurisé pour vérifier l'identité d'un utilisateur à partir d'une vidéo capturée en temps réel.": "Esta demonstração simula um percurso bancário seguro para verificar a identidade de um utilizador através de um vídeo captado em tempo real.",
+    "Challenge actif": "Desafio ativo",
+    "Détection de vivacité": "Deteção de vivacidade",
+    "Modèle PAD FOMA V6": "Modelo PAD FOMA V6",
+    "Décision bancaire": "Decisão bancária",
+    "Politique de sécurité": "Política de segurança",
+    "Identité vérifiée et accès autorisé.": "Identidade verificada e acesso autorizado.",
+    "Nouvelle capture demandée si le score ou la qualité est ambiguë.": "É solicitada uma nova captura quando a pontuação ou a qualidade é ambígua.",
+    "Risque d'attaque détecté ou non-respect du challenge.": "Risco de ataque detetado ou desafio não cumprido.",
+    "Commencer la vérification": "Iniciar verificação",
+    "Voir infos modèle V6": "Ver informações do modelo V6",
+    "Confirmer votre identité": "Confirmar a sua identidade",
+    "Suivez les instructions affichées à l'écran pour sécuriser votre accès bancaire.": "Siga as instruções apresentadas no ecrã para proteger o seu acesso bancário.",
+    "Mode administrateur": "Modo administrador",
+    "Annuler": "Cancelar",
+    "Préparation": "Preparação",
+    "Instruction": "Instrução",
+    "Résultat": "Resultado",
+    "Positionnement du visage": "Posicionamento do rosto",
+    "Caméra inactive": "Câmara inativa",
+    "En attente": "Em espera",
+    "Caméra prête": "Câmara pronta",
+    "Cliquez sur démarrer pour lancer la vérification.": "Clique em iniciar para começar a verificação.",
+    "Nouvelle vérification": "Nova verificação",
+    "Démarrer la vérification": "Iniciar verificação",
+    "Instruction actuelle": "Instrução atual",
+    "Challenge de vivacité actif": "Desafio de vivacidade ativo",
+    "Suivez l'instruction affichée à l'écran.": "Siga a instrução apresentada no ecrã.",
+    "Tentatives RETRY": "Tentativas RETRY",
+    "Règle de sécurité": "Regra de segurança",
+    "Prochaine tentative dans": "Próxima tentativa em",
+    "Paramètres de sécurité bancaire": "Parâmetros de segurança bancária",
+    "Règles de décision": "Regras de decisão",
+    "Configuration du prototype": "Configuração do protótipo",
+    "Modèle actif": "Modelo ativo",
+    "RETRY maximum": "RETRY máximo",
+    "Pause de sécurité en secondes": "Pausa de segurança em segundos",
+    "Production": "Produção",
+    "Enregistrer les paramètres": "Guardar parâmetros",
+    "Restaurer les valeurs par défaut": "Restaurar valores predefinidos",
+    "Features comportementales FOMA V6": "Características comportamentais FOMA V6",
+    "Limites et usage démonstrateur": "Limites e utilização da demonstração",
+    "Retour vérification": "Voltar à verificação",
+    "Voir modèle V6": "Ver modelo V6",
+    "Journal global des vérifications PAD": "Histórico global das verificações PAD",
+    "Mes vérifications": "As minhas verificações",
+    "Total tentatives": "Total de tentativas",
+    "Acceptées": "Aceites",
+    "Rejetées": "Rejeitadas",
+    "Toutes les décisions": "Todas as decisões",
+    "Actualiser": "Atualizar",
+    "Décision": "Decisão",
+    "Score PAD": "Pontuação PAD",
+    "Qualité": "Qualidade",
+    "Heure": "Hora",
+    "Fichiers": "Ficheiros",
+    "Raison métier": "Motivo de negócio",
+    "Détails": "Detalhes",
+    "Export JSON": "Exportar JSON",
+    "Export TXT": "Exportar TXT",
+    "Vider historique": "Limpar histórico",
+    "Déconnexion": "Terminar sessão",
+    "Utilisateur connecté": "Utilizador ligado",
+    "Lecture seule": "Apenas leitura",
+    "Administration": "Administração",
+    "Prototype PAD bancaire multimodal pour la détection d'attaques de présentation faciale.": "Protótipo PAD bancário multimodal para deteção de ataques de apresentação facial.",
+    "Type de système": "Tipo de sistema",
+    "PAD vidéo bancaire": "PAD de vídeo bancário",
+    "Architecture": "Arquitetura",
+    "MobileNetV3 + LSTM + fusion comportementale": "MobileNetV3 + LSTM + fusão comportamental",
+    "Mode runtime": "Modo de execução",
+    "Challenge actif + liveness + modèle PAD V6": "Desafio ativo + vivacidade + modelo PAD V6",
+    "Features": "Características",
+    "Fusion": "Fusão",
+    "0.85 score multimodal + 0.15 behavior-pose": "0,85 pontuação multimodal + 0,15 behavior-pose",
+    "Sortie métier": "Saída de negócio",
+    "Datasets": "Conjuntos de dados",
+    "Objectif": "Objetivo",
+    "Détecter les attaques de présentation faciale dans un contexte bancaire.": "Detetar ataques de apresentação facial num contexto bancário.",
+    "Détails techniques API": "Detalhes técnicos da API",
+    "Ces informations sont destinées à la traçabilité technique du prototype.": "Estas informações destinam-se à rastreabilidade técnica do protótipo.",
+    "Charger JSON technique": "Carregar JSON técnico",
+    "Fermer": "Fechar",
+    "Voir détails du modèle →": "Ver detalhes do modelo →",
+    "Résultat de l'analyse": "Resultado da análise",
+    "Décision finale": "Decisão final",
+    "Analyse en attente.": "Análise em espera.",
+    "Voir réponse complète": "Ver resposta completa",
+    "Détails techniques": "Detalhes técnicos",
+    "Tentatives": "Tentativas",
+    "Performance runtime": "Desempenho em execução",
+    "Capture vidéo": "Captura de vídeo",
+    "Analyse API": "Análise da API",
+    "Temps modèle V6": "Tempo do modelo V6",
+    "Total parcours": "Tempo total",
+    "Liveness actif": "Vivacidade ativa",
+    "Dernier test": "Último teste",
+    "Statut :": "Estado:",
+    "Session client sécurisée": "Sessão segura do cliente",
+    "Prêt pour la vérification": "Pronto para a verificação",
+    "Regardez la caméra et attendez l'instruction de sécurité.": "Olhe para a câmara e aguarde a instrução de segurança.",
+    "Cette étape permet de vérifier que la vidéo est capturée en temps réel.": "Esta etapa permite verificar que o vídeo é captado em tempo real.",
+    "Challenge ID": "ID do desafio",
+    "Statut": "Estado",
+    "Usage unique": "Utilização única",
+    "Oui": "Sim",
+    "Le challenge est à usage unique. Après analyse, il est marqué comme utilisé pour éviter une réutilisation frauduleuse.": "O desafio é de utilização única. Após a análise, é marcado como utilizado para evitar reutilização fraudulenta.",
+    "Politique de décision": "Política de decisão",
+    "Gestion des tentatives": "Gestão das tentativas",
+    "Challenge à usage unique": "Desafio de utilização única",
+    "Traçabilité": "Rastreabilidade",
+    "Le système applique une logique métier bancaire : ACCEPT pour autoriser, RETRY pour demander une nouvelle capture, REJECT en cas de risque d’attaque.": "O sistema aplica uma lógica bancária: ACCEPT para autorizar, RETRY para pedir uma nova captura e REJECT em caso de risco de ataque.",
+    "Après 3 tentatives RETRY non concluantes, une pause de 120 secondes est appliquée pour limiter les répétitions abusives.": "Após 3 tentativas RETRY inconclusivas, é aplicada uma pausa de 120 segundos para limitar repetições abusivas.",
+    "Chaque vérification crée un challenge temporaire. Après analyse, il est marqué comme utilisé pour éviter toute réutilisation.": "Cada verificação cria um desafio temporário. Após a análise, é marcado como utilizado para evitar reutilização.",
+    "Les décisions, résultats JSON, vidéos uploadées et messages système sont conservés pour faciliter l’audit technique de la démonstration.": "As decisões, resultados JSON, vídeos carregados e mensagens do sistema são guardados para facilitar a auditoria técnica da demonstração.",
+    "Traduction métier des sorties du modèle PAD et du module de vivacité.": "Interpretação de negócio das saídas do modelo PAD e do módulo de vivacidade.",
+    "L’identité est vérifiée : liveness validé, score PAD faible et qualité vidéo suffisante.": "A identidade é verificada: vivacidade validada, baixa pontuação PAD e qualidade de vídeo suficiente.",
+    "Nouvelle capture demandée si la vivacité échoue, si la qualité est moyenne ou si le score PAD est ambigu.": "É solicitada uma nova captura se a vivacidade falhar, se a qualidade for média ou se a pontuação PAD for ambígua.",
+    "Vérification refusée lorsqu’un risque d’attaque de présentation est détecté.": "A verificação é recusada quando é detetado risco de ataque de apresentação.",
+    "Paramètres utilisés dans la démonstration locale.": "Parâmetros utilizados na demonstração local.",
+    "Démo locale R&D": "Demonstração local de I&D",
+    "Non certifié production bancaire réelle": "Não certificado para produção bancária real",
+    "Détection des yeux et clignement": "Deteção dos olhos e pestanejo",
+    "Mouvement facial et stabilité vidéo": "Movimento facial e estabilidade do vídeo",
+    "Yaw, pitch, roll et dynamique de tête": "Yaw, pitch, roll e dinâmica da cabeça",
+    "Indice physiologique extrait du flux vidéo": "Indicador fisiológico extraído do fluxo de vídeo",
+    "Ce prototype est conçu pour une soutenance PFE et une démonstration technique locale.": "Este protótipo foi concebido para uma defesa de projeto final e uma demonstração técnica local.",
+    "Runtime": "Execução",
+    "Sécurité": "Segurança",
+    "Audit": "Auditoria",
+    "Anti-spoofing vidéo • Challenge actif • Liveness": "Anti-spoofing de vídeo • Desafio ativo • Vivacidade",
+    "Un challenge est généré automatiquement afin de limiter les attaques par photo, vidéo rejouée ou tentative de réutilisation.": "Um desafio é gerado automaticamente para limitar ataques por fotografia, vídeo reproduzido ou tentativa de reutilização.",
+    "Le système vérifie que l'utilisateur réalise bien l'action demandée : clignement, sourire ou mouvement de tête.": "O sistema verifica se o utilizador executa corretamente a ação solicitada: pestanejar, sorrir ou mover a cabeça.",
+    "Le modèle analyse la vidéo avec une approche multimodale : CNN-LSTM, rPPG, comportement et posture.": "O modelo analisa o vídeo com uma abordagem multimodal: CNN-LSTM, rPPG, comportamento e postura.",
+    "La réponse finale est adaptée au contexte bancaire : ACCEPT, RETRY ou REJECT.": "A resposta final é adaptada ao contexto bancário: ACCEPT, RETRY ou REJECT.",
+    "La caméra sera activée uniquement après le démarrage de la vérification.": "A câmara será ativada apenas após o início da verificação.",
+    "Initialisation de la caméra et création d'un nouveau challenge...": "A inicializar a câmara e a criar um novo desafio...",
+    "Politique de sécurité bancaire": "Política de segurança bancária",
+    "Système de décision métier appliqué après l'analyse PAD.": "Sistema de decisão de negócio aplicado após a análise PAD.",
+    "Identité vérifiée": "Identidade verificada",
+    "Nouvelle capture demandée": "Nova captura solicitada",
+    "Risque d'attaque détecté": "Risco de ataque detetado",
+    "Attente de 120 secondes": "Espera de 120 segundos",
+    "Après 3 tentatives non concluantes, une pause de 120 secondes est appliquée.": "Após 3 tentativas inconclusivas, é aplicada uma pausa de 120 segundos.",
+    "Connexion locale de démonstration": "Ligação local de demonstração",
+    "Modèle & Décision": "Modelo e decisão",
+    "Actif": "Ativo",
+    "Journal des vérifications PAD": "Histórico das verificações PAD",
+    "Historique des vérifications réalisées.": "Histórico das verificações realizadas.",
+    "Aucune tentative enregistrée.": "Nenhuma tentativa registada.",
+    "Paramètres sécurité avancés": "Parâmetros avançados de segurança",
+    "Cette page regroupe les règles appliquées dans le prototype PAD FOMA V6 : décision métier, tentatives, challenge actif, journalisation et limites de production.": "Esta página reúne as regras aplicadas no protótipo PAD FOMA V6: decisão de negócio, tentativas, desafio ativo, registo e limites de produção.",
+    "Indices utilisés par le système pour renforcer la détection PAD.": "Indicadores utilizados pelo sistema para reforçar a deteção PAD.",
+    "20 features": "20 características",
+    "Prototype contrôlé": "Protótipo controlado",
+    "Analyse locale dépendante du GPU, de la caméra et de la qualité de capture.": "A análise local depende da GPU, da câmara e da qualidade da captura.",
+    "Les paramètres sont affichés pour la démo ; en production ils seraient côté backend.": "Os parâmetros são apresentados para a demonstração; em produção seriam geridos no backend.",
+    "Les exports JSON/TXT servent à tracer les décisions et préparer l’analyse jury.": "As exportações JSON/TXT servem para rastrear decisões e preparar a análise do júri.",
+    "Note prototype : dans une version production, ces règles seraient protégées par authentification administrateur, chiffrement, journal d’audit sécurisé et validation métier bancaire.": "Nota do protótipo: em produção, estas regras seriam protegidas por autenticação de administrador, encriptação, registo de auditoria seguro e validação bancária.",
+    "FOMA V6 — Détails du modèle": "FOMA V6 — Detalhes do modelo",
+    "Modèle": "Modelo",
+    "CASIA-FASD + AxonLabs + MSU + données locales": "CASIA-FASD + AxonLabs + MSU + dados locais",
+    "Informations modèle V6 chargées.": "Informações do modelo V6 carregadas.",
+    "Cliquez sur \"Charger JSON technique\" pour afficher les informations retournées par /model/info.": "Clique em “Carregar JSON técnico” para apresentar as informações devolvidas por /model/info.",
+    "Créé automatiquement": "Criado automaticamente",
+    "créé automatiquement": "criado automaticamente",
+    "Masquer admin": "Ocultar administrador",
+    "Vérification réussie": "Verificação concluída",
+    "Votre identité est vérifiée. Vous pouvez continuer.": "A sua identidade foi verificada. Pode continuar.",
+    "Vivacité validée et qualité vidéo suffisante.": "Vivacidade validada e qualidade de vídeo suficiente.",
+    "Nouvelle tentative requise": "Nova tentativa necessária",
+    "Vérification non concluante": "Verificação inconclusiva",
+    "Veuillez réessayer.": "Tente novamente.",
+    "Vérification refusée": "Verificação recusada",
+    "pour raison de sécurité.": "por motivos de segurança.",
+    "Risque d’attaque ou non-respect du challenge détecté.": "Risco de ataque ou falha no desafio detetado.",
+    "Bonne": "Boa",
+    "Moyenne": "Média",
+    "Faible": "Baixa",
+    "Utilisateur inconnu": "Utilizador desconhecido",
+    "Voir JSON": "Ver JSON",
+    "Vidéo": "Vídeo",
+    "Aucun résultat pour ce filtre.": "Nenhum resultado para este filtro.",
+    "Informations techniques API": "Informações técnicas da API",
+    "Impossible de charger /model/info.": "Não foi possível carregar /model/info.",
+    "Accès sécurisé à la vérification": "Acesso seguro à verificação",
+    "Identifiez l'utilisateur avant de lancer la vérification PAD et appliquez automatiquement le bon espace : client ou administrateur.": "Identifique o utilizador antes de iniciar a verificação PAD e aplique automaticamente o espaço correto: cliente ou administrador.",
+    "Rechercher par décision, challenge, message...": "Pesquisar por decisão, desafio, mensagem...",
+    "Déconnexion effectuée.": "Sessão terminada.",
+    "Session réinitialisée.": "Sessão reiniciada.",
+    "Session réinitialisée. Vous pouvez démarrer une nouvelle vérification.": "Sessão reiniciada. Pode iniciar uma nova verificação.",
+    "Parcours de vérification prêt. Cliquez sur Démarrer la vérification.": "Percurso de verificação pronto. Clique em Iniciar verificação.",
+    "Réessayer la vérification": "Repetir verificação",
+    "Veuillez remplir tous les champs avant de continuer.": "Preencha todos os campos antes de continuar.",
+    "Veuillez saisir une adresse e-mail valide.": "Introduza um endereço de e-mail válido.",
+    "Veuillez saisir un numéro de téléphone valide.": "Introduza um número de telefone válido.",
+    "Veuillez vous authentifier avant d'accéder à SecureBank.": "Autentique-se antes de aceder ao SecureBank.",
+    "Veuillez vous authentifier avant de commencer la vérification.": "Autentique-se antes de iniciar a verificação.",
+    "Veuillez vous authentifier avant d'accéder au journal.": "Autentique-se antes de aceder ao histórico.",
+    "Veuillez vous authentifier avant d'accéder aux paramètres.": "Autentique-se antes de aceder aos parâmetros.",
+    "Veuillez vous authentifier avant de lancer une nouvelle vérification.": "Autentique-se antes de iniciar uma nova verificação.",
+    "Veuillez vous authentifier avant de lancer la vérification.": "Autentique-se antes de iniciar a verificação.",
+    "Préparation d'une nouvelle vérification...": "A preparar uma nova verificação...",
+    "Initialisation de la caméra...": "A inicializar a câmara...",
+    "Création du challenge bancaire...": "A criar o desafio bancário...",
+    "Erreur pendant la vérification. Réessayez.": "Ocorreu um erro durante a verificação. Tente novamente.",
+    "Mode administrateur activé.": "Modo administrador ativado.",
+    "Mode client bancaire activé.": "Modo cliente bancário ativado.",
+    "Accès administrateur non autorisé pour ce compte.": "O acesso de administrador não é permitido para esta conta.",
+    "Paramètres administrateur : modification autorisée.": "Parâmetros de administrador: edição permitida.",
+    "Paramètres affichés en lecture seule.": "Os parâmetros são apresentados apenas para leitura.",
+    "Modification réservée à l'administrateur.": "A edição está reservada ao administrador.",
+    "Action réservée à l'administrateur.": "Esta ação está reservada ao administrador.",
+    "Paramètres de sécurité enregistrés.": "Parâmetros de segurança guardados.",
+    "Valeurs par défaut restaurées.": "Valores predefinidos restaurados.",
+    "Identité vérifiée avec succès. Session sécurisée terminée.": "Identidade verificada com sucesso. Sessão segura concluída.",
+    "Nouvelle capture recommandée. Le système ne rejette pas définitivement une vidéo ambiguë.": "Recomenda-se uma nova captura. O sistema não rejeita definitivamente um vídeo ambíguo.",
+    "Vidéo rejetée comme attaque probable. Le résultat est enregistré dans les logs.": "O vídeo foi rejeitado como provável ataque. O resultado foi guardado nos registos.",
+    "Décision incertaine. Vous pouvez refaire une vérification.": "Decisão incerta. Pode realizar uma nova verificação.",
+    "Historique supprimé.": "Histórico eliminado."
+  }
+};
+
+  let currentLanguage = localStorage.getItem("securebank_language") || "fr";
+  const originalTextNodes = new WeakMap();
+  const originalAttributes = new WeakMap();
+
+  function normalizeTranslationKey(value) {
+    return String(value || "").replace(/\s+/g, " ").trim();
+  }
+
+  function t(value) {
+    const dictionary = UI_TRANSLATIONS[currentLanguage] || {};
+    return currentLanguage === "fr"
+      ? value
+      : (dictionary[normalizeTranslationKey(value)] || value);
+  }
+
+  function translateElementText(root, language) {
+    const dictionary = UI_TRANSLATIONS[language] || {};
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode(node) {
+          const parentTag = node.parentElement?.tagName;
+          if (["SCRIPT", "STYLE", "PRE"].includes(parentTag)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return normalizeTranslationKey(node.nodeValue)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_REJECT;
+        }
+      }
+    );
+
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach(node => {
+      if (!originalTextNodes.has(node)) {
+        originalTextNodes.set(node, node.nodeValue);
+      }
+
+      const original = originalTextNodes.get(node);
+
+      if (language === "fr") {
+        node.nodeValue = original;
+        return;
+      }
+
+      const DECORATION_RE = /^(\s*[●◼▤▣◆•·]+\s*)/;
+      const leadDeco = original.match(DECORATION_RE)?.[0] || "";
+      const trailing = original.match(/\s*$/)?.[0] || "";
+      const core = original.slice(leadDeco.length).replace(/\s*$/, "");
+      const key = normalizeTranslationKey(core);
+
+      node.nodeValue = dictionary[key]
+        ? leadDeco + dictionary[key] + trailing
+        : original;
+    });
+  }
+
+  function translateAttributes(root, language) {
+    const dictionary = UI_TRANSLATIONS[language] || {};
+
+    root.querySelectorAll("[placeholder], [title], option").forEach(element => {
+      if (!originalAttributes.has(element)) {
+        originalAttributes.set(element, {
+          placeholder: element.getAttribute("placeholder"),
+          title: element.getAttribute("title"),
+          optionText: element.tagName === "OPTION" ? element.textContent : null
+        });
+      }
+
+      const original = originalAttributes.get(element);
+
+      if (element.hasAttribute("placeholder")) {
+        const value = original.placeholder;
+        element.setAttribute(
+          "placeholder",
+          language === "fr" ? value : (dictionary[normalizeTranslationKey(value)] || value)
+        );
+      }
+
+      if (element.hasAttribute("title")) {
+        const value = original.title;
+        element.setAttribute(
+          "title",
+          language === "fr" ? value : (dictionary[normalizeTranslationKey(value)] || value)
+        );
+      }
+
+      if (element.tagName === "OPTION") {
+        const value = original.optionText;
+        element.textContent =
+          language === "fr" ? value : (dictionary[normalizeTranslationKey(value)] || value);
+      }
+    });
+  }
+
+  
+  function langText(fr, en, pt) {
+    if (currentLanguage === "en") return en;
+    if (currentLanguage === "pt") return pt;
+    return fr;
+  }
+
+  function setTextById(id, fr, en, pt) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = langText(fr, en, pt);
+  }
+
+function setElementText(selector, sourceText) {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = t(sourceText);
+  }
+
+  function setElementHtml(selector, fr, en, pt) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    const values = { fr, en, pt };
+    el.innerHTML = values[currentLanguage] || fr;
+  }
+
+  function applyExplicitTranslations() {
+    setElementText(".welcome-note", "La caméra sera activée uniquement après le démarrage de la vérification.");
+    setElementText(".bank-policy-card .policy-header h3", "Politique de sécurité bancaire");
+    setElementText(".bank-policy-card .policy-header p", "Système de décision métier appliqué après l'analyse PAD.");
+    setElementText(".right-panel-section-label", "Modèle & Décision");
+    setElementText("#verificationRightPanel .right-card h3", "Mode administrateur");
+    setElementText("#settingsMain .settings-header-page p", "Cette page regroupe les règles appliquées dans le prototype PAD FOMA V6 : décision métier, tentatives, challenge actif, journalisation et limites de production.");
+    setElementText("#settingsMain .settings-note", "Note prototype : dans une version production, ces règles seraient protégées par authentification administrateur, chiffrement, journal d’audit sécurisé et validation métier bancaire.");
+    setElementText(".model-details-header h2", "FOMA V6 — Détails du modèle");
+
+    const modelTechnicalJson = document.getElementById("modelTechnicalJson");
+    if (modelTechnicalJson && !modelTechnicalJson.dataset.loaded) {
+      modelTechnicalJson.textContent = langText(
+        'Cliquez sur "Charger JSON technique" pour afficher les informations retournées par /model/info.',
+        'Click "Load technical JSON" to display the information returned by /model/info.',
+        'Clique em "Carregar JSON técnico" para apresentar as informações devolvidas por /model/info.'
+      );
+    }
+
+    const instruction = document.getElementById("instructionText");
+    if (instruction && !currentChallenge && !instruction.closest(".result-accept, .result-retry, .result-reject")) {
+      setElementHtml(
+        "#instructionText",
+        'Prêt pour la <span>vérification</span>',
+        'Ready for <span>verification</span>',
+        'Pronto para a <span>verificação</span>'
+      );
+    }
+
+    updateSecurityModeLabel();
+    updateSecuritySettingsUI();
+    applySettingsAccess();
+
+    if (authenticatedUser) {
+      updateAuthenticatedUserView(false);
+    }
+  }
+
+  function applyLanguage(language) {
+    disableBrowserTranslationArtifacts();
+    currentLanguage = ["fr", "en", "pt"].includes(language) ? language : "fr";
+    localStorage.setItem("securebank_language", currentLanguage);
+    document.documentElement.lang = currentLanguage;
+
+    translateElementText(document.body, currentLanguage);
+    translateAttributes(document.body, currentLanguage);
+    applyExplicitTranslations();
+
+    const selector = document.getElementById("languageSelect");
+    if (selector) selector.value = currentLanguage;
+  }
+
+  
+  function disableBrowserTranslationArtifacts() {
+    document.documentElement.setAttribute("translate", "no");
+    document.documentElement.classList.add("notranslate");
+    document.body?.setAttribute("translate", "no");
+    document.body?.classList.add("notranslate");
+  }
+
+function setLanguage(language) {
+    applyLanguage(language);
+
+    if (authenticatedUser) {
+      updateAuthenticatedUserView(false);
+      applySettingsAccess();
+      updateSecuritySettingsUI();
+
+      if (!document.getElementById("historyMain").classList.contains("hidden")) {
+        showHistoryPage();
+      }
+
+      if (currentResult) {
+        setInstructionCardToResult(currentResult);
+      } else {
+        updateClientSecurityInstruction(currentChallenge);
+        updateChallengeStatus(currentChallenge, currentChallenge ? "Créé" : "En attente");
+      }
+    }
+  }
+
+  function refreshCurrentLanguage() {
+    setTimeout(() => applyLanguage(currentLanguage), 0);
+  }
+
+
+  function apiBase() {
+    const host = window.location.hostname;
+    const port = window.location.port;
+
+    const isLocal =
+      host === "127.0.0.1" ||
+      host === "localhost";
+
+    const isDockerFrontend = port === "8080";
+
+    /*
+      Cas Docker local :
+      le frontend Nginx expose /api vers le backend.
+    */
+    if (isDockerFrontend) {
+      return "/api";
+    }
+
+    /*
+      Cas développement local :
+      frontend lancé séparément + backend sur 8000.
+    */
+    if (isLocal) {
+      return "http://127.0.0.1:8000";
+    }
+
+    /*
+      Par défaut, on utilise le proxy relatif /api.
+    */
+    return "/api";
+  }
+
+  function apiHeaders(extraHeaders = {}) {
+    return {
+      ...extraHeaders
+    };
+  }
+
+  function showToast(message) {
+    const toastEl = document.getElementById("toast");
+    toastEl.textContent = t(message);
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 3300);
+  }
+
+  function setFlowStatus(message) {
+    document.getElementById("flowStatus").textContent = t(message);
+  }
+
+  function setCameraStatus(text, mode = "idle") {
+    const dot = document.getElementById("cameraDot");
+    document.getElementById("cameraStatus").textContent = t(text);
+    document.getElementById("recordingPill").textContent = t(text);
+
+    dot.className = "dot";
+    if (mode === "online") dot.classList.add("online");
+    if (mode === "recording") dot.classList.add("recording-dot");
+  }
+
+  function setSteps(state) {
+    const s1 = document.getElementById("step1");
+    const s2 = document.getElementById("step2");
+    const s3 = document.getElementById("step3");
+
+    s1.className = "step";
+    s2.className = "step";
+    s3.className = "step";
+
+    if (state === "prepare") {
+      s1.classList.add("active");
+    }
+
+    if (state === "challenge") {
+      s1.classList.add("done");
+      s2.classList.add("active");
+    }
+
+    if (state === "result") {
+      s1.classList.add("done");
+      s2.classList.add("done");
+      s3.classList.add("active");
+    }
+  }
+
+  function challengeIcon(type) {
+    return {
+      BLINK: "👁️",
+      SMILE: "😊",
+      TURN_LEFT: "↩️",
+      EYEBROW_RAISE: "🤨"
+    }[type] || "🧑‍💼";
+  }
+
+  function formatInstruction(challenge) {
+    const messages = {
+      fr: {
+        idle: "Regardez la caméra<br><span>Nous allons vérifier que vous êtes bien présent.</span>",
+        BLINK: "Clignez des yeux <span>maintenant</span>.",
+        SMILE: "Souriez pendant <span>quelques secondes</span>.",
+        TURN_LEFT: "Tournez lentement la tête <span>vers la gauche</span>.",
+        EYEBROW_RAISE: "Levez les <span>sourcils</span>.",
+        fallback: "Suivez <span>l'instruction demandée</span>."
+      },
+      en: {
+        idle: "Look at the camera<br><span>We will verify that you are physically present.</span>",
+        BLINK: "Blink your eyes <span>now</span>.",
+        SMILE: "Smile for <span>a few seconds</span>.",
+        TURN_LEFT: "Slowly turn your head <span>to the left</span>.",
+        EYEBROW_RAISE: "Raise your <span>eyebrows</span>.",
+        fallback: "Follow <span>the requested instruction</span>."
+      },
+      pt: {
+        idle: "Olhe para a câmara<br><span>Vamos verificar se está fisicamente presente.</span>",
+        BLINK: "Pestaneje <span>agora</span>.",
+        SMILE: "Sorria durante <span>alguns segundos</span>.",
+        TURN_LEFT: "Vire lentamente a cabeça <span>para a esquerda</span>.",
+        EYEBROW_RAISE: "Levante as <span>sobrancelhas</span>.",
+        fallback: "Siga <span>a instrução solicitada</span>."
+      }
+    };
+
+    const lang = messages[currentLanguage] ? currentLanguage : "fr";
+    if (!challenge) return messages[lang].idle;
+    return messages[lang][challenge.challenge_type] || challenge.instruction || messages[lang].fallback;
+  }
+function updateSecurityModeLabel() {
+  const el = document.getElementById("securityModeLabel");
+  if (!el) return;
+
+  if (window.location.protocol === "https:") {
+    el.textContent = langText(
+      "🔒 Connexion HTTPS sécurisée",
+      "🔒 Secure HTTPS connection",
+      "🔒 Ligação HTTPS segura"
+    );
+  } else {
+    el.textContent = langText(
+      "🔒 Connexion locale de démonstration",
+      "🔒 Local demo connection",
+      "🔒 Ligação local de demonstração"
+    );
+  }
+}
+  function updateChallengeStatus(challenge, status = "En attente") {
+    const statusTranslations = {
+      "En attente": langText("En attente", "Waiting", "Em espera"),
+      "Créé": langText("Créé", "Created", "Criado"),
+      "Utilisé": langText("Utilisé", "Used", "Utilizado")
+    };
+
+    document.getElementById("challengeTypeView").textContent = challenge?.challenge_type || "--";
+    document.getElementById("challengeStatusView").textContent = statusTranslations[status] || status;
+    document.getElementById("challengeSingleUseView").textContent = langText("Oui", "Yes", "Sim");
+    updateClientSecurityInstruction(challenge, status);
+  }
+
+  function updateClientSecurityInstruction(challenge, status = "En attente") {
+    const el = document.getElementById("clientSecurityInstruction");
+    if (!el) return;
+
+    const messages = {
+      fr: {
+        idle: "Regardez la caméra et attendez l'instruction de sécurité.",
+        BLINK: "Clignez des yeux lorsque l'instruction s'affiche.",
+        SMILE: "Souriez quelques secondes face à la caméra.",
+        TURN_LEFT: "Tournez lentement la tête vers la gauche.",
+        EYEBROW_RAISE: "Levez les sourcils lorsque l'instruction s'affiche.",
+        fallback: "Suivez l'instruction demandée pour confirmer votre présence."
+      },
+      en: {
+        idle: "Look at the camera and wait for the security instruction.",
+        BLINK: "Blink when the instruction appears.",
+        SMILE: "Smile at the camera for a few seconds.",
+        TURN_LEFT: "Slowly turn your head to the left.",
+        EYEBROW_RAISE: "Raise your eyebrows when the instruction appears.",
+        fallback: "Follow the requested instruction to confirm your presence."
+      },
+      pt: {
+        idle: "Olhe para a câmara e aguarde a instrução de segurança.",
+        BLINK: "Pestaneje quando a instrução aparecer.",
+        SMILE: "Sorria para a câmara durante alguns segundos.",
+        TURN_LEFT: "Vire lentamente a cabeça para a esquerda.",
+        EYEBROW_RAISE: "Levante as sobrancelhas quando a instrução aparecer.",
+        fallback: "Siga a instrução solicitada para confirmar a sua presença."
+      }
+    };
+
+    const lang = messages[currentLanguage] ? currentLanguage : "fr";
+    el.textContent = !challenge
+      ? messages[lang].idle
+      : (messages[lang][challenge.challenge_type] || messages[lang].fallback);
+  }
+
+  function clearInstructionResultState() {
+    const card = document.querySelector(".instruction-card");
+    if (!card) return;
+
+    card.classList.remove("result-accept", "result-retry", "result-reject");
+  }
+
+  function setInstructionCardToResult(result) {
+    const card = document.querySelector(".instruction-card");
+    const icon = document.getElementById("instructionIcon");
+    const title = card ? card.querySelector("h3") : null;
+    const text = document.getElementById("instructionText");
+    const timer = document.getElementById("timerText");
+
+    let decision = String(result?.decision || "").toUpperCase();
+    if (decision === "INVALID_INPUT") decision = "RETRY";
+    if (!card || !icon || !title || !text || !timer) return;
+
+    card.classList.remove("result-accept", "result-retry", "result-reject");
+
+    if (decision === "ACCEPT") {
+      card.classList.add("result-accept");
+      icon.textContent = "✓";
+      title.textContent = langText("Vérification réussie", "Verification successful", "Verificação concluída");
+      text.innerHTML = langText(
+        "Identité vérifiée<br><span>Votre identité est vérifiée. Vous pouvez continuer.</span>",
+        "Identity verified<br><span>Your identity has been verified. You may continue.</span>",
+        "Identidade verificada<br><span>A sua identidade foi verificada. Pode continuar.</span>"
+      );
+      timer.textContent = langText(
+        "Vivacité validée et qualité vidéo suffisante.",
+        "Liveness validated and video quality is sufficient.",
+        "Vivacidade validada e qualidade de vídeo suficiente."
+      );
+      return;
+    }
+
+    if (decision === "RETRY") {
+      const reason =
+        result?.validation?.reason ||
+        result?.liveness?.reason ||
+        result?.message ||
+        langText("Nouvelle capture demandée.", "A new capture is required.", "É necessária uma nova captura.");
+
+      card.classList.add("result-retry");
+      icon.textContent = "↻";
+
+      if (String(result?.decision || "").toUpperCase() === "INVALID_INPUT") {
+        title.textContent = langText("Capture non exploitable", "Unusable capture", "Captura inutilizável");
+        text.innerHTML = langText(
+          "Vérification non concluante<br><span>Veuillez refaire la capture vidéo.</span>",
+          "Verification inconclusive<br><span>Please record the video again.</span>",
+          "Verificação inconclusiva<br><span>Volte a gravar o vídeo.</span>"
+        );
+        timer.textContent = langText("Raison technique : ", "Technical reason: ", "Motivo técnico: ") + reason;
+      } else {
+        title.textContent = langText("Nouvelle tentative requise", "New attempt required", "Nova tentativa necessária");
+        text.innerHTML = langText(
+          "Vérification non concluante<br><span>Veuillez réessayer.</span>",
+          "Verification inconclusive<br><span>Please try again.</span>",
+          "Verificação inconclusiva<br><span>Tente novamente.</span>"
+        );
+        timer.textContent = reason;
+      }
+      return;
+    }
+
+    if (decision === "REJECT") {
+      card.classList.add("result-reject");
+      icon.textContent = "!";
+      title.textContent = langText("Vérification refusée", "Verification refused", "Verificação recusada");
+      text.innerHTML = langText(
+        "Vérification refusée<br><span>pour raison de sécurité.</span>",
+        "Verification refused<br><span>for security reasons.</span>",
+        "Verificação recusada<br><span>por motivos de segurança.</span>"
+      );
+      timer.textContent = langText(
+        "Risque d’attaque ou non-respect du challenge détecté.",
+        "Attack risk or challenge failure detected.",
+        "Risco de ataque ou falha no desafio detetado."
+      );
+      return;
+    }
+
+    card.classList.add("result-retry");
+    title.textContent = langText("Résultat non concluant", "Inconclusive result", "Resultado inconclusivo");
+    icon.textContent = "↻";
+    text.innerHTML = langText(
+      "Vérification non concluante<br><span>Veuillez relancer une nouvelle vérification.</span>",
+      "Verification inconclusive<br><span>Please start a new verification.</span>",
+      "Verificação inconclusiva<br><span>Inicie uma nova verificação.</span>"
+    );
+    timer.textContent = result?.message || langText(
+      "Réponse incomplète ou non exploitable.",
+      "Incomplete or unusable response.",
+      "Resposta incompleta ou inutilizável."
+    );
+  }
+
+  function applyAdminModeUI() {
+    const layout = document.getElementById("appLayout");
+    const panel = document.getElementById("verificationRightPanel");
+    const btn = document.getElementById("adminModeBtn");
+
+    if (!layout) return;
+
+    layout.classList.toggle("admin-mode", adminMode);
+    layout.classList.toggle("client-mode", !adminMode);
+
+    if (btn) {
+      btn.textContent = adminMode
+        ? langText("Masquer admin", "Hide administrator", "Ocultar administrador")
+        : langText("Mode administrateur", "Administrator mode", "Modo administrador");
+    }
+
+    const verificationVisible = !document.getElementById("verificationMain").classList.contains("hidden");
+
+    if (panel) {
+      if (adminMode && verificationVisible) {
+        panel.classList.remove("hidden");
+      } else {
+        panel.classList.add("hidden");
+      }
+    }
+  }
+
+  function toggleAdminMode() {
+  if (!authenticatedUser || authenticatedUser.role !== "admin") {
+    showToast("Accès administrateur non autorisé pour ce compte.");
+    return;
+  }
+
+  adminMode = !adminMode;
+  applyAdminModeUI();
+  showToast(adminMode ? "Mode administrateur activé." : "Mode client bancaire activé.");
+}
+
+  function setActiveNav(activeId) {
+    ["navVerification", "navHistory", "navSettings"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("active", id === activeId);
+    });
+  }
+
+  function hideAllMainPages() {
+  ["authMain", "welcomeMain", "verificationMain", "historyMain", "settingsMain"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hidden");
+  });
+
+  const rightPanel = document.getElementById("verificationRightPanel");
+  if (rightPanel) rightPanel.classList.add("hidden");
+}
+function showAuthPage() {
+  hideAllMainPages();
+
+  const authMain = document.getElementById("authMain");
+  if (authMain) authMain.classList.remove("hidden");
+
+  setActiveNav(null);
+
+  const layout = document.getElementById("appLayout");
+  if (layout) {
+    layout.classList.remove("admin-mode");
+    layout.classList.add("client-mode");
+  }
+}
+
+function submitAuthentication(event) {
+  event.preventDefault();
+
+  const nom = document.getElementById("authNom").value.trim();
+  const prenom = document.getElementById("authPrenom").value.trim();
+  const email = document.getElementById("authEmail").value.trim();
+  const phone = document.getElementById("authPhone").value.trim();
+  const role = document.getElementById("authRole").value;
+
+  const errorBox = document.getElementById("authError");
+
+  errorBox.classList.remove("show");
+  errorBox.textContent = "";
+
+  if (!nom || !prenom || !email || !phone || !role) {
+    errorBox.textContent = "Veuillez remplir tous les champs avant de continuer.";
+    errorBox.classList.add("show");
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    errorBox.textContent = "Veuillez saisir une adresse e-mail valide.";
+    errorBox.classList.add("show");
+    return;
+  }
+
+  if (!isValidPhone(phone)) {
+    errorBox.textContent = "Veuillez saisir un numéro de téléphone valide.";
+    errorBox.classList.add("show");
+    return;
+  }
+
+  authenticatedUser = {
+    id: `user_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
+    nom,
+    prenom,
+    email,
+    phone,
+    role,
+    authenticated_at: new Date().toISOString()
+  };
+
+  localStorage.setItem("securebank_user", JSON.stringify(authenticatedUser, null, 2));
+
+  applyUserRoleUI();
+  showWelcomePage();
+
+  showToast(`Bienvenue ${prenom} ${nom} — rôle : ${role === "admin" ? "Administrateur" : "Client"}.`);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPhone(phone) {
+  return /^[0-9+\s().-]{6,20}$/.test(phone);
+}
+
+function applyUserRoleUI() {
+  const user = authenticatedUser;
+  const adminBtn = document.getElementById("adminModeBtn");
+
+  if (!user) return;
+
+  if (user.role === "admin") {
+    adminMode = true;
+    if (adminBtn) adminBtn.style.display = "inline-flex";
+  } else {
+    adminMode = false;
+    if (adminBtn) adminBtn.style.display = "none";
+  }
+
+  updateRoleNavigation();
+  updateAuthenticatedUserView();
+  applyAdminModeUI();
+  refreshCurrentLanguage();
+}
+
+function updateRoleNavigation() {
+  const settingsNav = document.getElementById("navSettings");
+
+  if (settingsNav) {
+    settingsNav.style.display = authenticatedUser ? "flex" : "none";
+  }
+}
+function updateAuthenticatedUserView(refresh = true) {
+  const user = authenticatedUser;
+  if (!user) return;
+
+  const existing = document.getElementById("connectedUserBox");
+  if (existing) existing.remove();
+
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+
+  const box = document.createElement("div");
+  box.id = "connectedUserBox";
+  box.className = "sidebar-card";
+  box.style.marginTop = "14px";
+
+  box.innerHTML = `
+    <p>Utilisateur connecté</p>
+    <h3>${escapeHtml(user.prenom)} ${escapeHtml(user.nom)}</h3>
+    
+    <p style="margin-top:6px">
+      <span class="user-chip">${user.role === "admin" ? "Administrateur" : "Client"}</span>
+    </p>
+    <button class="btn btn-danger logout-btn" onclick="logoutUser()">Déconnexion</button>
+  `;
+
+  sidebar.appendChild(box);
+  translateElementText(box, currentLanguage);
+  translateAttributes(box, currentLanguage);
+  if (refresh) refreshCurrentLanguage();
+}
+
+function logoutUser() {
+  authenticatedUser = null;
+  adminMode = false;
+
+  localStorage.removeItem("securebank_user");
+
+  const connectedBox = document.getElementById("connectedUserBox");
+  if (connectedBox) connectedBox.remove();
+
+  resetSession();
+  showAuthPage();
+
+  showToast("Déconnexion effectuée.");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+  function showWelcomePage() {
+  if (!authenticatedUser) {
+    showAuthPage();
+    showToast("Veuillez vous authentifier avant d'accéder à SecureBank.");
+    return;
+  }
+
+  hideAllMainPages();
+  document.getElementById("welcomeMain").classList.remove("hidden");
+  setActiveNav("navVerification");
+  applyAdminModeUI();
+}
+
+  function startWelcomeVerification() {
+  if (!authenticatedUser) {
+    showAuthPage();
+    showToast("Veuillez vous authentifier avant de commencer la vérification.");
+    return;
+  }
+
+  hideAllMainPages();
+
+  if (authenticatedUser.role === "admin") {
+    adminMode = true;
+  } else {
+    adminMode = false;
+  }
+
+  document.getElementById("verificationMain").classList.remove("hidden");
+  setActiveNav("navVerification");
+  applyAdminModeUI();
+
+  showToast("Parcours de vérification prêt. Cliquez sur Démarrer la vérification.");
+}
+
+  function showVerificationPage() {
+    startWelcomeVerification();
+  }
+  function showHistoryPage() {
+  if (!authenticatedUser) {
+    showAuthPage();
+    showToast("Veuillez vous authentifier avant d'accéder au journal.");
+    return;
+  }
+
+  hideAllMainPages();
+  adminMode = false;
+  document.getElementById("historyMain").classList.remove("hidden");
+  setActiveNav("navHistory");
+  applyAdminModeUI();
+
+  const isAdmin = authenticatedUser.role === "admin";
+  const title = document.getElementById("historyPageTitle");
+  const description = document.getElementById("historyPageDescription");
+
+  if (title) {
+    title.textContent = isAdmin
+      ? langText("Journal global des vérifications PAD", "Global PAD verification history", "Histórico global das verificações PAD")
+      : langText("Mes vérifications", "My verifications", "As minhas verificações");
+  }
+
+  if (description) {
+    description.textContent = isAdmin
+      ? langText(
+          "Consultez toutes les vérifications réalisées par les utilisateurs, avec les détails techniques et les fichiers générés.",
+          "View all user verifications, including technical details and generated files.",
+          "Consulte todas as verificações dos utilizadores, incluindo os detalhes técnicos e os ficheiros gerados."
+        )
+      : langText(
+          "Consultez uniquement vos propres tentatives de vérification et leurs résultats.",
+          "View only your own verification attempts and results.",
+          "Consulte apenas as suas próprias tentativas de verificação e os respetivos resultados."
+        );
+  }
+
+  document.querySelectorAll(".history-admin-only, .history-admin-column").forEach(element => {
+    element.classList.toggle("role-hidden", !isAdmin);
+  });
+
+  renderHistoryPage();
+  refreshCurrentLanguage();
+}
+
+  function showSettingsPage() {
+  if (!authenticatedUser) {
+    showAuthPage();
+    showToast("Veuillez vous authentifier avant d'accéder aux paramètres.");
+    return;
+  }
+
+  hideAllMainPages();
+  adminMode = false;
+  document.getElementById("settingsMain").classList.remove("hidden");
+  setActiveNav("navSettings");
+  applyAdminModeUI();
+  loadSecuritySettings();
+  applySettingsAccess();
+
+  showToast(
+    authenticatedUser.role === "admin"
+      ? langText(
+          "Paramètres administrateur : modification autorisée.",
+          "Administrator settings: editing enabled.",
+          "Parâmetros de administrador: edição permitida."
+        )
+      : langText(
+          "Paramètres affichés en lecture seule.",
+          "Settings are displayed in read-only mode.",
+          "Os parâmetros são apresentados apenas para leitura."
+        )
+  );
+  refreshCurrentLanguage();
+}
+
+function getSecuritySettings() {
+  const saved = JSON.parse(
+    localStorage.getItem("securebank_security_settings") || "{}"
+  );
+
+  return {
+    retryMax: Number(saved.retryMax) || 3,
+    cooldownSeconds: Number(saved.cooldownSeconds) || 120
+  };
+}
+
+function loadSecuritySettings() {
+  const settings = getSecuritySettings();
+  const retryInput = document.getElementById("settingRetryMax");
+  const cooldownInput = document.getElementById("settingCooldown");
+
+  if (retryInput) retryInput.value = settings.retryMax;
+  if (cooldownInput) cooldownInput.value = settings.cooldownSeconds;
+
+  updateSecuritySettingsUI(settings);
+}
+
+function applySettingsAccess() {
+  const isAdmin = authenticatedUser?.role === "admin";
+  const badge = document.querySelector("#settingsMain .title-badge");
+
+  if (badge) {
+    badge.textContent = isAdmin
+      ? `● ${t("Paramètres sécurité")} — ${t("Administration")}`
+      : `● ${t("Paramètres sécurité")} — ${t("Lecture seule")}`;
+  }
+
+  document.querySelectorAll(".settings-editable").forEach(element => {
+    element.disabled = !isAdmin;
+  });
+
+  document.querySelectorAll(".settings-admin-only").forEach(element => {
+    element.classList.toggle("role-hidden", !isAdmin);
+  });
+}
+
+function saveSecuritySettings() {
+  if (authenticatedUser?.role !== "admin") {
+    showToast("Modification réservée à l'administrateur.");
+    return;
+  }
+
+  const retryMax = Number(document.getElementById("settingRetryMax")?.value);
+  const cooldownSeconds = Number(document.getElementById("settingCooldown")?.value);
+
+  if (!Number.isInteger(retryMax) || retryMax < 1 || retryMax > 10) {
+    showToast("Le nombre de RETRY doit être compris entre 1 et 10.");
+    return;
+  }
+
+  if (!Number.isInteger(cooldownSeconds) || cooldownSeconds < 10 || cooldownSeconds > 600) {
+    showToast("La pause doit être comprise entre 10 et 600 secondes.");
+    return;
+  }
+
+  const settings = {
+    retryMax,
+    cooldownSeconds,
+    updatedAt: new Date().toISOString(),
+    updatedBy: {
+      id: authenticatedUser.id,
+      nom: authenticatedUser.nom,
+      prenom: authenticatedUser.prenom
+    }
+  };
+
+  localStorage.setItem(
+    "securebank_security_settings",
+    JSON.stringify(settings, null, 2)
+  );
+
+  updateSecuritySettingsUI(settings);
+  showToast("Paramètres de sécurité enregistrés.");
+}
+
+function resetSecuritySettings() {
+  if (authenticatedUser?.role !== "admin") {
+    showToast("Action réservée à l'administrateur.");
+    return;
+  }
+
+  localStorage.removeItem("securebank_security_settings");
+  loadSecuritySettings();
+  showToast("Valeurs par défaut restaurées.");
+}
+
+function updateSecuritySettingsUI(settings = getSecuritySettings()) {
+  const retryLimitText = document.getElementById("retryLimitText");
+  const cooldownRuleText = document.getElementById("cooldownRuleText");
+  const cooldownSecondsText = document.getElementById("cooldownSecondsText");
+
+  if (retryLimitText) retryLimitText.textContent = settings.retryMax;
+  if (cooldownRuleText) {
+    const rules = {
+      fr: `Après ${settings.retryMax} tentatives non concluantes, une pause de ${settings.cooldownSeconds} secondes est appliquée.`,
+      en: `After ${settings.retryMax} inconclusive attempts, a ${settings.cooldownSeconds}-second pause is applied.`,
+      pt: `Após ${settings.retryMax} tentativas inconclusivas, é aplicada uma pausa de ${settings.cooldownSeconds} segundos.`
+    };
+    cooldownRuleText.textContent = rules[currentLanguage] || rules.fr;
+  }
+  if (cooldownSecondsText) {
+    const unit = currentLanguage === "en" ? "seconds" : currentLanguage === "pt" ? "segundos" : "secondes";
+    cooldownSecondsText.textContent = `${settings.cooldownSeconds} ${unit}`;
+  }
+}
+
+  
+
+
+  function prepareNewAttemptUI() {
+    clearInstructionResultState();
+
+    currentChallenge = null;
+    currentResult = null;
+    recordedChunks = [];
+
+    clearInterval(countdownInterval);
+
+    requestStartTime = null;
+    lastResponseTimeMs = null;
+    totalStartTime = null;
+    lastTotalTimeMs = null;
+
+    document.getElementById("challengeId").value = "";
+    updateChallengeStatus(null, "En attente");
+
+    document.getElementById("instructionText").innerHTML = langText(
+      'Préparation de la <span>vérification</span>...',
+      'Preparing <span>verification</span>...',
+      'A preparar a <span>verificação</span>...'
+    );
+    document.getElementById("instructionIcon").textContent = "🛡️";
+    document.getElementById("timerText").textContent = "--";
+    updateMiniBars(0);
+document.getElementById("captureTime").innerText = "--";
+document.getElementById("responseTime").innerText = "--";
+document.getElementById("modelV6Time").innerText = "--";
+document.getElementById("livenessTime").innerText = "--";
+document.getElementById("totalTime").innerText = "--";
+document.getElementById("lastTestTime").innerText = "--:--";
+document.getElementById("responseStatus").innerText = langText("En attente d'analyse.", "Analysis pending.", "Análise em espera.");
+    document.getElementById("resultBox").className = "result-box";
+    document.getElementById("decision").innerText = "--";
+    document.getElementById("score").innerText = "--";
+    document.getElementById("quality").innerText = "--";
+    updateQualityLabel(null);
+    document.getElementById("liveness").innerText = "--";
+    document.getElementById("message").innerText = langText("Analyse en attente.", "Analysis pending.", "Análise em espera.");
+    document.getElementById("resultJson").textContent = "";
+
+    document.getElementById("clientResultCard").className = "client-result-card hidden";
+    document.getElementById("clientResultTitle").textContent = langText("Résultat en attente", "Result pending", "Resultado em espera");
+    document.getElementById("clientResultMessage").textContent = langText("La décision finale sera affichée ici.", "The final decision will appear here.", "A decisão final será apresentada aqui.");
+
+    const startBtn = document.getElementById("startBtn");
+    startBtn.classList.remove("hidden");
+    startBtn.textContent = langText("Démarrer la vérification", "Start verification", "Iniciar verificação");
+
+    setSteps("prepare");
+    setFlowStatus("Préparation d'une nouvelle vérification...");
+  }
+
+  async function checkHealth() {
+    try {
+      const res = await fetch(`${apiBase()}/health`, {
+        headers: apiHeaders()
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
+      const data = await res.json();
+      showToast(`API opérationnelle : ${data.service || "PAD API"} ${data.version || ""}`);
+    } catch (e) {
+      console.error(e);
+      showToast("API non accessible. Vérifiez Docker ou Nginx.");
+    }
+  }
+
+  async function getModelInfo(show = true) {
+    const modelText = `Modèle V6 — FOMA
+
+Architecture   : MobileNetV3 + LSTM + Behav MLP
+Features       : 20 (EAR×5 + Motion×3 + Pose×11 + skipped)
+Fusion         : w_visual=0.85 · w_behavior=0.15
+Dataset        : CASIA-FASD + AxonLabs + MSU-MFSD + données locales
+ACER interne   : 7.41%
+AUC interne    : 98.96%
+
+Décision       : ACCEPT / RETRY / REJECT
+Liveness actif : BLINK / SMILE / TURN_LEFT`;
+
+    try {
+      const res = await fetch(`${apiBase()}/model/info`, {
+        headers: apiHeaders()
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
+      modelInfo = await res.json();
+      document.getElementById("modelSummary").textContent =
+        modelInfo.model_name || "FOMA V6 — gated rPPG + behavior-pose";
+
+      document.getElementById("modelJson").textContent =
+        `${modelText}\n\nInformations techniques API :\n${JSON.stringify(modelInfo, null, 2)}`;
+    } catch (e) {
+      modelInfo = { model_name: "FOMA V6" };
+      document.getElementById("modelJson").textContent = modelText;
+    }
+
+    if (show) {
+      showToast("Informations modèle V6 chargées.");
+      openModelDetails();
+    }
+  }
+
+  function openModelDetails() {
+    document.getElementById("modelDetailsOverlay").classList.remove("hidden");
+    refreshCurrentLanguage();
+  }
+
+  function closeModelDetails() {
+    document.getElementById("modelDetailsOverlay").classList.add("hidden");
+  }
+
+  async function loadModelTechnicalDetails() {
+    const box = document.getElementById("modelTechnicalJson");
+
+    try {
+      const res = await fetch(`${apiBase()}/model/info`, {
+        headers: apiHeaders()
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || "Erreur /model/info");
+
+      modelInfo = data;
+      box.dataset.loaded = "true";
+      box.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      box.textContent = "Impossible de charger /model/info.\n\n" + e.message;
+    }
+  }
+
+ async function startNewVerification() {
+  if (!authenticatedUser) {
+    showAuthPage();
+    showToast("Veuillez vous authentifier avant de lancer une nouvelle vérification.");
+    return;
+  }
+
+  if (cooldownUntil && Date.now() < cooldownUntil) {
+    const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+    showToast(`Sécurité activée : patientez encore ${remaining} secondes.`);
+    return;
+  }
+
+  await startBankingFlow();
+}
+  async function startBankingFlow() {
+  const startBtn = document.getElementById("startBtn");
+
+  if (!authenticatedUser) {
+    showAuthPage();
+    showToast("Veuillez vous authentifier avant de lancer la vérification.");
+    return;
+  }
+
+  try {
+    if (cooldownUntil && Date.now() < cooldownUntil) {
+      const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+      showToast(`Sécurité activée : patientez encore ${remaining} secondes.`);
+      return;
+    }
+
+    startBtn.disabled = true;
+
+    prepareNewAttemptUI();
+
+    setFlowStatus("Initialisation de la caméra...");
+    await startCamera();
+
+    setFlowStatus("Création du challenge bancaire...");
+    currentChallenge = await createChallenge();
+
+    if (!currentChallenge?.challenge_id) {
+      throw new Error("Challenge non créé par l'API.");
+    }
+
+    document.getElementById("challengeId").value = currentChallenge.challenge_id;
+    updateChallengeStatus(currentChallenge, "Créé");
+
+    document.getElementById("instructionText").innerHTML = formatInstruction(currentChallenge);
+    document.getElementById("instructionIcon").textContent = challengeIcon(currentChallenge.challenge_type);
+
+    setSteps("challenge");
+    setFlowStatus(`Challenge créé : ${currentChallenge.challenge_type}. Réalisez l'instruction devant la caméra.`);
+
+    await startRecordingWithCountdown(RECORD_SECONDS);
+  } catch (e) {
+    console.error(e);
+    showToast(`Erreur : ${e.message}`);
+    setFlowStatus("Erreur pendant la vérification. Réessayez.");
+    startBtn.disabled = false;
+    setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle");
+  }
+}
+  async function startCamera() {
+    if (stream) {
+      setCameraStatus("Caméra active", "online");
+      return;
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: "user"
+      },
+      audio: false
+    });
+
+    const video = document.getElementById("cameraPreview");
+    video.srcObject = stream;
+    await video.play();
+
+    document.getElementById("cameraPlaceholder").style.display = "none";
+    setCameraStatus("Caméra active", "online");
+  }
+
+  async function createChallenge() {
+    const res = await fetch(`${apiBase()}/pad/challenge/start`, {
+      method: "POST",
+      headers: apiHeaders({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+  session_id: `banking_demo_${Date.now()}`,
+  user_id: authenticatedUser?.id || "banking_demo_user",
+  user_profile: {
+    nom: authenticatedUser?.nom || null,
+    prenom: authenticatedUser?.prenom || null,
+    email: authenticatedUser?.email || null,
+    phone: authenticatedUser?.phone || null,
+    role: authenticatedUser?.role || "client"
+  }
+})
+    });
+
+    if (!res.ok) {
+      throw new Error(`Création challenge échouée : ${await res.text()}`);
+    }
+
+    return await res.json();
+  }
+
+  async function startRecordingWithCountdown(seconds) {
+    totalStartTime = performance.now();
+
+    if (!stream) {
+      throw new Error("Caméra non initialisée.");
+    }
+
+    if (!window.MediaRecorder) {
+      throw new Error("MediaRecorder non supporté par ce navigateur.");
+    }
+
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+
+    recordedChunks = [];
+    setCameraStatus("Enregistrement vidéo", "recording");
+
+    const selectedMimeType = getSupportedVideoMimeType();
+
+    const recorderOptions = selectedMimeType
+      ? { mimeType: selectedMimeType }
+      : {};
+
+    currentRecordingMimeType = selectedMimeType || "video/webm";
+    currentRecordingExtension = extensionFromMimeType(currentRecordingMimeType);
+
+    console.log("[RECORDER] mimeType utilisé:", currentRecordingMimeType);
+    console.log("[RECORDER] extension utilisée:", currentRecordingExtension);
+
+    try {
+      mediaRecorder = new MediaRecorder(stream, recorderOptions);
+    } catch (e) {
+      console.error("[RECORDER] Erreur création MediaRecorder:", e);
+
+      mediaRecorder = new MediaRecorder(stream);
+      currentRecordingMimeType = mediaRecorder.mimeType || "video/webm";
+      currentRecordingExtension = extensionFromMimeType(currentRecordingMimeType);
+    }
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        recordedChunks.push(e.data);
+      }
+    };
+
+    mediaRecorder.onerror = (e) => {
+      console.error("[RECORDER] Erreur:", e);
+      document.getElementById("startBtn").disabled = false;
+      setCameraStatus("Erreur enregistrement", "idle");
+      showToast("Erreur pendant l'enregistrement vidéo.");
+    };
+
+    mediaRecorder.onstop = async () => {
+      try {
+        setCameraStatus("Vidéo enregistrée", "online");
+
+        const blob = new Blob(recordedChunks, {
+          type: currentRecordingMimeType
+        });
+
+        console.log("[RECORDER] chunks:", recordedChunks.length);
+        console.log("[RECORDER] blob size:", blob.size);
+        console.log("[RECORDER] blob type:", blob.type);
+
+        if (!blob || blob.size < 50000) {
+          throw new Error("Vidéo mobile invalide ou trop courte. Veuillez relancer la capture.");
+        }
+
+        setFlowStatus("Envoi de la vidéo à l'API PAD...");
+        await sendVideoToAPI(blob);
+      } catch (e) {
+        console.error("[RECORDER] Erreur envoi vidéo:", e);
+        document.getElementById("startBtn").disabled = false;
+        showToast(`Erreur envoi vidéo : ${e.message}`);
+        setFlowStatus("Erreur pendant l'envoi de la vidéo.");
+      }
+    };
+
+    mediaRecorder.start(1000);
+
+    startVisualCountdown(seconds);
+
+    setTimeout(() => {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+    }, seconds * 1000);
+  }
+
+  function getSupportedVideoMimeType() {
+    const candidates = [
+      "video/mp4;codecs=h264",
+      "video/mp4",
+      "video/webm;codecs=vp9",
+      "video/webm;codecs=vp8",
+      "video/webm"
+    ];
+
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) {
+      return "";
+    }
+
+    for (const type of candidates) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
+
+    return "";
+  }
+
+  function extensionFromMimeType(mimeType) {
+    if (mimeType && mimeType.includes("mp4")) return "mp4";
+    return "webm";
+  }
+
+  function startVisualCountdown(seconds) {
+    clearInterval(countdownInterval);
+
+    let remaining = seconds;
+
+    document.getElementById("timerText").textContent = `${remaining}s`;
+    updateMiniBars(0);
+
+    countdownInterval = setInterval(() => {
+      remaining -= 1;
+
+      const elapsed = seconds - remaining;
+
+      document.getElementById("timerText").textContent = `${Math.max(remaining, 0)}s`;
+      updateMiniBars(elapsed);
+
+      if (remaining <= 0) {
+        clearInterval(countdownInterval);
+      }
+    }, 1000);
+  }
+
+  function updateMiniBars(activeCount) {
+    for (let i = 1; i <= 6; i++) {
+      const bar = document.getElementById(`bar${i}`);
+      if (!bar) continue;
+
+      if (i <= activeCount) {
+        bar.classList.add("active");
+      } else {
+        bar.classList.remove("active");
+      }
+    }
+  }
+
+  async function sendVideoToAPI(blob) {
+    if (!currentChallenge?.challenge_id) {
+      throw new Error("Aucun challenge actif.");
+    }
+
+    const formData = new FormData();
+
+    const safeExtension = currentRecordingExtension || "webm";
+    const videoName = `banking_challenge_${Date.now()}.${safeExtension}`;
+
+    formData.append("video", blob, videoName);
+    formData.append("challenge_id", currentChallenge.challenge_id);
+    formData.append("enable_liveness", "true");
+    formData.append("require_challenge_validation", "true");
+    if (authenticatedUser) {
+  formData.append("user_id", authenticatedUser.id);
+  formData.append("user_nom", authenticatedUser.nom);
+  formData.append("user_prenom", authenticatedUser.prenom);
+  formData.append("user_email", authenticatedUser.email);
+  formData.append("user_phone", authenticatedUser.phone);
+  formData.append("user_role", authenticatedUser.role);
+}
+    requestStartTime = performance.now();
+
+    const res = await fetch(`${apiBase()}/pad/analyze-video`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: formData
+    });
+
+    lastResponseTimeMs = performance.now() - requestStartTime;
+    lastTotalTimeMs = totalStartTime ? performance.now() - totalStartTime : null;
+
+    let result = null;
+
+    try {
+      result = await res.json();
+    } catch (e) {
+      result = { detail: "Réponse API non JSON." };
+    }
+
+    if (!res.ok) {
+      updateResponseTimeUI(false);
+      throw new Error(result.detail || "Erreur analyse vidéo.");
+    }
+
+    currentResult = result;
+    updateResponseTimeUI(true);
+    handleAnalysisResult(result, videoName);
+  }
+
+  function handleAnalysisResult(result, videoName = "runtime_camera.webm") {
+    const oldChallenge = currentChallenge;
+
+    const rawDecision = String(result.decision || "--").toUpperCase();
+    const decisionValue = rawDecision === "INVALID_INPUT" ? "RETRY" : rawDecision;
+
+    setSteps("result");
+
+    document.getElementById("decision").innerText = decisionValue;
+    document.getElementById("score").innerText = result.score ?? "--";
+    document.getElementById("quality").innerText = result.video_quality_score ?? "--";
+    updateQualityLabel(result.video_quality_score);
+    document.getElementById("liveness").innerText = result.liveness?.status || "--";
+
+    const adminMessage =
+      rawDecision === "INVALID_INPUT"
+        ? "Capture vidéo non exploitable. Nouvelle vérification recommandée."
+        : (result.message || "Analyse terminée.");
+
+    document.getElementById("message").innerText = adminMessage;
+    document.getElementById("resultJson").textContent = JSON.stringify(result, null, 2);
+    updateDetailedRuntimeUI(result);
+    updateChallengeStatus(
+      result.challenge || oldChallenge,
+      result.challenge?.used ? "Utilisé" : oldChallenge ? "Utilisé" : "En attente"
+    );
+
+    const box = document.getElementById("resultBox");
+    box.className = "result-box";
+
+    if (decisionValue === "ACCEPT") box.classList.add("accept");
+    if (decisionValue === "RETRY") box.classList.add("retry");
+    if (decisionValue === "REJECT") box.classList.add("reject");
+
+    /*
+      Résultat client : affiché dans la grande carte de challenge,
+      pas sous la caméra.
+    */
+    setInstructionCardToResult(result);
+
+    const clientCard = document.getElementById("clientResultCard");
+    if (clientCard) {
+      clientCard.className = "client-result-card hidden";
+    }
+
+    const startBtn = document.getElementById("startBtn");
+
+    if (decisionValue === "ACCEPT") {
+      retryCount = 0;
+      cooldownUntil = 0;
+
+      setFlowStatus("Identité vérifiée avec succès. Session sécurisée terminée.");
+      setCameraStatus("Analyse terminée", "online");
+
+      startBtn.textContent = langText("Démarrer la vérification", "Start verification", "Iniciar verificação");
+      startBtn.classList.add("hidden");
+    } else if (decisionValue === "RETRY") {
+      retryCount += 1;
+
+      const securitySettings = getSecuritySettings();
+
+      if (retryCount >= securitySettings.retryMax) {
+        cooldownUntil = Date.now() + (securitySettings.cooldownSeconds * 1000);
+        showToast(
+          `Sécurité : ${securitySettings.retryMax} RETRY consécutifs. ` +
+          `Attente de ${securitySettings.cooldownSeconds} secondes.`
+        );
+      }
+
+      if (rawDecision === "INVALID_INPUT") {
+        setFlowStatus("Capture vidéo non exploitable. Veuillez refaire une nouvelle vérification.");
+      } else {
+        setFlowStatus("Nouvelle capture recommandée. Le système ne rejette pas définitivement une vidéo ambiguë.");
+      }
+
+      setCameraStatus("Nouvelle tentative possible", "online");
+
+      startBtn.classList.remove("hidden");
+      startBtn.textContent = "Réessayer la vérification";
+    } else if (decisionValue === "REJECT") {
+      setFlowStatus("Vidéo rejetée comme attaque probable. Le résultat est enregistré dans les logs.");
+      setCameraStatus("Analyse terminée", "online");
+
+      startBtn.classList.remove("hidden");
+      startBtn.textContent = langText("Démarrer la vérification", "Start verification", "Iniciar verificação");
+    } else {
+      setFlowStatus("Décision incertaine. Vous pouvez refaire une vérification.");
+      setCameraStatus("Analyse terminée", "online");
+
+      startBtn.classList.remove("hidden");
+      startBtn.textContent = langText("Démarrer la vérification", "Start verification", "Iniciar verificação");
+    }
+
+    currentChallenge = null;
+    recordedChunks = [];
+
+    startBtn.disabled = false;
+    document.getElementById("challengeId").value = "";
+
+    localStorage.setItem("pad_retry_count", String(retryCount));
+    localStorage.setItem("pad_cooldown_until", String(cooldownUntil));
+
+    addAttemptLog(result, videoName, oldChallenge);
+    updateRetryUI();
+    updateCooldownUI();
+    refreshCurrentLanguage();
+  }
+  function updateDetailedRuntimeUI(result) {
+  const runtime = result?.runtime_profile || {};
+
+  const modelV6Sec = runtime.video_model_predict_sec;
+  const livenessSec = runtime.active_liveness_sec;
+  const routerTotalSec = runtime.router_total_sec;
+
+  const modelEl = document.getElementById("modelV6Time");
+  const livenessEl = document.getElementById("livenessTime");
+  const responseEl = document.getElementById("responseTime");
+
+  if (modelEl) {
+    modelEl.innerText =
+      modelV6Sec !== null && modelV6Sec !== undefined
+        ? `${Number(modelV6Sec).toFixed(2)} s`
+        : "--";
+  }
+
+  if (livenessEl) {
+    livenessEl.innerText =
+      livenessSec !== null && livenessSec !== undefined
+        ? `${Number(livenessSec).toFixed(2)} s`
+        : "--";
+  }
+
+  if (responseEl && routerTotalSec !== null && routerTotalSec !== undefined) {
+    responseEl.innerText = `${Number(routerTotalSec).toFixed(2)} s`;
+  }
+}
+
+  function addAttemptLog(result, videoName, challengeBeforeReset) {
+    const now = new Date();
+
+    const normalizedDecision =
+      String(result.decision || "").toUpperCase() === "INVALID_INPUT"
+        ? "RETRY"
+        : (result.decision || null);
+
+    const item = {
+      
+      timestamp: now.toISOString(),
+      time: now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      }),
+      user: authenticatedUser ? {
+  id: authenticatedUser.id,
+  nom: authenticatedUser.nom,
+  prenom: authenticatedUser.prenom,
+  email: authenticatedUser.email,
+  phone: authenticatedUser.phone,
+  role: authenticatedUser.role
+} : null,
+
+      video_name: videoName,
+
+      challenge_id: result.challenge_id || challengeBeforeReset?.challenge_id || null,
+      challenge: result.challenge || challengeBeforeReset || null,
+
+      decision: normalizedDecision,
+      raw_decision: result.decision || null,
+
+      label: result.label || null,
+      score: result.score ?? null,
+      liveness: result.liveness || null,
+      video_quality_score: result.video_quality_score ?? null,
+      message: result.message || null,
+      saved_video_path: result.saved_video_path || null,
+      saved_result_path: result.saved_result_path || null,
+      model_details: result.model_details || null,
+      full_response: result
+    };
+
+    analysisLogs.unshift(item);
+    analysisLogs = analysisLogs.slice(0, 50);
+
+    localStorage.setItem("pad_analysis_logs", JSON.stringify(analysisLogs, null, 2));
+
+    updateLogUI();
+    renderHistoryPage();
+  }
+
+  function updateRetryUI() {
+    document.getElementById("retryCount").textContent = retryCount;
+    document.getElementById("startBtn").disabled = Boolean(cooldownUntil && Date.now() < cooldownUntil);
+  }
+
+  function updateCooldownUI() {
+    clearInterval(cooldownInterval);
+
+    const el = document.getElementById("cooldownText");
+
+    function tick() {
+      if (!cooldownUntil || Date.now() >= cooldownUntil) {
+        el.textContent = "--:--";
+        cooldownUntil = 0;
+
+        if (retryCount >= getSecuritySettings().retryMax) retryCount = 0;
+
+        localStorage.setItem("pad_cooldown_until", "0");
+        localStorage.setItem("pad_retry_count", String(retryCount));
+
+        updateRetryUI();
+        clearInterval(cooldownInterval);
+        return;
+      }
+
+      const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+
+      el.textContent =
+        `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
+
+      document.getElementById("startBtn").disabled = true;
+    }
+
+    tick();
+
+    if (cooldownUntil && Date.now() < cooldownUntil) {
+      cooldownInterval = setInterval(tick, 1000);
+    }
+  }
+
+  function updateLogUI() {
+    const list = document.getElementById("attemptList");
+    if (!list) return;
+
+    if (!analysisLogs.length) {
+      list.innerHTML =
+        '<div class="attempt-row"><div class="attempt-number">1</div><div>--</div><div>--:--</div></div>';
+      return;
+    }
+
+    list.innerHTML = analysisLogs.slice(0, 6).map((x, i) => `
+      <div class="attempt-row">
+        <div class="attempt-number">${i + 1}</div>
+        <div>${x.decision || "--"} · ${
+          x.score !== null && x.score !== undefined ? Number(x.score).toFixed(3) : "--"
+        }</div>
+        <div>${x.time || "--:--"}</div>
+      </div>
+    `).join("");
+  }
+
+  function updateQualityLabel(value) {
+    const el = document.getElementById("qualityLabel");
+    if (!el) return;
+
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      el.textContent = "--";
+      return;
+    }
+
+    const q = Number(value);
+
+    if (q >= 0.80) {
+      el.textContent = "🟢 " + langText("Bonne", "Good", "Boa");
+    } else if (q >= 0.30) {
+      el.textContent = "🟡 " + langText("Moyenne", "Average", "Média");
+    } else {
+      el.textContent = "🔴 " + langText("Faible", "Low", "Baixa");
+    }
+  }
+
+  function updateResponseTimeUI(success = true) {
+    const captureEl = document.getElementById("captureTime");
+    const responseEl = document.getElementById("responseTime");
+    const totalEl = document.getElementById("totalTime");
+    const lastTestEl = document.getElementById("lastTestTime");
+    const statusEl = document.getElementById("responseStatus");
+
+    if (!captureEl || !responseEl || !totalEl || !lastTestEl || !statusEl) return;
+
+    const captureSeconds = RECORD_SECONDS;
+    const totalSeconds = lastTotalTimeMs ? lastTotalTimeMs / 1000 : null;
+
+    let apiSeconds =
+      totalSeconds !== null
+        ? Math.max(totalSeconds - captureSeconds, 0)
+        : (lastResponseTimeMs ? lastResponseTimeMs / 1000 : null);
+
+    captureEl.innerText = `${captureSeconds.toFixed(2)} s`;
+    responseEl.innerText = apiSeconds !== null ? `${apiSeconds.toFixed(2)} s` : "--";
+    totalEl.innerText = totalSeconds !== null ? `${totalSeconds.toFixed(2)} s` : "--";
+
+    lastTestEl.innerText = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+
+    if (!success) {
+      statusEl.innerText = "Erreur pendant l'appel API.";
+      return;
+    }
+
+    if (apiSeconds !== null && apiSeconds < 1.5) {
+      statusEl.innerText = "Analyse complète rapide après capture. Démo fluide.";
+    } else if (apiSeconds !== null && apiSeconds < 3) {
+      statusEl.innerText = "Analyse complète acceptable pour un prototype IA local.";
+    } else {
+      statusEl.innerText = "Analyse complète locale : challenge actif + liveness + PAD V6 + qualité vidéo + logs.";
+    }
+  }
+
+  function toggleJson(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = el.style.display === "block" ? "none" : "block";
+  }
+
+  function downloadJson() {
+    const payload = {
+      exported_at: new Date().toISOString(),
+      model_info: modelInfo,
+      last_result: currentResult,
+      logs: analysisLogs
+    };
+
+    downloadFile("pad_v6_demo_export.json", JSON.stringify(payload, null, 2), "application/json");
+  }
+
+  function downloadTxt() {
+    const lines = [
+      "PAD V6 BANKING DEMO — EXPORT",
+      `Exported at: ${new Date().toISOString()}`,
+      ""
+    ];
+
+    analysisLogs.forEach((x, i) => {
+      lines.push(
+  `--- Attempt ${i + 1} ---`,
+  `User: ${x.user ? `${x.user.prenom} ${x.user.nom}` : "--"}`,
+  `Email: ${x.user ? x.user.email : "--"}`,
+  `Phone: ${x.user ? x.user.phone : "--"}`,
+  `Role: ${x.user ? x.user.role : "--"}`,
+  `Time: ${x.time}`,
+  `Decision: ${x.decision}`,
+        `Raw decision: ${x.raw_decision || x.decision}`,
+        `Label: ${x.label}`,
+        `Score: ${x.score}`,
+        `Quality: ${x.video_quality_score}`,
+        `Liveness: ${x.liveness ? x.liveness.status : "--"}`,
+        `Business reason: ${getBusinessReason(x)}`,
+        `Challenge: ${x.challenge ? x.challenge.challenge_type : "--"}`,
+        `Message: ${x.message}`,
+        `Video: ${x.saved_video_path}`,
+        `Result: ${x.saved_result_path}`,
+        ""
+      );
+    });
+
+    downloadFile("pad_v6_demo_export.txt", lines.join("\n"), "text/plain");
+  }
+
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function decisionClass(decision) {
+    if (decision === "ACCEPT") return "accept";
+    if (decision === "RETRY") return "retry";
+    if (decision === "REJECT") return "reject";
+    return "other";
+  }
+
+  function formatScore(value) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      return "--";
+    }
+
+    return Number(value).toFixed(4);
+  }
+
+  function formatQuality(value) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      return "--";
+    }
+
+    const q = Number(value);
+    let label = "🟡 " + langText("Moyenne", "Average", "Média");
+
+    if (q >= 0.80) label = "🟢 " + langText("Bonne", "Good", "Boa");
+    else if (q < 0.30) label = "🔴 " + langText("Faible", "Low", "Baixa");
+
+    return `${q.toFixed(4)}<br><span class="history-small">${label}</span>`;
+  }
+
+  function fileNameOnly(path) {
+    if (!path) return "--";
+    return String(path).split(/[\\/]/).pop();
+  }
+
+  function getBusinessReason(x) {
+    const decision = String(x.raw_decision || x.decision || "").toUpperCase();
+
+    if (decision === "INVALID_INPUT") {
+      return langText(
+        "Capture vidéo non exploitable : le fichier vidéo est vide, incomplet ou illisible. Nouvelle capture recommandée.",
+        "Unusable video capture: the file is empty, incomplete, or unreadable. A new capture is recommended.",
+        "Captura de vídeo inutilizável: o ficheiro está vazio, incompleto ou ilegível. Recomenda-se uma nova captura."
+      );
+    }
+
+    if (decision === "ACCEPT") {
+      return langText(
+        "Identité vérifiée : liveness validé et score PAD faible.",
+        "Identity verified: liveness passed and PAD score is low.",
+        "Identidade verificada: vivacidade validada e pontuação PAD baixa."
+      );
+    }
+
+    if (decision === "RETRY") {
+      const score = x.score;
+      const livenessStatus = x.liveness ? x.liveness.status : "--";
+      const livenessReason = x.liveness ? x.liveness.reason : "";
+
+      if (livenessStatus === "FAIL" || livenessStatus === "ERROR") {
+        return langText(
+          `Nouvelle capture demandée : liveness non validé (${livenessReason || "challenge échoué"}).`,
+          `A new capture is required: liveness failed (${livenessReason || "challenge failed"}).`,
+          `É necessária uma nova captura: a vivacidade falhou (${livenessReason || "desafio falhou"}).`
+        );
+      }
+
+      if (score !== null && score !== undefined) {
+        return langText(
+          "Nouvelle capture recommandée : score PAD ambigu ou qualité moyenne.",
+          "A new capture is recommended: ambiguous PAD score or average quality.",
+          "Recomenda-se uma nova captura: pontuação PAD ambígua ou qualidade média."
+        );
+      }
+
+      return langText(
+        "Nouvelle capture recommandée : données insuffisantes pour accepter.",
+        "A new capture is recommended: insufficient data to accept.",
+        "Recomenda-se uma nova captura: dados insuficientes para aceitar."
+      );
+    }
+
+    if (decision === "REJECT") {
+      return langText(
+        "Risque d'attaque détecté : score PAD élevé ou comportement suspect.",
+        "Attack risk detected: high PAD score or suspicious behavior.",
+        "Risco de ataque detetado: pontuação PAD elevada ou comportamento suspeito."
+      );
+    }
+
+    return langText(
+      "Décision non standard : vérification manuelle recommandée.",
+      "Non-standard decision: manual review recommended.",
+      "Decisão não padrão: recomenda-se revisão manual."
+    );
+  }
+
+  function renderHistoryPage() {
+    const allLogs = Array.isArray(analysisLogs) ? analysisLogs : [];
+    const logs = authenticatedUser?.role === "admin"
+      ? allLogs
+      : allLogs.filter(log => log.user?.id === authenticatedUser?.id);
+
+    const filterEl = document.getElementById("historyFilter");
+    const searchEl = document.getElementById("historySearch");
+    const body = document.getElementById("historyTableBody");
+
+    if (!body) return;
+
+    const filter = filterEl ? filterEl.value : "ALL";
+    const search = searchEl ? searchEl.value.toLowerCase().trim() : "";
+
+    document.getElementById("histTotal").textContent = logs.length;
+    document.getElementById("histAccept").textContent = logs.filter(x => x.decision === "ACCEPT").length;
+    document.getElementById("histRetry").textContent = logs.filter(x => x.decision === "RETRY").length;
+    document.getElementById("histReject").textContent = logs.filter(x => x.decision === "REJECT").length;
+
+    let rows = logs;
+
+    if (filter !== "ALL") {
+      rows = filter === "OTHER"
+        ? rows.filter(x => !["ACCEPT", "RETRY", "REJECT"].includes(x.decision))
+        : rows.filter(x => x.decision === filter);
+    }
+
+    if (search) {
+      rows = rows.filter(x =>
+        [
+          x.decision,
+          x.raw_decision,
+          x.label,
+          x.message,
+          x.challenge?.challenge_type,
+          x.challenge_id,
+          x.user?.nom,
+          x.user?.prenom,
+          x.user?.email
+        ].join(" ").toLowerCase().includes(search)
+      );
+    }
+
+    if (!rows.length) {
+      body.innerHTML =
+        `<tr><td colspan="11" class="history-empty">Aucun résultat pour ce filtre.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map((x, index) => {
+      const decision = x.decision || "--";
+      const rawDecision = x.raw_decision || decision;
+
+      const challengeType = x.challenge ? x.challenge.challenge_type : "--";
+      const challengeId = x.challenge_id || "--";
+
+      const livenessStatus = x.liveness ? x.liveness.status : "--";
+      const livenessReason = x.liveness ? x.liveness.reason : "--";
+
+      const videoPath = fileNameOnly(x.saved_video_path);
+      const resultPath = fileNameOnly(x.saved_result_path);
+
+      const detailId = `historyJson_${index}`;
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td class="history-admin-column">
+            <strong>${escapeHtml(
+              x.user
+                ? `${x.user.prenom || ""} ${x.user.nom || ""}`.trim()
+                : "Utilisateur inconnu"
+            )}</strong>
+            <div class="history-small">${escapeHtml(x.user?.email || "--")}</div>
+          </td>
+          <td>
+            <span class="history-decision ${decisionClass(decision)}">${decision}</span>
+            <div class="history-small">
+              ${x.label || "--"}${rawDecision !== decision ? `<br>Raw: ${rawDecision}` : ""}
+            </div>
+          </td>
+          <td><strong>${formatScore(x.score)}</strong></td>
+          <td>
+            <strong>${livenessStatus}</strong>
+            <div class="history-small">${livenessReason}</div>
+          </td>
+          <td>${formatQuality(x.video_quality_score)}</td>
+          <td>
+            <strong>${challengeType}</strong>
+            <div class="history-small">${challengeId}</div>
+          </td>
+          <td>
+            <strong>${x.time || "--:--"}</strong>
+            <div class="history-small">${x.timestamp || ""}</div>
+          </td>
+          <td class="history-admin-column">
+            <div class="history-small">
+              Vidéo : ${videoPath}<br>
+              Résultat : ${resultPath}
+            </div>
+          </td>
+          <td class="history-admin-column">
+            <div class="history-small">${getBusinessReason(x)}</div>
+          </td>
+          <td class="history-admin-column">
+            <button class="history-detail-btn" onclick="toggleHistoryJson('${detailId}')">Voir JSON</button>
+            <pre id="${detailId}" class="history-json">${JSON.stringify(x.full_response || x, null, 2)}</pre>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    const isAdmin = authenticatedUser?.role === "admin";
+    document.querySelectorAll(".history-admin-column").forEach(element => {
+      element.classList.toggle("role-hidden", !isAdmin);
+    });
+    translateElementText(body, currentLanguage);
+    translateAttributes(body, currentLanguage);
+  }
+
+  function toggleHistoryJson(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = el.style.display === "block" ? "none" : "block";
+  }
+
+  function clearHistoryPage() {
+    if (!confirm("Voulez-vous vraiment supprimer l'historique local de la démo ?")) return;
+
+    analysisLogs = [];
+    localStorage.setItem("pad_analysis_logs", "[]");
+
+    updateLogUI();
+    renderHistoryPage();
+
+    showToast("Historique supprimé.");
+  }
+
+  function resetSession() {
+    try {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+    } catch (e) {}
+
+    clearInstructionResultState();
+    clearInterval(countdownInterval);
+
+    currentChallenge = null;
+    currentResult = null;
+    recordedChunks = [];
+
+    requestStartTime = null;
+    lastResponseTimeMs = null;
+    totalStartTime = null;
+    lastTotalTimeMs = null;
+
+    retryCount = 0;
+    cooldownUntil = 0;
+
+    localStorage.setItem("pad_retry_count", "0");
+    localStorage.setItem("pad_cooldown_until", "0");
+
+    document.getElementById("challengeId").value = "";
+    updateChallengeStatus(null, "En attente");
+
+    const startBtn = document.getElementById("startBtn");
+    startBtn.disabled = false;
+    startBtn.classList.remove("hidden");
+    startBtn.textContent = langText("Démarrer la vérification", "Start verification", "Iniciar verificação");
+
+    document.getElementById("clientResultCard").className = "client-result-card hidden";
+
+    document.getElementById("instructionText").innerHTML = formatInstruction(null);
+
+    document.getElementById("instructionIcon").textContent = "🧑‍💼";
+
+    document.getElementById("resultBox").className = "result-box";
+    document.getElementById("decision").innerText = "--";
+    document.getElementById("score").innerText = "--";
+    document.getElementById("quality").innerText = "--";
+    updateQualityLabel(null);
+    document.getElementById("liveness").innerText = "--";
+    document.getElementById("message").innerText = langText("Analyse en attente.", "Analysis pending.", "Análise em espera.");
+    document.getElementById("resultJson").textContent = "";
+
+    document.getElementById("timerText").textContent = "--";
+
+document.getElementById("captureTime").innerText = "--";
+document.getElementById("responseTime").innerText = "--";
+document.getElementById("modelV6Time").innerText = "--";
+document.getElementById("livenessTime").innerText = "--";
+document.getElementById("totalTime").innerText = "--";
+document.getElementById("lastTestTime").innerText = "--:--";
+document.getElementById("responseStatus").innerText = langText("En attente d'analyse.", "Analysis pending.", "Análise em espera.");
+    updateMiniBars(0);
+    updateRetryUI();
+    updateCooldownUI();
+
+    setCameraStatus(stream ? "Caméra active" : "Caméra inactive", stream ? "online" : "idle");
+    setSteps("challenge");
+    setFlowStatus("Session réinitialisée. Vous pouvez démarrer une nouvelle vérification.");
+
+    showToast("Session réinitialisée.");
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{
+  "model_name": "cnn",
+  "protocol_name": "cnn_fixed05",
+  "threshold_protocol": "fixed05",
+  "threshold_val": {
+    "th": 0.5,
+    "acer": 0.0,
+    "apcer": 0.0,
+    "bpcer": 0.0,
+    "f1": 1.0,
+    "acc": 1.0,
+    "n_tied_candidates": 84,
+    "selection_rule": "min_ACER -> max_F1 -> max_ACC -> closest_to_0.5"
+  },
+  "threshold_used": {
+    "th": 0.5,
+    "source": "fixed05"
+  },
+  "metrics_test": {
+    "ACC": 1.0,
+    "F1": 1.0,
+    "APCER": 0.0,
+    "BPCER": 0.0,
+    "ACER": 0.0,
+    "AUC": 1.0,
+    "TN": 6,
+    "FP": 0,
+    "FN": 0,
+    "TP": 18
+  },
+  "score_stats": {
+    "attack_mean": 0.9923241631931098,
+    "real_mean": 0.15506449798186722
+  },
+  "test_scores": {
+    "13_1": {
+      "label": 0,
+      "score": 0.07873037032550201
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.04860711097717285
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.953705258667469
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.9946729615330696
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.9796012739340464
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.9894214272499084
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.9991216063499451
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.9785852789878845
+    },
+    "10_1": {
+      "label": 0,
+      "score": 0.4123130187392235
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.3522583975323609
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.9998225669066111
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.999586318220411
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.968389888604482
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.9999218668256488
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.9998911619186401
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.9997129241625468
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.022981939526895683
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.015496150790048497
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.9999095141887665
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.9999998978206089
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.999997099240621
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.9999986035483224
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.9999712535313198
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.999526035785675
+    }
+  },
+  "config": {
+    "date": "2026-02-21 03:08:35.077745",
+    "task": "CASIA PAD - CNN baseline (frame-level training, video-level eval later)",
+    "backbone": "mobilenet_v3_large",
+    "aug_mode_train": "strong",
+    "img_size": 224,
+    "batch_size": 16,
+    "epochs": 10,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "train_csv": "data\\processed\\CASIA\\splits_subject\\train.csv",
+    "val_csv": "data\\processed\\CASIA\\splits_subject\\val.csv",
+    "selection_metric": "val_f1_attack",
+    "attack_class": 1,
+    "seed": 43
+  },
+  "checkpoint_path": "experiments\\step1_baselines\\cnn\\exp_cnn_seed43\\best_model.pth",
+  "output_dir": "reports\\final_lock\\cnn\\fixed05\\seed43"
+}

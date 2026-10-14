@@ -1,0 +1,158 @@
+# ============================================================
+# ENVIRONNEMENTS / CACHE / IDE
+# ============================================================
+
+.venv
+.venv/
+venv
+venv/
+__pycache__
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.pytest_cache/
+.git
+.git/
+.gitignore
+.vscode
+.vscode/
+.idea
+.idea/
+
+
+# ============================================================
+# ARCHIVES / BACKUPS / RAPPORTS NON NÉCESSAIRES AU RUNTIME
+# ============================================================
+
+archive
+archive/
+backups
+backups/
+
+reports/archive
+reports/archive/
+reports/experiments
+reports/experiments/
+reports/perspectives
+reports/perspectives/
+reports/final
+reports/final/
+
+
+reports/demo_evidence
+reports/demo_evidence/
+
+
+# ============================================================
+# LOGS
+# ============================================================
+
+logs/*
+*.log
+
+
+# ============================================================
+# VIDÉOS / IMAGES / DONNÉES MULTIMÉDIA
+# ============================================================
+
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.jpg
+*.jpeg
+*.png
+
+
+# ============================================================
+# DONNÉES
+# ============================================================
+
+# Exclure tout le dossier data par défaut
+data/*
+
+# Garder seulement les dossiers runtime nécessaires, mais vides
+!data/runtime_uploads/
+!data/runtime_results/
+!data/runtime_challenges/
+
+data/runtime_uploads/*
+data/runtime_results/*
+data/runtime_challenges/*
+
+# Garder uniquement les statistiques de normalisation nécessaires au runtime FOMA V6
+!data/mixed_casia_axon_local_msu_rppg/
+data/mixed_casia_axon_local_msu_rppg/*
+!data/mixed_casia_axon_local_msu_rppg/behav_rppg_norm_stats.json
+
+# Exclure explicitement les manifests/splits train/val/test
+data/**/mixed_train_frames.csv
+data/**/mixed_val_frames.csv
+data/**/mixed_test_frames.csv
+data/**/mixed_train_behav.csv
+data/**/mixed_val_behav.csv
+data/**/mixed_test_behav.csv
+data/**/mixed_summary.json
+
+# Exclure les CSV rPPG détaillés
+data/**/mixed_train_behav_rppg.csv
+data/**/mixed_val_behav_rppg.csv
+data/**/mixed_test_behav_rppg.csv
+data/**/mixed_train_behav_rppg_norm.csv
+data/**/mixed_val_behav_rppg_norm.csv
+data/**/mixed_test_behav_rppg_norm.csv
+data/**/mixed_train_rppg.csv
+data/**/mixed_val_rppg.csv
+data/**/mixed_test_rppg.csv
+
+
+# ============================================================
+# EXPÉRIENCES / MODÈLES
+# ============================================================
+
+
+experiments/*
+
+!experiments/03_final_models/
+!experiments/03_final_models/**
+
+!experiments/04_perspectives/
+experiments/04_perspectives/*
+!experiments/04_perspectives/v8_dual_temporal_v2/
+!experiments/04_perspectives/v8_dual_temporal_v2/**
+experiments/04_perspectives/v8_dual_temporal_v2/**/mixed_train/
+experiments/04_perspectives/v8_dual_temporal_v2/**/mixed_val/
+experiments/04_perspectives/v8_dual_temporal_v2/**/mixed_test/
+experiments/04_perspectives/v8_dual_temporal_v2/**/history_phase*.csv
+experiments/04_perspectives/v8_dual_temporal_v2/**/config.json
+
+experiments/03_final_models/**/history.csv
+experiments/03_final_models/**/history.json
+experiments/03_final_models/**/training_history.json
+experiments/03_final_models/**/config.json
+experiments/03_final_models/**/test_scores.json
+experiments/03_final_models/**/results.txt
+experiments/03_final_models/**/metrics.json
+experiments/03_final_models/**/predictions.csv
+experiments/03_final_models/**/val_predictions*.csv
+experiments/03_final_models/**/frame_predictions.csv
+experiments/03_final_models/**/video_predictions.csv
+
+experiments/**/best_p1_head_only.pth
+experiments/**/best_p2_last_k.pth
+experiments/**/best_p3_all.pth
+experiments/**/last_model*.pth
+
+experiments/01_baselines_casia/
+experiments/02_dataset_extension_finetuning/
+experiments/99_archive/
+
+
+
+*.tmp
+*.temp
+*.bak
+*.old

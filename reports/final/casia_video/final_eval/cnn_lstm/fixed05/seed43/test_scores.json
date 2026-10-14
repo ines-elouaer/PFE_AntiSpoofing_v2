@@ -1,0 +1,187 @@
+{
+  "model_name": "cnn_lstm",
+  "protocol_name": "cnn_lstm_fixed05",
+  "threshold_protocol": "fixed05",
+  "threshold_val": {
+    "th": 0.5,
+    "acer": 0.0,
+    "apcer": 0.0,
+    "bpcer": 0.0,
+    "f1": 1.0,
+    "acc": 1.0,
+    "n_tied_candidates": 76
+  },
+  "threshold_used": {
+    "th": 0.5,
+    "source": "fixed05"
+  },
+  "banking_policy": null,
+  "metrics_test": {
+    "ACC": 0.9166666666666666,
+    "F1": 0.9473684210526316,
+    "APCER": 0.0,
+    "BPCER": 0.3333333333333333,
+    "ACER": 0.16666666666666666,
+    "AUC": 0.962962962962963,
+    "TN": 4,
+    "FP": 2,
+    "FN": 0,
+    "TP": 18
+  },
+  "score_stats": {
+    "attack_mean": 0.9634567730956607,
+    "real_mean": 0.3783956666787465
+  },
+  "sampling": {
+    "val_sample_mode": "consecutive",
+    "test_sample_mode": "consecutive",
+    "T": 16
+  },
+  "artifacts": {
+    "confusion_matrix_csv": "reports\\final_lock\\cnn_lstm\\fixed05\\seed43\\confusion_matrix.csv",
+    "score_distribution_csv": "reports\\final_lock\\cnn_lstm\\fixed05\\seed43\\score_distribution.csv",
+    "roc_points_csv": "reports\\final_lock\\cnn_lstm\\fixed05\\seed43\\roc_points.csv",
+    "banking_decisions_csv": null
+  },
+  "test_scores": {
+    "10_1": {
+      "label": 0,
+      "score": 0.9090957045555115
+    },
+    "10_2": {
+      "label": 0,
+      "score": 0.9106862545013428
+    },
+    "10_3": {
+      "label": 1,
+      "score": 0.9875598549842834
+    },
+    "10_4": {
+      "label": 1,
+      "score": 0.982430100440979
+    },
+    "10_5": {
+      "label": 1,
+      "score": 0.9453521966934204
+    },
+    "10_6": {
+      "label": 1,
+      "score": 0.9836927056312561
+    },
+    "10_7": {
+      "label": 1,
+      "score": 0.987316906452179
+    },
+    "10_8": {
+      "label": 1,
+      "score": 0.9825955629348755
+    },
+    "13_1": {
+      "label": 0,
+      "score": 0.07043981552124023
+    },
+    "13_2": {
+      "label": 0,
+      "score": 0.07117892801761627
+    },
+    "13_3": {
+      "label": 1,
+      "score": 0.7735053300857544
+    },
+    "13_4": {
+      "label": 1,
+      "score": 0.9753952622413635
+    },
+    "13_5": {
+      "label": 1,
+      "score": 0.9767192602157593
+    },
+    "13_6": {
+      "label": 1,
+      "score": 0.9408107995986938
+    },
+    "13_7": {
+      "label": 1,
+      "score": 0.9813289642333984
+    },
+    "13_8": {
+      "label": 1,
+      "score": 0.9015557169914246
+    },
+    "29_1": {
+      "label": 0,
+      "score": 0.13756737112998962
+    },
+    "29_2": {
+      "label": 0,
+      "score": 0.17140592634677887
+    },
+    "29_3": {
+      "label": 1,
+      "score": 0.9877758026123047
+    },
+    "29_4": {
+      "label": 1,
+      "score": 0.9887218475341797
+    },
+    "29_5": {
+      "label": 1,
+      "score": 0.9898754954338074
+    },
+    "29_6": {
+      "label": 1,
+      "score": 0.9887423515319824
+    },
+    "29_7": {
+      "label": 1,
+      "score": 0.9880291819572449
+    },
+    "29_8": {
+      "label": 1,
+      "score": 0.9808145761489868
+    }
+  },
+  "banking_decisions": null,
+  "config": {
+    "train_csv": "data\\processed\\CASIA\\splits_subject\\train.csv",
+    "val_csv": "data\\processed\\CASIA\\splits_subject\\val.csv",
+    "out_dir": "experiments\\step2_sampling\\cnn_lstm_consecutive_seed43",
+    "T": 16,
+    "img_size": 224,
+    "train_aug": "strong",
+    "val_aug": "none",
+    "train_sample_mode": "consecutive",
+    "val_sample_mode": "center_consecutive",
+    "batch_size": 8,
+    "epochs": 14,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "num_workers": 2,
+    "hidden": 256,
+    "num_layers": 1,
+    "bidir": false,
+    "temporal_pool": "median",
+    "seed": 43,
+    "freeze_backbone_epochs": 2,
+    "use_amp": true,
+    "use_balanced_sampler": true,
+    "use_pts": false,
+    "phase1_epochs": 3,
+    "phase2_epochs": 6,
+    "phase3_epochs": 5,
+    "unfreeze_last_k": 4,
+    "lr_head_p1": 0.0002,
+    "lr_bb_p1": 0.0,
+    "lr_head_p2": 0.0001,
+    "lr_bb_p2": 1e-05,
+    "lr_head_p3": 5e-05,
+    "lr_bb_p3": 5e-06,
+    "use_behav": false,
+    "behav_dim": 9,
+    "behav_hidden": 16,
+    "behav_train_csv": "data\\processed\\CASIA\\behav\\train_behav.csv",
+    "behav_val_csv": "data\\processed\\CASIA\\behav\\val_behav.csv"
+  },
+  "checkpoint_path": "experiments\\step2_sampling\\cnn_lstm_consecutive\\cnn_lstm_consecutive_seed43\\best_model.pth",
+  "output_dir": "reports\\final_lock\\cnn_lstm\\fixed05\\seed43"
+}
